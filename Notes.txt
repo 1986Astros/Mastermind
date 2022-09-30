@@ -1,0 +1,32 @@
+﻿Hints on how to build a computer player: https://www.wikihow.com/Play-Mastermind
+
+Variations:
+* Solo - best score 1, 2 or more consecutive games in a sitting; best time 1 game
+* Humans (2+) same puzzles
+* Humans (2+) different puzzles
+* Human vs. computer
+* 6 colors, 4 pegs per row, 10 turns, 30 or 100 points
+* 8 colors, 5 pegs per row, 12 turns, 30 or 100 points
+* Any variation, but no records kept, so the game can be set up for children
+
+PegBoard:
+* Line up the results pegs horizontally (as an option?)
+* Scoring indicator - but instead of pegs a progress bar.
+* Specify the location for the next peg to land.
+* Remove peg.
+* On the current row use the Peg control instead of drawing played pegs, so the peg can be moved and double-clicked and DELeted
+* Drag and drop
+** Drop target - drag to self to move pegs on board
+** Drag off board to remove
+
+Cradle:
+* Drag and drop: Pegs can be rearranged.
+
+Peg:
+* Accept Enter or Space for selection.
+* Drag and drop
+** Drag off board to play
+** Drop target for removing pegs
+
+Future:
+* Notes- let the player take notes by placing pegs in a sandbox, scribble words
