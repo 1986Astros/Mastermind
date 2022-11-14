@@ -302,7 +302,8 @@ namespace MasterMind
 
             if (TestTati)
             {
-                Globals.CurrentGame.InitializeGame(new int[] { 0, 0, 0,5 });
+                // 0,0,3,4 exposes a bug when then 3rd and 4th are found it still considers 1 and 2 as possibilities
+                Globals.CurrentGame.InitializeGame(new int[] { 0, 0, 3,4 });
             }
             else
             {

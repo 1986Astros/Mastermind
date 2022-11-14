@@ -1200,6 +1200,21 @@ namespace MasterMind
                                         throw new Exception(ExceptionMsg(color));
                                 }
                                 break;
+                            case 3:
+                                switch (lastTurn.IncorrectlyPlaced)
+                                {
+                                    case 0:
+                                        Placements[0].IsNot.Add(ColorIndices[color]);
+                                        Placements[1].IsNot.Add(ColorIndices[color]);
+                                        Placements[2].CanBe.Add(ColorIndices[color]);
+                                        Placements[3].CanBe.Add(ColorIndices[color]);
+                                        lastMinMax.MinCount = 1;
+                                        lastMinMax.MaxCount = 1;
+                                        break;
+                                    default:
+                                        throw new Exception(ExceptionMsg(color));
+                                }
+                                break;
                             default:
                                 throw new Exception(ExceptionMsg(color));
                         }
@@ -1595,740 +1610,77 @@ namespace MasterMind
             }
 #endif
 #endregion
-#if false
-            MessageBox.Show("End 2nd turn.");
-
-                            #region "3rd turn"
-            Globals.CurrentGame.PlacePeg(ColorIndices[0], 0);
-            Globals.CurrentGame.PlacePeg(ColorIndices[0], 1);
-            Globals.CurrentGame.PlacePeg(ColorIndices[2], 2);
-            Globals.CurrentGame.PlacePeg(ColorIndices[2], 3);
-            if (Globals.CurrentGame.EvaluateTurn())
-            {
-                // won in 3 turns
-                return;
-            }
-
-            thisTurn = Globals.CurrentGame.Turns[2];
-            Turns.Add(thisTurn);
-            thisMinMax = MinMaxes[ColorIndices[1]];
-
-            int ColumnsSolvedCount = Placements.Count(pm => pm.Solved);
-            switch (ColumnsSolvedCount)
-            {
-                case 0:
-                    switch (thisTurn.CorrectlyPlaced)
-                    {
-                        case 0:
-                            for (int i = 0; i < 4; i++)
-                            {
-                                Placements[i].IsNot.Add(ColorIndices[2]);
-                            }
-                            thisMinMax.MinCount = 0;
-                            thisMinMax.MaxCount = 0;
-                            break;
-                        case 1:
-                            switch (thisTurn.IncorrectlyPlaced)
-                            {
-                                case 0:
-                                    // 0 previously placed, 1 correctly placed this turn, 0 incorrectly placed
-                                    Placements[0].IsNot.Add(ColorIndices[2]);
-                                    Placements[1].IsNot.Add(ColorIndices[2]);
-                                    Placements[2].CanBe.Add(ColorIndices[2]);
-                                    Placements[3].CanBe.Add(ColorIndices[2]);
-                                    thisMinMax.MinCount = 1;
-                                    thisMinMax.MaxCount = 1;
-                                    break;
-                                case 1:
-                                    for (int i = 0; i < 4; i++)
-                                    {
-                                        Placements[i].CanBe.Add(ColorIndices[2]);
-                                    }
-                                    thisMinMax.MinCount = 2;
-                                    thisMinMax.MaxCount = 2;
-                                    break;
-                                case 2:
-                                    Placements[0].PegColor = ColorIndices[2];
-                                    Placements[1].PegColor = ColorIndices[2];
-                                    Placements[2].IsNot.Add(ColorIndices[2]);
-                                    Placements[3].IsNot.Add(ColorIndices[2]);
-                                    thisMinMax.MinCount = 3;
-                                    thisMinMax.MaxCount = 3;
-                                    break;
-                            }
-                            break;
-                        case 2:
-                            switch (thisTurn.IncorrectlyPlaced)
-                            {
-                                case 0:
-                                    // 0 previously placed, 2 correctly placed this turn, 0 incorrectly placed
-                                    Placements[0].IsNot.Add(ColorIndices[2]);
-                                    Placements[1].IsNot.Add(ColorIndices[2]);
-                                    Placements[2].PegColor = ColorIndices[2];
-                                    Placements[3].PegColor = ColorIndices[2];
-                                    thisMinMax.MinCount = 2;
-                                    thisMinMax.MaxCount = 2;
-                                    break;
-                                case 1:
-                                    Placements[0].CanBe.Add(ColorIndices[2]);
-                                    Placements[1].CanBe.Add(ColorIndices[2]);
-                                    Placements[2].PegColor = ColorIndices[2];
-                                    Placements[3].PegColor = ColorIndices[2];
-                                    thisMinMax.MinCount = 3;
-                                    thisMinMax.MaxCount = 3;
-                                    break;
-                            }
-                            break;
-                    }
-                    break;
-                case 1:
-                    // 1 correctly placed in first 2 turns
-                    switch (thisTurn.CorrectlyPlaced)
-                    {
-                        case 0:
-                            switch (thisTurn.IncorrectlyPlaced)
-                            {
-                                case 0:
-                                    // 1 in prev turns, 0 correct 2nd turn, 0 incorrect 3rd turn
-                                    for (int i = 0; i < 4; i++)
-                                    {
-                                        Placements[i].IsNot.Add(ColorIndices[2]);
-                                    }
-                                    thisMinMax.MinCount = 0;
-                                    thisMinMax.MaxCount = 0;
-                                    break;
-                                case 1:
-                                    Placements[0].CanBe.Add(ColorIndices[2]);
-                                    Placements[1].CanBe.Add(ColorIndices[2]);
-                                    Placements[2].IsNot.Add(ColorIndices[2]);
-                                    Placements[3].IsNot.Add(ColorIndices[2]);
-                                    thisMinMax.MinCount = 1;
-                                    thisMinMax.MaxCount = 1;
-                                    break;
-                                case 2:
-                                    Placements[0].PegColor = ColorIndices[2];
-                                    Placements[1].PegColor = ColorIndices[2];
-                                    Placements[2].IsNot.Add(ColorIndices[2]);
-                                    Placements[3].IsNot.Add(ColorIndices[2]);
-                                    thisMinMax.MinCount = 2;
-                                    thisMinMax.MaxCount = 2;
-                                    break;
-                            }
-                            break;
-                        case 1:
-                            switch (thisTurn.IncorrectlyPlaced)
-                            {
-                                case 0:
-                                    // 1 in prev turns, 1 correct 2nd turn, 0 incorrect 3rd turn
-                                    Placements[0].IsNot.Add(ColorIndices[2]);
-                                    Placements[1].IsNot.Add(ColorIndices[2]);
-                                    Placements[2].CanBe.Add(ColorIndices[2]);
-                                    Placements[3].CanBe.Add(ColorIndices[2]);
-                                    thisMinMax.MinCount = 1;
-                                    thisMinMax.MaxCount = 1;
-                                    break;
-                                case 1:
-                                    for (int i = 0; i < 4; i++)
-                                    {
-                                        Placements[i].CanBe.Add(ColorIndices[2]);
-                                    }
-                                    thisMinMax.MinCount = 2;
-                                    thisMinMax.MaxCount = 2;
-                                    break;
-                                case 2:
-                                    // [2nd] 1-1-2
-                                    Globals.CurrentGame.PlacePeg(ColorIndices[2], 0);
-                                    Globals.CurrentGame.PlacePeg(ColorIndices[2], 1);
-                                    Globals.CurrentGame.PlacePeg(ColorIndices[2], 2);
-                                    Globals.CurrentGame.PlacePeg(Placements.First(pm => pm.CanBe.Count() == 1).PegColor, 3);
-                                    if (Globals.CurrentGame.EvaluateTurn())
-                                    {
-                                        return;
-                                    }
-                                    Globals.CurrentGame.PlacePeg(ColorIndices[2], 0);
-                                    Globals.CurrentGame.PlacePeg(ColorIndices[2], 1);
-                                    Globals.CurrentGame.PlacePeg(Placements.First(pm => pm.CanBe.Count() == 1).PegColor, 2);
-                                    Globals.CurrentGame.PlacePeg(ColorIndices[2], 3);
-                                    if (Globals.CurrentGame.EvaluateTurn())
-                                    {
-                                        return;
-                                    }
-                                    else
-                                    {
-                                        throw new Exception($"[2nd] {ColumnsSolvedCount}-{thisTurn.CorrectlyPlaced}-{thisTurn.IncorrectlyPlaced}");
-                                    }
-                                default:
-                                    throw new Exception($"[2nd] {ColumnsSolvedCount}-{thisTurn.CorrectlyPlaced}-{thisTurn.IncorrectlyPlaced}");
-                            }
-                            break;
-                        case 2:
-                            switch (thisTurn.IncorrectlyPlaced)
-                            {
-                                case 0:
-                                    // [2] 1-2-0
-                                    Placements[0].IsNot.Add(ColorIndices[2]);
-                                    Placements[1].IsNot.Add(ColorIndices[2]);
-                                    Placements[2].PegColor = ColorIndices[2];
-                                    Placements[3].PegColor = ColorIndices[2];
-                                    thisMinMax.MinCount = 2;
-                                    thisMinMax.MaxCount = 2;
-                                    break;
-                                case 1:
-                                    // [2] 1-2-1
-                                    Globals.CurrentGame.PlacePeg(ColorIndices[2], 0);
-                                    Globals.CurrentGame.PlacePeg(Placements[1].CanBe[0],1);
-                                    Globals.CurrentGame.PlacePeg(ColorIndices[2], 2);
-                                    Globals.CurrentGame.PlacePeg(ColorIndices[2], 3);
-                                    if (Globals.CurrentGame.EvaluateTurn())
-                                    {
-                                        return;
-                                    }
-                                    Globals.CurrentGame.PlacePeg(Placements[0].CanBe[0], 0);
-                                    Globals.CurrentGame.PlacePeg(ColorIndices[2], 1);
-                                    Globals.CurrentGame.PlacePeg(ColorIndices[2], 2);
-                                    Globals.CurrentGame.PlacePeg(ColorIndices[2], 3);
-                                    if (Globals.CurrentGame.EvaluateTurn())
-                                    {
-                                        return;
-                                    }
-                                    else
-                                    {
-                                        throw new Exception($"[2nd] {ColumnsSolvedCount}-{thisTurn.CorrectlyPlaced}-{thisTurn.IncorrectlyPlaced}");
-                                    }
-                                default:
-                                        throw new Exception($"[2nd] {ColumnsSolvedCount}-{thisTurn.CorrectlyPlaced}-{thisTurn.IncorrectlyPlaced}");
-                            }
-                           break;
-                    }
-                    break;
-                case 2:
-                    // 2 correct 1st 2 turns
-                    switch (thisTurn.CorrectlyPlaced)
-                    {
-                        case 0:
-                            switch (thisTurn.IncorrectlyPlaced)
-                            {
-                                case 0:
-                                    for (int i = 0; i < 4; i++)
-                                    {
-                                        Placements[i].IsNot.Add(ColorIndices[2]);
-                                    }
-                                    break;
-                                case 1:
-                                    Placements[0].CanBe.Add(ColorIndices[2]);
-                                    Placements[1].CanBe.Add(ColorIndices[2]);
-                                    Placements[2].IsNot.Add(ColorIndices[2]);
-                                    Placements[3].IsNot.Add(ColorIndices[2]);
-                                    break;
-                                case 2:
-                                    // 2-0-2
-                                    Placements[0].PegColor = ColorIndices[2];
-                                    Placements[1].PegColor = ColorIndices[2];
-                                    Globals.CurrentGame.PlacePeg(Placements[0].PegColor, 0);
-                                    Globals.CurrentGame.PlacePeg(Placements[1].PegColor, 1);
-                                    // all 4 colors known
-                                    if (Placements[2].CanBe.Count == 1)
-                                    {
-                                        Placements[2].PegColor = Placements[2].CanBe[0];
-                                        Placements[3].PegColor = Placements[3].CanBe.First(cb => cb != Placements[2].PegColor);
-                                        if (Globals.CurrentGame.EvaluateTurn())
-                                        {
-                                            return;
-                                        }
-                                        else
-                                        {
-                                            throw new Exception();
-                                        }
-                                    }
-                                    else if (Placements[3].CanBe.Count == 1)
-                                    {
-                                        Placements[3].PegColor = Placements[3].CanBe[0];
-                                        Placements[2].PegColor = Placements[2].CanBe.First(cb => cb != Placements[3].PegColor);
-                                        if (Globals.CurrentGame.EvaluateTurn())
-                                        {
-                                            return;
-                                        }
-                                        else
-                                        {
-                                            throw new Exception();
-                                        }
-                                    }
-                                    Placements[2].PegColor = Placements[2].CanBe[0];
-                                    Placements[3].PegColor = Placements[2].CanBe.First(cb => cb != Placements[2].PegColor);
-                                    if (Globals.CurrentGame.EvaluateTurn())
-                                    {
-                                        return;
-                                    }
-                                    int swap = Placements[2].PegColor;
-                                    Placements[2].PegColor = Placements[3].PegColor;
-                                    Placements[3].PegColor = swap;
-                                    if (Globals.CurrentGame.EvaluateTurn())
-                                    {
-                                        return;
-                                    }
-                                    else
-                                    {
-                                        throw new Exception($"[2nd] {ColumnsSolvedCount}-{thisTurn.CorrectlyPlaced}-{thisTurn.IncorrectlyPlaced}");
-                                    }
-                                default:
-                                    throw new Exception($"[2nd] {ColumnsSolvedCount}-{thisTurn.CorrectlyPlaced}-{thisTurn.IncorrectlyPlaced}");
-                            }
-                            break;
-                        case 1:
-                            switch (thisTurn.IncorrectlyPlaced)
-                            {
-                                case 0:
-                                    // 2-1-0
-                                    for (int i = 0; i < 4; i++)
-                                    {
-                                        Placements[i].CanBe.Add(ColorIndices[2]);
-                                    }
-                                    thisMinMax.MinCount = 1;
-                                    thisMinMax.MaxCount = 1;
-                                    break;
-                                case 1:
-                                    ////// finish this
-                                    ///// 2-1-1; one of the first 2 is placed, one of this color is placed, the other original and the other this color not placed
-                                    // we have all 4 colors, split into two halves
-                                    // placed 2 first time, 1 second time with 1 incorrectly placed
-                                    Globals.CurrentGame.PlacePeg(ColorIndices[2], 0);
-                                    Globals.CurrentGame.PlacePeg(ColorIndices[1], 1);
-                                    Globals.CurrentGame.PlacePeg(ColorIndices[1], 2);
-                                    Globals.CurrentGame.PlacePeg(ColorIndices[2], 3);
-                                    if (Globals.CurrentGame.EvaluateTurn())
-                                    {
-                                        // solved
-                                        return;
-                                    }
-                                    thisTurn = Globals.CurrentGame.Turns[2];
-                                    switch (thisTurn.CorrectlyPlaced)
-                                    {
-                                        case 0:
-                                            Globals.CurrentGame.PlacePeg(ColorIndices[1], 0);
-                                            Globals.CurrentGame.PlacePeg(ColorIndices[0], 1);
-                                            Globals.CurrentGame.PlacePeg(ColorIndices[0], 2);
-                                            Globals.CurrentGame.PlacePeg(ColorIndices[1], 3);
-                                            if (Globals.CurrentGame.EvaluateTurn())
-                                            {
-                                                // solved
-                                                return;
-                                            }
-                                            else
-                                            {
-                                                throw new Exception("3rd turn should be solved-g");
-                                            }
-                                        case 2:
-                                            Globals.CurrentGame.PlacePeg(ColorIndices[1], 0);
-                                            Globals.CurrentGame.PlacePeg(ColorIndices[0], 1);
-                                            Globals.CurrentGame.PlacePeg(ColorIndices[1], 2);
-                                            Globals.CurrentGame.PlacePeg(ColorIndices[0], 3);
-                                            if (Globals.CurrentGame.EvaluateTurn())
-                                            {
-                                                // solved
-                                                return;
-                                            }
-                                            else
-                                            {
-                                                Globals.CurrentGame.PlacePeg(ColorIndices[0], 0);
-                                                Globals.CurrentGame.PlacePeg(ColorIndices[1], 1);
-                                                Globals.CurrentGame.PlacePeg(ColorIndices[0], 2);
-                                                Globals.CurrentGame.PlacePeg(ColorIndices[1], 3);
-                                                if (Globals.CurrentGame.EvaluateTurn())
-                                                {
-                                                    // solved
-                                                    return;
-                                                }
-                                                else
-                                                {
-                                                    throw new Exception("3rd turn should be solved-m");
-                                                }
-                                            }
-                                        default:
-                                            throw new Exception("3rd turn should be solved (default)");
-                                    }
-                                default:
-                                    throw new Exception($"[2nd] {ColumnsSolvedCount}-{thisTurn.CorrectlyPlaced}-{thisTurn.IncorrectlyPlaced}");
-                            }
-                            break;
-                    }
-                    break;
-                case 3:
-                    switch (thisTurn.CorrectlyPlaced)
-                    {
-                        case 0:
-                            switch (thisTurn.IncorrectlyPlaced)
-                            {
-                                case 0:
-                                    for (int i = 0; i < 4; i++)
-                                    {
-                                        Placements[i].IsNot.Add(ColorIndices[2]);
-                                    }
-                                    thisMinMax.MinCount = 0;
-                                    thisMinMax.MaxCount = 0;
-                                    break;
-                                case 1:
-                                    // this is all 4 colors
-                                    for (int i = 0; i < 4; i++)
-                                    {
-                                        Placements[i].CanBe.Add(ColorIndices[2]);
-                                    }
-                                    thisMinMax.MinCount = 1;
-                                    thisMinMax.MaxCount = 1;
-                                    break;
-                                default:
-                                    break;
-                            }
-                            break;
-                        case 1:
-                            // 3-1-0
-                            Placements[0].IsNot.Add(ColorIndices[2]);
-                            Placements[1].IsNot.Add(ColorIndices[2]);
-                            Placements[2].CanBe.Add(ColorIndices[2]);
-                            Placements[3].CanBe.Add(ColorIndices[2]);
-                            thisMinMax.MinCount = 1;
-                            thisMinMax.MaxCount = 1;
-                            if (DeduceFromFourColors(Placements, MinMaxes)){
-                                return;
-                            }
-                            else
-                            {
-                                throw new Exception($"[2nd] {ColumnsSolvedCount}-{thisTurn.CorrectlyPlaced}-{thisTurn.IncorrectlyPlaced}");
-                            }
-                        default:
-                            break;
-                    }
-                    break;
-                default:
-                    throw new Exception($"[2nd] {ColumnsSolvedCount}-{thisTurn.CorrectlyPlaced}-{thisTurn.IncorrectlyPlaced}");
-            }
-                            #endregion
-            MessageBox.Show("End 3rd turn.");
-
-
-            return;
-
-
-
-            if (thisTurn.Placed <= Turns[0].CorrectlyPlaced)    // this isn't quite right; if the second color is used it could be replacing a correctly-placed peg
-            {
-                // 2nd color isn't used
-                foreach (PegPositionInfo ppi in Placements)
-                {
-                    ppi.IsNot.Add(ColorIndices[1]);
-                }
-            }
-            else if (Globals.CurrentGame.Turns[0].CorrectlyPlaced == 3 && thisTurn.Placed == 4)
-            {
-                // there were 3 of the first color and this is the other color, it's in the 1st or 2nd position
-                Placements[0].CanBe.Add(ColorIndices[1]);
-                Placements[1].CanBe.Add(ColorIndices[1]);
-                Placements[2].IsNot.Add(ColorIndices[1]);
-                Placements[3].IsNot.Add(ColorIndices[1]);
-            }
-            else if (Globals.CurrentGame.Turns[0].CorrectlyPlaced <= thisTurn.Placed)
-            {
-                if (thisTurn.CorrectlyPlaced == 0)
-                {
-                    // the second color can't be in positions 3 or 4
-                    Placements[0].CanBe.Add(ColorIndices[1]);
-                    Placements[1].CanBe.Add(ColorIndices[1]);
-                    Placements[2].IsNot.Add(ColorIndices[1]);
-                    Placements[3].IsNot.Add(ColorIndices[1]);
-                }
-                else if (thisTurn.Placed > Turns[0].CorrectlyPlaced)
-                {
-                    int NewlyCorrectlyPlaced = thisTurn.CorrectlyPlaced - Turns[0].CorrectlyPlaced;
-                    // one or two of the second color are in the correct place
-                    if (NewlyCorrectlyPlaced == 1)
-                    {
-                        // the 2nd color can be anywhere
-                        Placements[0].CanBe.Add(ColorIndices[1]);
-                        Placements[1].CanBe.Add(ColorIndices[1]);
-                        Placements[2].CanBe.Add(ColorIndices[1]);
-                        Placements[3].CanBe.Add(ColorIndices[1]);
-                    }
-                    else
-                    {
-                        // solved for the 2nd color
-                        Placements[0].IsNot.Add(ColorIndices[1]);
-                        Placements[1].IsNot.Add(ColorIndices[1]);
-                        Placements[2].PegColor = ColorIndices[1];
-                        Placements[3].PegColor = ColorIndices[1];
-                    }
-                }
-                else
-                {
-                    throw new Exception($"2nd played piece, don't know what to do with it, {Globals.CurrentGame.Turns[0].CorrectlyPlaced},{thisTurn.CorrectlyPlaced},{thisTurn.IncorrectlyPlaced}");
-                }
-            }
-
-            // distribution after 2 turns
-            List<MinMax> PossibleColumnCounts = new List<MinMax>(Enumerable.Range(0, 6).Select(r => new MinMax(0, 4)));
-            MinMax thisCounts = PossibleColumnCounts.ElementAt(ColorIndices[0]);
-            thisCounts.MinCount = Globals.CurrentGame.Turns[0].CorrectlyPlaced;
-            thisCounts.MaxCount = Globals.CurrentGame.Turns[0].CorrectlyPlaced;
-
-            for (int i = 1; i < 6; i++)
-            {
-                PossibleColumnCounts[ColorIndices[i]].MaxCount = 4 - Globals.CurrentGame.Turns[0].CorrectlyPlaced;
-            }
-            // check this make sure it's correct in every case:
-            thisCounts = PossibleColumnCounts.ElementAt(ColorIndices[1]);
-            thisCounts.MinCount = thisTurn.Placed - Globals.CurrentGame.Turns[0].CorrectlyPlaced;
-            if (thisTurn.Placed - Globals.CurrentGame.Turns[0].CorrectlyPlaced == 2)
-            {
-                thisCounts.MaxCount = 4 - Globals.CurrentGame.Turns[0].CorrectlyPlaced;
-            }
-            else
-            {
-                thisCounts.MaxCount = thisTurn.Placed - Turns[0].CorrectlyPlaced;
-            }
-
-            // continue trying to find the count of each color
-            int turn = 2;
-            while (PossibleColumnCounts.Sum(pcc => pcc.MinCount) < 4 && turn < 6)
-            {
-                Globals.CurrentGame.PlacePeg(ColorIndices[0], 0);
-                Globals.CurrentGame.PlacePeg(ColorIndices[0], 1);
-                Globals.CurrentGame.PlacePeg(ColorIndices[turn], 2);
-                Globals.CurrentGame.PlacePeg(ColorIndices[turn], 3);
-                if (Globals.CurrentGame.EvaluateTurn())
-                {
-                    return;
-                }
-
-                thisTurn = Globals.CurrentGame.Turns[turn];
-                Turns.Add(thisTurn);
-
-                // update placements
-                ////////////////////////////////////////////////////////////////////////////////////////////
-                // DO THIS NEXT - this code is unedited and can't work
-                if (thisTurn.Placed == Math.Min(2, Globals.CurrentGame.Turns[0].CorrectlyPlaced))
-                {
-                    // 2nd color isn't used
-                    foreach (PegPositionInfo ppi in Placements)
-                    {
-                        ppi.IsNot.Add(ColorIndices[turn]);
-                    }
-                }
-                else if (Globals.CurrentGame.Turns[0].CorrectlyPlaced == 3 && thisTurn.Placed == 4)
-                {
-                    // there were 3 of the first color and this is the other color, it's in the 1st or 2nd position
-                    Placements[0].CanBe.Add(ColorIndices[turn]);
-                    Placements[1].CanBe.Add(ColorIndices[turn]);
-                    Placements[2].IsNot.Add(ColorIndices[turn]);
-                    Placements[3].IsNot.Add(ColorIndices[turn]);
-                }
-                else if (Globals.CurrentGame.Turns[0].CorrectlyPlaced <= thisTurn.Placed)
-                {
-                    if (thisTurn.CorrectlyPlaced == 0)
-                    {
-                        // the second color can't be in positions 3 or 4
-                        Placements[0].CanBe.Add(ColorIndices[turn]);
-                        Placements[1].CanBe.Add(ColorIndices[turn]);
-                        Placements[2].IsNot.Add(ColorIndices[turn]);
-                        Placements[3].IsNot.Add(ColorIndices[turn]);
-                    }
-                    else if (thisTurn.Placed - Globals.CurrentGame.Turns[0].CorrectlyPlaced > 0)
-                    {
-                        // one or two of the second color are in the correct place
-                        int NewlyCorrectlyPlaced = thisTurn.CorrectlyPlaced - Globals.CurrentGame.Turns[0].CorrectlyPlaced;
-                        if (NewlyCorrectlyPlaced == 1)
-                        {
-                            // the 2nd color can be anywhere
-                            Placements[0].CanBe.Add(ColorIndices[turn]);
-                            Placements[1].CanBe.Add(ColorIndices[turn]);
-                            Placements[2].CanBe.Add(ColorIndices[turn]);
-                            Placements[3].CanBe.Add(ColorIndices[turn]);
-                        }
-                        else
-                        {
-                            Debug.Assert(NewlyCorrectlyPlaced == 2);
-                            // solved for the 2nd color
-                            Placements[0].IsNot.Add(ColorIndices[turn]);
-                            Placements[1].IsNot.Add(ColorIndices[turn]);
-                            Placements[2].PegColor = ColorIndices[turn];
-                            Placements[3].PegColor = ColorIndices[turn];
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception($"{turn + 1}th played piece, don't know what to do with it, {Globals.CurrentGame.Turns[0].CorrectlyPlaced},{thisTurn.CorrectlyPlaced},{thisTurn.IncorrectlyPlaced}");
-                    }
-                }
-                ////////////////////////////////////////////////////////////////////////////////////////////
-
-                // update distribution
-                if (thisTurn.Placed - Turns.ElementAt(0).CorrectlyPlaced == 2)
-                {
-                    PossibleColumnCounts.ElementAt(ColorIndices[turn]).MaxCount = 4 - PossibleColumnCounts.Sum(pcc => pcc.MinCount);
-                    PossibleColumnCounts.ElementAt(ColorIndices[turn]).MinCount = 2;
-                }
-                else
-                {
-                    PossibleColumnCounts.ElementAt(ColorIndices[turn]).MinCount = thisTurn.Placed - Turns.ElementAt(0).CorrectlyPlaced;
-                    PossibleColumnCounts.ElementAt(ColorIndices[turn]).MaxCount = thisTurn.Placed - Turns.ElementAt(0).CorrectlyPlaced;
-                }
-                turn++;
-            }
-            if (turn == 6)
-            {
-                // one of the pegs appears 3-4 times
-            }
-
-            for (int i = 0; i < 6; i++)
-            {
-                Debug.WriteLine($"{i}:{PossibleColumnCounts[i]}");
-            }
-            Debug.WriteLine("--");
-            for (int i = 0; i < 4; i++)
-            {
-                Debug.WriteLine($"{i}:{Placements.ElementAt(i).ToString()}");
-            }
-            Debug.WriteLine(new String('-', 10));
-
-            // all colors are known
-            // figure out where they go
-            List<int> MasterListOfColors = new List<int>();
-            for (int i = 0; i < 6; i++)
-            {
-                for (int j = 0; j < PossibleColumnCounts[i].MinCount; j++)
-                {
-                    MasterListOfColors.Add(j);
-                }
-            }
-            List<int> CopyOfListOfColors;
-            List<PegPositionInfo> Solved = new List<PegPositionInfo>(Placements.Where(p => p.Solved));
-            List<PegPositionInfo> Unsolved = new List<PegPositionInfo>(Placements.Where(p => !p.Solved));
-            List<PegPositionInfo> CopyOfUnsolved;
-            foreach (PegPositionInfo ppi in Solved)
-            {
-                MasterListOfColors.Remove(ppi.PegColor);
-            }
-            do
-            {
-                CopyOfListOfColors = new List<int>(MasterListOfColors);
-
-                // place the known pegs
-                foreach (PegPositionInfo ppi in Solved)
-                {
-                    Globals.CurrentGame.PlacePeg(ppi.PegColor, ppi.Position);
-                }
-
-                // look for positions that can be only one color
-                CopyOfUnsolved = new List<PegPositionInfo>(Unsolved);
-                foreach (PegPositionInfo ppi in CopyOfUnsolved)
-                {
-                    if (ppi.CanBe.Distinct().Count() == 1)
-                    {
-                        Debug.Assert(CopyOfListOfColors.Contains(ppi.CanBe[0]));
-                        ppi.PegColor = ppi.CanBe[0];
-                        CopyOfListOfColors.Remove(ppi.CanBe[0]);
-                        MasterListOfColors.Remove(ppi.CanBe[0]);
-                        Globals.CurrentGame.PlacePeg(ppi.PegColor, ppi.Position);
-
-                        Solved.Add(ppi);
-                        Unsolved.Remove(ppi);
-                    }
-                }
-                if (Unsolved.Count() == 1)
-                {
-                    Unsolved.First().PegColor = CopyOfListOfColors[0];
-                    Globals.CurrentGame.PlacePeg(CopyOfListOfColors[0], Unsolved.First().Position);
-                }
-                else
-                {
-                    // go through the remaining places and solve for colors that are in IsNot in all remaining positions except one.
-                    List<int> YetAnotherCopyOfListOfColors = new List<int>(CopyOfListOfColors);
-                    for (int i = 0; i < CopyOfListOfColors.Count; i++)
-                    {
-                        if (Unsolved.Where(u => !u.IsNot.Contains(CopyOfListOfColors[i])).Count() == 1)
-                        {
-                            PegPositionInfo ppi = Unsolved.First(u => !u.IsNot.Contains(YetAnotherCopyOfListOfColors[i]));
-                            Globals.CurrentGame.PlacePeg(ppi.PegColor, ppi.Position);
-                            Unsolved.Remove(ppi);
-                            Solved.Add(ppi);
-                        }
-                    }
-                }
-                if (Unsolved.Count == 0)
-                {
-                    break;      // winner!
-                }
-                else
-                {
-                    // take a guess, the remaining pegs' positions haven't been determined; it could be 2,3,4 pegs
-                    return;
-                }
-
-                turn++;
-            } while (Globals.CurrentGame.Turns.Count < 10);
-#endif
         }
         private bool DeduceFromFourColors(IEnumerable<PegPositionInfo> ppiSource, IEnumerable<MinMax> mmSource)
         {
             // reduce list to positions that have only one possible color
             List<PegPositionInfo> ppiLocal = new List<PegPositionInfo>(ppiSource.Select(ppi => ppi.Clone()));
             List<MinMax> mmLocal = new List<MinMax>(mmSource.Select(mm => mm.Clone()));
-            bool FoundSingleton;
-            int color;
-            do
+            for (int i = 0; i < 4; i++)
             {
-                FoundSingleton = false;
-                for (int i = 0; i < 4; i++)
+                if (ppiLocal[i].Solved)
                 {
-                    if (ppiLocal[i].CanBe.Count() == 1)
-                    {
-                        color = ppiLocal[i].CanBe[0];
-                        ppiLocal[i].SetPegColor ( color);
-                        ppiLocal[i].CanBe.Clear();
-                        mmLocal[color].MinCount--;
-                        if (--mmLocal[color].MaxCount == 0)
-                        {
-                            for (int j = 0; j < 4; j++)
-                            {
-                                ppiLocal[j].CanBe.Remove(ppiLocal[i].PegColor);
-                            }
-                        }
-                        FoundSingleton = true;
-                    }
+                    mmLocal[ppiLocal[i].PegColor].MinCount--;
+                    mmLocal[ppiLocal[i].PegColor].MaxCount--;
                 }
-            } while (FoundSingleton);
+            }
+            int color;
+            //bool FoundSingleton;
+            //do
+            //{
+            //    FoundSingleton = false;
+            //    for (int i = 0; i < 4; i++)
+            //    {
+            //        if (ppiLocal[i].CanBe.Count() == 1)
+            //        {
+            //            color = ppiLocal[i].CanBe[0];
+            //            ppiLocal[i].SetPegColor ( color);
+            //            ppiLocal[i].CanBe.Clear();
+            //            mmLocal[color].MinCount--;
+            //            if (--mmLocal[color].MaxCount == 0)
+            //            {
+            //                for (int j = 0; j < 4; j++)
+            //                {
+            //                    ppiLocal[j].CanBe.Remove(ppiLocal[i].PegColor);
+            //                }
+            //            }
+            //            FoundSingleton = true;
+            //        }
+            //    }
+            //} while (FoundSingleton);
 
             if (ppiLocal.Any(ppi => !ppi.Solved))
             {
                 Debug.Assert(ppiLocal.Where(ppi => !ppi.Solved).All(ppi => ppi.CanBe.Count() > 1));
                 // fill the other positions sorta randomly
-                List<PegPositionInfo> ppiNew = new List<PegPositionInfo>(ppiSource.Where(ppi => !ppi.Solved).Select(ppi => ppi.Clone()));
-                List<MinMax> mmNew = new List<MinMax>(mmSource.Select(mm => mm.Clone()));
-                List<PegPositionInfo> ppisToRestore = new List<PegPositionInfo>();
-                List<int> colorsToRestore;
-                foreach (PegPositionInfo ppi in ppiNew)
+                //List<PegPositionInfo> ppiNew = new List<PegPositionInfo>(ppiSource.Where(ppi => !ppi.Solved).Select(ppi => ppi.Clone()));
+                //List<MinMax> mmNew = new List<MinMax>(mmLocal.Select(mm => mm.Clone()));
+                List<PegPositionInfo> ppisToRestoreThisColor = new List<PegPositionInfo>();
+                List<int> canBesToRestore;
+                foreach (PegPositionInfo ppi in ppiLocal.Where(ppi => !ppi.Solved))
                 {
-                    colorsToRestore = new List<int>(ppi.CanBe);
+                    canBesToRestore = new List<int>(ppi.CanBe);
                     do
                     {
                         color = ppi.CanBe[0];
                         ppi.CanBe.Remove(color);
-                        ppi.SetPegColor(color);
-                        mmNew[color].MinCount--;
-                        ppisToRestore.Clear();
-                        // BUG: Min/Max don't currently reflect numbers;
-                        // -- should be checking for whether (MaxCount - Solved-for-that-color) == 0
-                        if (--mmNew[color].MaxCount == 0)
+                        ppi.SetPegColor(color, false); // (fixed?)BUG: This reduces ppi.CanBe to 0 count, so it never iterates past it
+                        mmLocal[color].MinCount--;
+                        ppisToRestoreThisColor.Clear();
+                        if (--mmLocal[color].MaxCount == 0)
                         {
                             // remove from CanBe everywhere
-                            for (int j = 0; j < ppiNew.Count(); j++)
+                            for (int j = 0; j < ppiLocal.Count(); j++)
                             {
-                                if (ppiNew[j].CanBe.Remove(color))
+                                if (ppiLocal[j].CanBe.Remove(color))
                                 {
-                                    ppisToRestore.Add(ppiNew[j]);
+                                    ppisToRestoreThisColor.Add(ppiLocal[j]);
                                 }
                             }
 
                             // recurse to see if that direction solves problem
                         }
-                        if (ppiNew.All(ppin => ppin.Solved))
+                        if (ppiLocal.All(ppin => ppin.Solved))
                         {
                             for (int i = 0; i < 4; i++)
                             {
@@ -2346,15 +1698,18 @@ namespace MasterMind
                         }
                         else
                         {
-                            return DeduceFromFourColors(ppiNew, mmNew);
+                            if ( DeduceFromFourColors(ppiLocal, mmSource))
+                            {
+                                return true;
+                            }
                         }
                         // didn't solve; retry with different configuration
-                        foreach (PegPositionInfo ppiRestore in ppisToRestore)
+                        foreach (PegPositionInfo ppiRestore in ppisToRestoreThisColor)
                         {
                             ppiRestore.CanBe.Add(color);
                         }
                     } while (ppi.CanBe.Count() > 0);
-                    ppi.CanBe = colorsToRestore;
+                    ppi.CanBe = canBesToRestore;
                 }
 
                 // yikes, couldn't solve, there's a bug
@@ -2362,7 +1717,7 @@ namespace MasterMind
             }
             else
             {
-                for (int i = 0; i < 4; i++)
+                for (  int i = 0; i < 4; i++)
                 {
                     Globals.CurrentGame.PlacePeg(ppiLocal[i].PegColor, i);
                 }
@@ -2397,12 +1752,15 @@ namespace MasterMind
             public int Position;
             //private int PegColor = -1;   // change this to public to shut down errors
             public int PegColor { get; private set; } = -1;
-            public void SetPegColor(int color)
+            public void SetPegColor(int color, bool clearAdditonalData = true)
             {
                 PegColor = color;
-                CanBe.Clear();
-                IsNot.Clear();
-                IsNot.AddRange(Enumerable.Range(0, 6).Where(i=> i != color));
+                if (clearAdditonalData)
+                {
+                    CanBe.Clear();
+                    IsNot.Clear();
+                    IsNot.AddRange(Enumerable.Range(0, 6).Where(i => i != color));
+                }
             }
             public List<int> CanBe = new List<int>();
             public List<int> IsNot = new List<int>();
@@ -2420,7 +1778,39 @@ namespace MasterMind
                 return ($"Solved:{Solved}, PegColor:{PegColor}, CanBe:{CanBe.Select(cb => cb.ToString()).Aggregate((ag, c) => $"{ag}, {c}").Trim(',').Trim()}, IsNot:{IsNot.Select(cb => cb.ToString()).Aggregate((ag, c) => $"{ag}, {c}").Trim(',').Trim()}");
             }
         }
+
+#if true
+        // On the first turn there are 0,1,2,3 correct.
+        // Keep track of all the possible combinations of where it is.
+        // When info is learned about another color, store that then compare that info to what was already learned, making decision about which combinations are eliminated
+        // When it's down to only one possible combination for a color, place those pegs.
+        // Probably need to make everything linked in both directions, parents and children.
+        private class PuzzleCrumb
+        {
+            public List<int> Positions = new List<int>();
+        }
+        private class PuzzleHints
+        {
+            public PuzzleHints() { }
+
+            public List<PuzzleCrumb> Crumbs = new List<PuzzleCrumb>();
+            public void AddPositions(int count)
+            {
+                switch (count)
+                {
+                    case 1:
+                        // 1,2;1,3;1,4;2,3,2,4
+                        break;
+                    case 2:
+                        // 1,2,3;1,2,4;1,3,4;2,3,4
+                        break;
+                    case 3:
+                        // 
+                        break;
+                }
+            }
+        }
 #endif
 
-                    }
+    }
 }

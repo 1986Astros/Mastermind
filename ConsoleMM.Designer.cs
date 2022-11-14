@@ -191,36 +191,41 @@
             // 
             // renaldoToolStripMenuItem
             // 
+            this.renaldoToolStripMenuItem.Enabled = false;
             this.renaldoToolStripMenuItem.Name = "renaldoToolStripMenuItem";
-            this.renaldoToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
+            this.renaldoToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.renaldoToolStripMenuItem.Text = "Renaldo";
             this.renaldoToolStripMenuItem.Click += new System.EventHandler(this.renaldoToolStripMenuItem_Click);
             // 
             // úrsulaToolStripMenuItem
             // 
+            this.úrsulaToolStripMenuItem.Enabled = false;
             this.úrsulaToolStripMenuItem.Name = "úrsulaToolStripMenuItem";
-            this.úrsulaToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
+            this.úrsulaToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.úrsulaToolStripMenuItem.Text = "Úrsula";
             this.úrsulaToolStripMenuItem.Click += new System.EventHandler(this.úrsulaToolStripMenuItem_Click);
             // 
             // andrésToolStripMenuItem
             // 
+            this.andrésToolStripMenuItem.Enabled = false;
             this.andrésToolStripMenuItem.Name = "andrésToolStripMenuItem";
-            this.andrésToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
+            this.andrésToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.andrésToolStripMenuItem.Text = "Andrés";
             this.andrésToolStripMenuItem.Click += new System.EventHandler(this.andrésToolStripMenuItem_Click);
             // 
             // tatiToolStripMenuItem
             // 
+            this.tatiToolStripMenuItem.Enabled = false;
             this.tatiToolStripMenuItem.Name = "tatiToolStripMenuItem";
-            this.tatiToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
+            this.tatiToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.tatiToolStripMenuItem.Text = "Tati";
             this.tatiToolStripMenuItem.Click += new System.EventHandler(this.tatiToolStripMenuItem_Click);
             // 
             // pepitoToolStripMenuItem
             // 
+            this.pepitoToolStripMenuItem.Enabled = false;
             this.pepitoToolStripMenuItem.Name = "pepitoToolStripMenuItem";
-            this.pepitoToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
+            this.pepitoToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.pepitoToolStripMenuItem.Text = "Pepito";
             this.pepitoToolStripMenuItem.Click += new System.EventHandler(this.pepitoToolStripMenuItem_Click);
             // 
