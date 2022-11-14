@@ -27,19 +27,13 @@ namespace MasterMind
             public List<int> Guesses = new List<int>();
             public int CorrectlyPlaced = 0;
             public int IncorrectlyPlaced = 0;
-        public bool Completed = false;
+            public int Placed { get { return CorrectlyPlaced + IncorrectlyPlaced; } }
+            public bool Completed = false;
         }
 
         public void InitializeGame()
         {
-            InitializeGame(Enumerable.Range(0,Globals.PegsPerRow).Select(c => Globals.rnd.Next(0, Globals.ColorsInUse.Count())));
-            //Pattern.Clear();
-            //Turns.Clear();
-
-            //for (int i = 0; i < Globals.PegsPerRow; i++)
-            //{
-            //    Pattern.Add(Globals.rnd.Next(0, Globals.ColorsInUse.Count()));
-            //}
+            InitializeGame(Enumerable.Range(0, Globals.PegsPerRow).Select(c => Globals.rnd.Next(0, Globals.ColorsInUse.Count())));
         }
 
         public void InitializeGame(IEnumerable<int> Puzzle)
@@ -51,6 +45,21 @@ namespace MasterMind
             Lost = false;
         }
 
+        public  int CurrentTurn()
+        {
+            if (Turns.Count == 0)
+            {
+                return 0;
+            }
+            else if (Turns.Last().Completed)
+            {
+                return Turns.Count;
+            }
+            else
+            {
+                return Turns.Count - 1;
+            }
+        }
         public void PlacePeg(int Color, int Position)
         {
             if (Turns.Count ==0 || Turns.Last().Completed)
@@ -68,6 +77,13 @@ namespace MasterMind
             }
 #endif
             Turns.Last().Guesses[Position] = -1;
+        }
+        public void ClearPegs()
+        {
+            for (int i = 0; i < Globals.PegsPerRow; i++)
+            {
+                Turns.Last().Guesses[i] = -1;
+            }
         }
         public bool EvaluateTurn()
         {
@@ -104,6 +120,7 @@ namespace MasterMind
                         if (Solution[i] == ColorIndex)
                         {
                             Solution[i] = -1;
+                            break;
                         }
                     }
                 }
@@ -112,7 +129,8 @@ namespace MasterMind
             LastGuess.Completed = true;
 
             // return true if solved.
-            return LastGuess.CorrectlyPlaced == Globals.PegsPerRow;
+            Globals.CurrentGame.Solved = LastGuess.CorrectlyPlaced == Globals.PegsPerRow;
+            return Globals.CurrentGame.Solved;
         }
     }
 }

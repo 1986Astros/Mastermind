@@ -32,6 +32,7 @@
             // 
             // PegBoard
             // 
+            this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
@@ -39,8 +40,11 @@
             this.BackColor = System.Drawing.Color.BurlyWood;
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Name = "PegBoard";
-            this.Size = new System.Drawing.Size(100, 100);
+            this.Size = new System.Drawing.Size(0, 0);
             this.Load += new System.EventHandler(this.PegBoard_Load);
+            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.PegBoard_DragDrop);
+            this.DragOver += new System.Windows.Forms.DragEventHandler(this.PegBoard_DragOver);
+            this.DragLeave += new System.EventHandler(this.PegBoard_DragLeave);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.PegBoard_Paint);
             this.MouseLeave += new System.EventHandler(this.PegBoard_MouseLeave);
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.PegBoard_MouseMove);

@@ -1,6 +1,6 @@
 ﻿namespace MasterMind
 {
-    partial class Peg
+    partial class AcceptClearButtons
     {
         /// <summary> 
         /// Required designer variable.
@@ -30,24 +30,15 @@
         {
             this.SuspendLayout();
             // 
-            // Peg
+            // AcceptClearButtons
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Margin = new System.Windows.Forms.Padding(0);
-            this.Name = "Peg";
-            this.Load += new System.EventHandler(this.Peg_Load);
-            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.Peg_DragDrop);
-            this.DragOver += new System.Windows.Forms.DragEventHandler(this.Peg_DragOver);
-            this.GiveFeedback += new System.Windows.Forms.GiveFeedbackEventHandler(this.Peg_GiveFeedback);
-            this.Paint += new System.Windows.Forms.PaintEventHandler(this.Peg_Paint);
-            this.DoubleClick += new System.EventHandler(this.Peg_DoubleClick);
-            this.Enter += new System.EventHandler(this.Peg_Enter);
-            this.Leave += new System.EventHandler(this.Peg_Leave);
-            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Peg_MouseDown);
-            this.MouseLeave += new System.EventHandler(this.Peg_MouseLeave);
-            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Peg_MouseMove);
-            this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Peg_MouseUp);
+            this.Name = "AcceptClearButtons";
+            this.Paint += new System.Windows.Forms.PaintEventHandler(this.AcceptClearButtons_Paint);
+            this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.AcceptClearButtons_MouseClick);
+            this.MouseLeave += new System.EventHandler(this.AcceptClearButtons_MouseLeave);
+            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.AcceptClearButtons_MouseMove);
             this.ResumeLayout(false);
 
         }

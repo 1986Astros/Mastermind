@@ -2,8 +2,12 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.Common;
+using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -15,19 +19,54 @@ namespace MasterMind
         public PegBoard()
         {
             InitializeComponent();
+            Size sz = new Size(Globals.GamePegDiameter, Globals.GamePegDiameter);
+            Padding mg = new Padding(Globals.GamePegDiameter / 2);
+            Peg peg;
+            for (int turn = 0; turn < Globals.MaxTurns; turn++)
+            {
+                for (int  col = 0; col < Globals.PegsPerRow; col++)
+                {
+                    peg = new Peg() { Name = $"{Name}: {turn},{col}", Size = sz, Margin = mg, Turn = turn, Column = col, Visible = false , AllowCopy = true, AllowMove = false, AllowSwap = false};
+                    peg.PegDiscarded += Peg_Discarded;
+                    Controls.Add(peg);
+                }
+            }
         }
-
-        public int MaxTurns = 8;
-        public int PegsPerRow = 4;
-        public int GamePegDiameter = 20;
-        public int ResultsPegDiameter = 8;
 
         private void PegBoard_Load(object sender, EventArgs e)
         {
-            // move these to any resizing event handlers
+            Recompose();
+        }
+
+        private void Recompose()
+        {
             MeasureEverything();
             ResizeForAutoSize();
+            if (basicBoardBitmapEnabled is not null)
+            {
+                basicBoardBitmapEnabled.Dispose();
+            }
+            basicBoardBitmapEnabled = CreateBasicBitmap(true, false);
+            if (basicBoardBitmapDisabled is not null)
+            {
+                basicBoardBitmapDisabled.Dispose();
+            }
+            basicBoardBitmapDisabled = CreateBasicBitmap(false, false);
             Invalidate();
+        }
+
+        public void InitializeGame()
+        {
+            SuspendLayout();
+            ArrangePegs();
+            foreach (Peg peg in Controls.OfType<Peg>())
+            {
+                peg.Visible = false;
+                peg.AllowCopy = true;
+                peg.AllowMove = true;
+                peg.AllowSwap = true;
+            }
+            ResumeLayout();
         }
 
         #region "Control sizing"
@@ -38,127 +77,212 @@ namespace MasterMind
 
         private void MeasureEverything()
         {
-            PegRowSize = new Size(2 * PegsPerRow * GamePegDiameter, 2 * GamePegDiameter);
-            ResultsRowSize = new Size(2 * (int)Math.Ceiling((float)PegsPerRow / 2f) * ResultsPegDiameter, 2 * ResultsPegDiameter);
-            int RowHeight = Math.Max(2 * GamePegDiameter, 4 * ResultsPegDiameter);
+            PegRowSize = new Size(2 * Globals.PegsPerRow * Globals.GamePegDiameter, 2 * Globals.GamePegDiameter);
+            ResultsRowSize = new Size(2 * (int)Math.Ceiling((float)Globals.PegsPerRow / 2f) * Globals.ResultsPegDiameter, 2 * Globals.ResultsPegDiameter);
+            int RowHeight = Math.Max(2 * Globals.GamePegDiameter, 4 * Globals.ResultsPegDiameter);
             RowSize = new Size(PegRowSize.Width + ResultsRowSize.Width, RowHeight);
 
-            shhPreferredSize = new Size(RowSize.Width, (MaxTurns + 1) * RowHeight + 2 * (MaxTurns - 1));
+            shhPreferredSize = new Size(RowSize.Width, (Globals.MaxTurns + 1) * RowHeight + 2 * Globals.MaxTurns );
+            switch (BorderStyle)
+            {
+                case BorderStyle.FixedSingle:
+                    shhPreferredSize += (new Size(0, 2 * SystemInformation.BorderSize.Height));
+                    break;
+                case BorderStyle.Fixed3D:
+                    shhPreferredSize += (new Size(0, 2 * SystemInformation.Border3DSize.Height));
+                                        break;
+            }
+        }
+       
+        private class PegPosition
+        {
+            public PegPosition(int turn, int column, Rectangle bounds) : base()
+            {
+                Turn = turn;
+                Column = column;
+                Bounds = bounds;
+            }
+            public int Turn;
+            public int Column;
+            public Rectangle Bounds;
+        }
+        private IList<PegPosition> ArrangedPegsBounds(bool righthanded, bool bottomToTop)
+        {
+            Point p;
+            List<PegPosition> PegsBounds = new List<PegPosition>();
+            Size sz = new Size(Globals.GamePegDiameter, Globals.GamePegDiameter);
+            if (bottomToTop)
+            {
+                if (righthanded)
+                {
+                    Point pegLocation = new Point(ResultsRowSize.Width + Globals.GamePegDiameter / 2, shhPreferredSize.Height - Globals.GamePegDiameter - Globals.GamePegDiameter / 2);
+                    switch (BorderStyle)
+                    {
+                        case BorderStyle.FixedSingle:
+                            pegLocation -= (new Size(0, 2 * SystemInformation.BorderSize.Height));
+                            break;
+                        case BorderStyle.Fixed3D:
+                            pegLocation -= (new Size(0, 2 * SystemInformation.Border3DSize.Height));
+                            break;
+                    }
+                    for (int turn = 0; turn < Globals.MaxTurns; turn++)
+                    {
+                        p = pegLocation;
+                        for (int col = 0; col < Globals.PegsPerRow; col++)
+                        {
+                            PegsBounds.Add(new PegPosition(turn, col, new Rectangle(p, sz)));
+                            p.Offset(2 * Globals.GamePegDiameter, 0);
+                        }
+                        pegLocation.Offset(0, -2 * Globals.GamePegDiameter - 2);
+                    }
+                }
+                else
+                {
+                    Point pegLocation = new Point(Globals.GamePegDiameter / 2, shhPreferredSize.Height - Globals.GamePegDiameter - Globals.GamePegDiameter / 2);
+                    switch (BorderStyle)
+                    {
+                        case BorderStyle.FixedSingle:
+                            pegLocation -= (new Size(0, 2 * SystemInformation.BorderSize.Height));
+                            break;
+                        case BorderStyle.Fixed3D:
+                            pegLocation -= (new Size(0, 2 * SystemInformation.Border3DSize.Height));
+                            break;
+                    }
+                    for (int turn = 0; turn < Globals.MaxTurns; turn++)
+                    {
+                        p = pegLocation;
+                        for (int col = 0; col < Globals.PegsPerRow; col++)
+                        {
+                            PegsBounds.Add(new PegPosition(turn, col, new Rectangle(p, sz)));
+                            p.Offset(2 * Globals.GamePegDiameter, 0);
+                        }
+                        pegLocation.Offset(0, -2 * Globals.GamePegDiameter - 2);
+                    }
+                }
+            }
+            else
+            {
+                // bug: with player at top the results pegs are being placed upside-down, i.e. same as player at bottom
+                if (Globals.RightHanded)
+                {
+                    Point pegLocation = new Point(Globals.GamePegDiameter / 2, Globals.GamePegDiameter / 2 + 2);
+                    for (int turn = 0; turn < Globals.MaxTurns; turn++)
+                    {
+                        p = pegLocation;
+                        for (int col = 0; col < Globals.PegsPerRow; col++)
+                        {
+                            PegsBounds.Add(new PegPosition(turn, col, new Rectangle(p, sz)));
+                            p.Offset(2 * Globals.GamePegDiameter, 0);
+                        }
+                        pegLocation.Offset(0, 2 * Globals.GamePegDiameter + 2);
+                    }
+                }
+                else
+                {
+                    Point pegLocation = new Point(ResultsRowSize.Width + Globals.GamePegDiameter / 2, Globals.GamePegDiameter / 2 + 2);
+                    for (int turn = 0; turn < Globals.MaxTurns; turn++)
+                    {
+                        p = pegLocation;
+                        for (int col = 0; col < Globals.PegsPerRow; col++)
+                        {
+                            PegsBounds.Add(new PegPosition(turn, col, new Rectangle(p, sz)));
+                            p.Offset(2 * Globals.GamePegDiameter, 0);
+                        }
+                        pegLocation.Offset(0, 2 * Globals.GamePegDiameter + 2);
+                    }
+                }
+            }
 
-            #region "collapse"
-            //    using (Graphics g = CreateGraphics())
-            //    {
-            //        g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
-
-            //        HeaderHeight = HeaderFont.Height;
-            //        LineScoreHeight = LinescoreFont.Height;
-            //        AnnotationHeight = AnnotationFont.Height;
-            //        BonusHeight = BonusFont.Height;
-            //        ScoreFontHeight = ScoreFont.Height;
-
-            //        LinescoreColumnWidth = g.MeasureString("BONUSMM", BonusFont).Width + g.MeasureString("If total score", AnnotationFont).Width;
-            //        HowToScoreColumnWidth = g.MeasureString("HOW TO SCORE", HeaderFont).Width;
-            //        GameColumnWidth = g.MeasureString("99999", ScoreFont).Width;
-
-            //        MaxWidthOfLeftColumnText = g.MeasureString("SM Straight", LinescoreFont).Width;
-            //    }
-            //    float AutosizeWidth = LinescoreColumnWidth + HowToScoreColumnWidth + (TripleYahtzee ? 3 : 1) * GameColumnWidth;
-            //    float AutosizeHeight = 7 * HeaderHeight + 13 * LineScoreHeight + BonusHeight + PaddingConst;
-
-            //    if (YahtzeeBonuses)
-            //    {
-            //        AutosizeHeight += 2 * BonusHeight;
-            //    }
-            //    else if (TripleYahtzee)
-            //    {
-
-            //        AutosizeHeight += 3 * HeaderHeight;
-            //    }
-            //    shhPreferredSize = new Size((int)Math.Ceiling(AutosizeWidth) + 1, (int)Math.Ceiling(AutosizeHeight) + 1);
-
-            //    // prepare for painting
-            //    RectangleF r;
-            //    AllHitAreas.Clear();
-            //    UpperLines.Clear();
-            //    UpperLines.Add(HeaderHeight);
-            //    r = new RectangleF(LinescoreColumnWidth + HowToScoreColumnWidth, HeaderHeight, GameColumnWidth, LineScoreHeight);
-            //    r.Inflate(-2, -2);
-            //    for (int i = 0; i < 6; i++)
-            //    {
-            //        AllHitAreas.Add(new LayoutArea(LayoutArea.Areas.UpperSectionScoring, r, 0, i));
-            //        UpperLines.Add(UpperLines.Last() + LineScoreHeight);
-            //        r.Offset(0, LineScoreHeight);
-            //    }
-            //    UpperLines.Add(UpperLines.Last() + HeaderHeight);
-            //    AllHitAreas.Add(new LayoutArea(LayoutArea.Areas.UpperSectionTotalWithoutBonus, r, 0));
-            //    r.Offset(0, HeaderHeight);
-            //    UpperLines.Add(UpperLines.Last() + BonusHeight);
-            //    AllHitAreas.Add(new LayoutArea(LayoutArea.Areas.UpperSectionBonus, r, 0));
-            //    r.Offset(0, BonusHeight);
-            //    UpperLines.Add(UpperLines.Last() + HeaderHeight);
-            //    AllHitAreas.Add(new LayoutArea(LayoutArea.Areas.UpperSectionBonusTotal, r, 0));
-            //    r.Offset(0, 2 * HeaderHeight + PaddingConst);
-
-            //    LowerLines.Clear();
-            //    LowerLines.Add(UpperLines.Last() + PaddingConst);
-            //    LowerLines.Add(LowerLines.Last() + HeaderHeight);
-            //    for (int i = 0; i < 7; i++)
-            //    {
-            //        AllHitAreas.Add(new LayoutArea(LayoutArea.Areas.LowerSectionScoring, r, 0, i));
-            //        LowerLines.Add(LowerLines.Last() + LineScoreHeight);
-            //        r.Offset(0, LineScoreHeight);
-            //    }
-            //    if (YahtzeeBonuses)
-            //    {
-            //        r.Offset(0, BonusHeight - LineScoreHeight);
-            //        AllHitAreas.Add(new LayoutArea(LayoutArea.Areas.YahtzeeBonuses, r, 0));
-            //        LowerLines.Add(LowerLines.Last() + BonusHeight);
-            //        r.Offset(0, BonusHeight);
-            //        AllHitAreas.Add(new LayoutArea(LayoutArea.Areas.YahtzeeBonusScore, r, 0));
-            //        LowerLines.Add(LowerLines.Last() + BonusHeight);
-            //        r.Offset(0, BonusHeight);
-            //    }
-            //    LayoutArea.Areas[] LowerTotalAreas = new LayoutArea.Areas[] { LayoutArea.Areas.LowerSectionTotal, LayoutArea.Areas.LowerSectionUpperTotal, LayoutArea.Areas.LowerSectionGrandTotal };
-            //    for (int i = 0; i < 3; i++)
-            //    {
-            //        AllHitAreas.Add(new LayoutArea(LowerTotalAreas[i], r, 0));
-            //        LowerLines.Add(LowerLines.Last() + HeaderHeight);
-            //        r.Offset(0, HeaderHeight);
-            //    }
-            //    if (TripleYahtzee)
-            //    {
-            //        LowerLines.Add(LowerLines.Last() + HeaderHeight);
-            //        LowerLines.Add(LowerLines.Last() + HeaderHeight);
-            //        LowerLines.Add(LowerLines.Last() + HeaderHeight);
-            //    }
-            //    // add the hitpoints in other columns
-            //    List<LayoutArea> OriginalList = new List<LayoutArea>(AllHitAreas);
-            //    foreach (LayoutArea la in OriginalList)
-            //    {
-            //        r = la.BoundingRectangle;
-            //        if (TripleYahtzee)
-            //        {
-            //            r.Offset(GameColumnWidth, 0);
-            //            AllHitAreas.Add(la.Clone(r, 1));
-            //            r.Offset(GameColumnWidth, 0);
-            //            AllHitAreas.Add(la.Clone(r, 2));
-            //        }
-            //    }
-            //    // add the hitpoints for tourney total
-            //    if (TripleYahtzee)
-            //    {
-            //        r = new RectangleF(LinescoreColumnWidth + HowToScoreColumnWidth, ((IEnumerable<float>)LowerLines).Reverse().Skip(2).First(), AutosizeWidth - (LinescoreColumnWidth + HowToScoreColumnWidth), HeaderHeight);
-            //        for (int i = 0; i < 3; i++)
-            //        {
-            //            RectangleF MultiplierRectangle = new RectangleF(r.Left + i * (r.Width / 3), r.Top, r.Width / 3, r.Height);
-            //            MultiplierRectangle.Inflate(-2, -2);
-            //            AllHitAreas.Add(new LayoutArea(LayoutArea.Areas.TripleYahtzeeGrandTotal, MultiplierRectangle, i));
-            //        }
-            //        r = new RectangleF(LinescoreColumnWidth + HowToScoreColumnWidth, ((IEnumerable<float>)LowerLines).Reverse().Skip(1).First(), AutosizeWidth - (LinescoreColumnWidth + HowToScoreColumnWidth), HeaderHeight);
-            //        r.Inflate(-2, -2);
-            //        AllHitAreas.Add(new LayoutArea(LayoutArea.Areas.TournamentTotal, r, 0));
-            //    }
-            #endregion
+            return PegsBounds;
+        }
+        public void ArrangePegs()
+        {
+            Point p;
+            Peg peg;
+            if (Globals.BottomToTop)
+            {
+                if (Globals.RightHanded)
+                {
+                    Point pegLocation = new Point(ResultsRowSize.Width + Globals.GamePegDiameter / 2, shhPreferredSize.Height - Globals.GamePegDiameter - Globals.GamePegDiameter / 2);
+                    switch (BorderStyle)
+                    {
+                        case BorderStyle.FixedSingle:
+                            pegLocation -= (new Size(0, 2 * SystemInformation.BorderSize.Height));
+                            break;
+                        case BorderStyle.Fixed3D:
+                            pegLocation -= (new Size(0, 2 * SystemInformation.Border3DSize.Height));
+                            break;
+                    }
+                    for (int turn = 0; turn < Globals.MaxTurns; turn++)
+                    {
+                        p = pegLocation;
+                        for (int col = 0; col < Globals.PegsPerRow; col++)
+                        {
+                            peg = Controls.OfType<Peg>().First(c => c.Turn == turn && c.Column == col);
+                            peg.Location = p;
+                            p.Offset(2 * Globals.GamePegDiameter, 0);
+                        }
+                        pegLocation.Offset(0, -2 * Globals.GamePegDiameter - 2);
+                    }
+                }
+                else
+                {
+                    Point pegLocation = new Point(Globals.GamePegDiameter / 2, shhPreferredSize.Height - Globals.GamePegDiameter - Globals.GamePegDiameter / 2);
+                    switch (BorderStyle)
+                    {
+                        case BorderStyle.FixedSingle:
+                            pegLocation -= (new Size(0, 2 * SystemInformation.BorderSize.Height));
+                            break;
+                        case BorderStyle.Fixed3D:
+                            pegLocation -= (new Size(0, 2 * SystemInformation.Border3DSize.Height));
+                            break;
+                    }
+                    for (int turn = 0; turn < Globals.MaxTurns; turn++)
+                    {
+                        p = pegLocation;
+                        for (int col = 0; col < Globals.PegsPerRow; col++)
+                        {
+                            peg = Controls.OfType<Peg>().First(c => c.Turn == turn && c.Column == col);
+                            peg.Location = p;
+                            p.Offset(2 * Globals.GamePegDiameter, 0);
+                        }
+                        pegLocation.Offset(0, -2 * Globals.GamePegDiameter - 2);
+                    }
+                }
+            }
+            else
+            {
+                if (Globals.RightHanded)
+                {
+                    Point pegLocation = new Point( Globals.GamePegDiameter / 2, Globals.GamePegDiameter / 2 + 2);
+                    for (int turn = 0; turn < Globals.MaxTurns; turn++)
+                    {
+                        p = pegLocation;
+                        for (int col = 0; col < Globals.PegsPerRow; col++)
+                        {
+                            peg = Controls.OfType<Peg>().First(c => c.Turn == turn && c.Column == (3 - col));
+                            peg.Location = p;
+                            p.Offset(2 * Globals.GamePegDiameter, 0);
+                        }
+                        pegLocation.Offset(0, 2 * Globals.GamePegDiameter + 2);
+                    }
+                }
+                else
+                {
+                    Point pegLocation = new Point(ResultsRowSize.Width + Globals.GamePegDiameter / 2, Globals.GamePegDiameter / 2 + 2);
+                    for (int turn = 0; turn < Globals.MaxTurns; turn++)
+                    {
+                        p = pegLocation;
+                        for (int col = 0; col < Globals.PegsPerRow; col++)
+                        {
+                            peg = Controls.OfType<Peg>().First(c => c.Turn == turn && c.Column == (3-col));
+                            peg.Location = p;
+                            p.Offset(2 * Globals.GamePegDiameter, 0);
+                        }
+                        pegLocation.Offset(0, 2 * Globals.GamePegDiameter + 2);
+                    }
+                }
+            }
         }
 
         // https://stackoverflow.com/questions/9857041/how-can-i-implement-an-autosize-property-to-a-custom-control
@@ -200,58 +324,115 @@ namespace MasterMind
 
             base.SetBoundsCore(x, y, width, height, specified);
         }
-        #endregion
+#endregion
+
+        private Bitmap? basicBoardBitmapDisabled = null;
+        private Bitmap? basicBoardBitmapEnabled = null;
+
+        public void ChangedOrientation()
+        {
+            ArrangePegs();
+            SetPositionOfAcceptClearButtons();
+            Invalidate();
+        }
 
         private void PegBoard_Paint(object sender, PaintEventArgs e)
         {
-            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-
-            int PegLeft = Globals.RightHanded ? ResultsRowSize.Width : 0;
-            int ResultsLeft = Globals.RightHanded ? 0 : PegRowSize.Width;
-            int RowsOfResultsPegs = PegsPerRow / 2 + PegsPerRow % 2;
-            int y = Globals.BottomToTop ? Height - RowSize.Height : RowSize.Height;
-
-            Rectangle PlayingPieceRect = new Rectangle(PegLeft + GamePegDiameter / 2, y + GamePegDiameter / 2, GamePegDiameter, GamePegDiameter);
-            Rectangle ResultsPieceRect = new Rectangle(ResultsLeft + ResultsPegDiameter / 2,y + ResultsPegDiameter / 2,  ResultsPegDiameter, ResultsPegDiameter);
-            if (PlayingPieceRect.Height > RowsOfResultsPegs * ResultsPieceRect.Height)
+            Bitmap boardBitmap;
+            if (Enabled)
             {
-                ResultsPieceRect.Offset(0, (PlayingPieceRect.Height - RowsOfResultsPegs * ResultsPieceRect.Height) / 2);
-            }
-            else if (PlayingPieceRect.Height < RowsOfResultsPegs * ResultsPieceRect.Height)
-            {
-                PlayingPieceRect.Offset(0, (RowsOfResultsPegs * ResultsPieceRect.Height - PlayingPieceRect.Height) / 2);
-            }
-
-            Rectangle r, rHole;
-            for (int row = 0; row < MaxTurns; row++)
-            {
-                // draw the playing pegs
-                r = PlayingPieceRect;
-                for (int peg  = 0; peg < PegsPerRow; peg++)
+                if (Globals.ShowSolution)
                 {
-                    if (row < Globals.CurrentGame.Turns.Count() && Globals.CurrentGame.Turns.ElementAt(row).Guesses.ElementAt(peg) >= 0)
-                    {
-                        using (Brush brush = new SolidBrush(Globals.ColorsInUse.ElementAt(Globals.CurrentGame.Turns.ElementAt(row).Guesses.ElementAt(peg))))
-                        {
-                            e.Graphics.FillEllipse(brush, r);
-                        }
-                    }
-                    else
-                    {
-                        // peg hole
-                        rHole = r;
-                        rHole.Inflate(GamePegDiameter / -3, GamePegDiameter / -3);
-                        using (Pen p = new Pen(Color.Black, 2))
-                        {
-                            e.Graphics.DrawEllipse(p, rHole);
-                        }
-                    }
-                    r.Offset(2 * GamePegDiameter, 0);
+                    boardBitmap = CreateBasicBitmap(true, true);
+                }
+                else
+                {
+                    boardBitmap = (Bitmap)basicBoardBitmapEnabled.Clone();
+                }
+            }
+            else
+            {
+                if (Globals.ShowSolution)
+                {
+                    boardBitmap = CreateBasicBitmap(false, true);
+                }
+                else
+                {
+                    boardBitmap = (Bitmap)basicBoardBitmapDisabled.Clone();
+                }
+            }
+
+            using (Bitmap bm = (Bitmap)boardBitmap.Clone())
+            {
+                if (Globals.TopToBottom)
+                {
+                    bm.RotateFlip(RotateFlipType.Rotate180FlipNone);
                 }
 
+                if (Globals.LeftHanded)
+                {
+                    bm.RotateFlip(RotateFlipType.RotateNoneFlipX);
+                }
+
+                e.Graphics.DrawImage(bm, new Rectangle(0, 0, boardBitmap.Width, boardBitmap.Height));
+            }
+
+            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+            int PegLeft;
+            int ResultsLeft;
+            int RowsOfResultsPegs = Globals.PegsPerRow / 2 + Globals.PegsPerRow % 2;
+            int y = Globals.BottomToTop ? Height - RowSize.Height + 1 : 0;
+            if (Globals.BottomToTop)
+            {
+                PegLeft = Globals.RightHanded ? ResultsRowSize.Width : 0;
+                ResultsLeft = Globals.RightHanded ? 0 : PegRowSize.Width;
+
+            }
+            else
+            {
+                PegLeft = Globals.RightHanded ? 0 : ResultsRowSize.Width;
+                ResultsLeft = Globals.RightHanded ? PegRowSize.Width : 0;
+            }
+
+            Rectangle ResultsPieceRect = new Rectangle(ResultsLeft + Globals.ResultsPegDiameter / 2 + (Globals.RightHanded ? 1 : -1), y + Globals.ResultsPegDiameter / 2, Globals.ResultsPegDiameter, Globals.ResultsPegDiameter);
+            if (Globals.BottomToTop)
+            {
+                y = Height - RowSize.Height;
+                switch (BorderStyle)
+                {
+                    case BorderStyle.FixedSingle:
+                        y += SystemInformation.BorderSize.Height;
+                        break;
+                    case BorderStyle.Fixed3D:
+                        y += SystemInformation.Border3DSize.Height;
+                        break;
+                }
+                ResultsPieceRect = new Rectangle(ResultsLeft + Globals.ResultsPegDiameter / 2 + (Globals.RightHanded ? 0 : -1), y + Globals.ResultsPegDiameter / 2, Globals.ResultsPegDiameter, Globals.ResultsPegDiameter);
+            }
+            else
+            {
+                switch (BorderStyle)
+                {
+                    case BorderStyle.None:
+                        y = 0;
+                        break;
+                    case BorderStyle.FixedSingle:
+                        y = SystemInformation.BorderSize.Height + 5;
+                        break;
+                    case BorderStyle.Fixed3D:
+                        y = SystemInformation.Border3DSize.Height + 2;
+                        break;
+                }
+                ResultsPieceRect = new Rectangle(ResultsLeft + Globals.ResultsPegDiameter / 2 + (Globals.RightHanded ? -1 : 0), y + Globals.ResultsPegDiameter / 2, Globals.ResultsPegDiameter, Globals.ResultsPegDiameter);
+            }
+
+            Rectangle r;
+            for (int row = 0; row < Globals.MaxTurns; row++)
+            {
                 // draw the results pegs
                 r = ResultsPieceRect;
-                for (int peg = 0; peg < PegsPerRow; peg++)
+                for (int peg = 0; peg < Globals.PegsPerRow; peg++)
                 {
                     if (row < Globals.CurrentGame.Turns.Count() && Globals.CurrentGame.Turns.ElementAt(row).Completed && peg < Globals.CurrentGame.Turns.ElementAt(row).CorrectlyPlaced + Globals.CurrentGame.Turns.ElementAt(row).IncorrectlyPlaced)
                     {
@@ -269,43 +450,137 @@ namespace MasterMind
                             e.Graphics.FillEllipse(brush, r);
                         }
                     }
-                    else
-                    {
-                        rHole = r;
-                        rHole.Inflate(ResultsPegDiameter / -3, ResultsPegDiameter / -3);
-                        e.Graphics.DrawEllipse(Pens.Black, rHole);
-                    }
                     if (peg % 2 == 0)
                     {
-                        r.Offset(2 * ResultsPegDiameter, 0);
+                        r.Offset(2 * Globals.ResultsPegDiameter, 0);
                     }
                     else
                     {
-                        r.Offset(-2 * ResultsPegDiameter, 2 * ResultsPegDiameter);
+                        r.Offset(-2 * Globals.ResultsPegDiameter, 2 * Globals.ResultsPegDiameter);
                     }
                 }
-
-                // draw the lines between rows
-                y = Globals.BottomToTop ? PlayingPieceRect.Top - GamePegDiameter / 2 - 1 : PlayingPieceRect.Bottom;
-                e.Graphics.DrawLine(Pens.Black, 0, y,  RowSize.Width, y);
-                y++;
-                e.Graphics.DrawLine(Pens.White, 0, y,  RowSize.Width, y);
-
-                PlayingPieceRect.Offset(0, Globals.BottomToTop ? - RowSize.Height - 2 : RowSize.Height  + 2);
-                ResultsPieceRect.Offset(0, Globals.BottomToTop ? - RowSize.Height - 2 : RowSize.Height  + 2);
+                ResultsPieceRect.Offset(0, Globals.BottomToTop ? -RowSize.Height - 2 : RowSize.Height + 2);
             }
-            if ((Globals.CheatMode || Globals.CurrentGame.Solved) && !DesignMode )
+
+
+            ////////////////// this is the part to keep and update elsewhere
+            SetPositionOfAcceptClearButtons();
+            //if (acceptClearButtons != null)
+            //{
+            //    acceptClearButtons.Margin = new Padding(3, Globals.BottomToTop ? Height - (Globals.CurrentGame.Turns.Count(t => t.Completed) + 1) * (RowSize.Height + 2) + 5 : (Globals.CurrentGame.Turns.Count(t => t.Completed) + 1) * RowSize.Height - 2, 3, 0);
+            //}
+            ////////////////// that part ends here
+        }
+        private Bitmap CreateBasicBitmap(bool enabled, bool showWinner)
+        {
+            IList<PegPosition> PegSlots = ArrangedPegsBounds(true, true); // Globals.RightHanded, Globals.BottomToTop);
+            Bitmap boardBitmap = new Bitmap(Width, Height);
+            using (Graphics g = Graphics.FromImage(boardBitmap))
             {
-                r = PlayingPieceRect;
-                for (int peg = 0; peg < PegsPerRow; peg++)
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+                using (Brush brush = new SolidBrush(BackColor))
                 {
-                    using (Brush brush = new SolidBrush(Globals.ColorsInUse.ElementAt(Globals.CurrentGame.Pattern[peg])))
-                    {
-                        e.Graphics.FillEllipse(brush, r);
-                    }
-                    r.Offset(2 * GamePegDiameter, 0);
+                    g.FillRectangle(brush, 0, 0, Width, Height);
                 }
 
+                int RowsOfResultsPegs = Globals.PegsPerRow / 2 + Globals.PegsPerRow % 2;
+                int y = Height - RowSize.Height - 2;
+                switch (BorderStyle)
+                {
+                    case BorderStyle.FixedSingle:
+                        y -= SystemInformation.BorderSize.Height;
+                        break;
+                    case BorderStyle.Fixed3D:
+                        y -= SystemInformation.Border3DSize.Height;
+                        break;
+                }
+
+                Rectangle PlayingPieceRect = new Rectangle(ResultsRowSize.Width + Globals.GamePegDiameter / 2, y + Globals.GamePegDiameter / 2, Globals.GamePegDiameter, Globals.GamePegDiameter);
+                Rectangle ResultsPieceRect = new Rectangle(Globals.ResultsPegDiameter / 2, y + Globals.ResultsPegDiameter / 2 + 3, Globals.ResultsPegDiameter, Globals.ResultsPegDiameter);
+                // TODO: Need an adjustment for FrameStyle
+                // offset to accomodate the sizes of both pegs
+                if (PlayingPieceRect.Height > RowsOfResultsPegs * ResultsPieceRect.Height)
+                {
+                    ResultsPieceRect.Offset(0, (PlayingPieceRect.Height - RowsOfResultsPegs * ResultsPieceRect.Height) / 2);
+                }
+                else if (PlayingPieceRect.Height < RowsOfResultsPegs * ResultsPieceRect.Height)
+                {
+                    PlayingPieceRect.Offset(0, (RowsOfResultsPegs * ResultsPieceRect.Height - PlayingPieceRect.Height) / 2);
+                }
+
+                Rectangle r, rHole;
+                for (int turn = 0; turn < Globals.MaxTurns; turn++)
+                {
+                    // draw the playing pegs
+                    r = PlayingPieceRect;
+                    for (int column = 0; column < Globals.PegsPerRow; column++)
+                    {
+                        // peg hole
+                        RectangleF rPegHole = PegSlots.First(ps => ps.Turn == turn && ps.Column == column).Bounds;
+                        rPegHole.Inflate((float)Globals.GamePegDiameter / -3f, (float)Globals.GamePegDiameter / -3f);
+                        using (Pen p = new Pen(enabled ? Color.Black : Color.Gray, 2))
+                        {
+                            g.DrawEllipse(p, rPegHole);
+                        }
+                        r.Offset(2 * Globals.GamePegDiameter, 0);
+                    }
+
+                    // draw the results pegs
+                    r = ResultsPieceRect;
+                    for (int peg = 0; peg < Globals.PegsPerRow; peg++)
+                    {
+                        rHole = r;
+                        rHole.Inflate(Globals.ResultsPegDiameter / -3, Globals.ResultsPegDiameter / -3);
+                        g.DrawEllipse(enabled ? Pens.Black : Pens.Gray, rHole);
+                        if (peg % 2 == 0)
+                        {
+                            r.Offset(2 * Globals.ResultsPegDiameter, 0);
+                        }
+                        else
+                        {
+                            r.Offset(-2 * Globals.ResultsPegDiameter, 2 * Globals.ResultsPegDiameter - 1);
+                        }
+                    }
+
+                    // draw the lines between rows
+                    y = PlayingPieceRect.Top - Globals.GamePegDiameter / 2 - 1;
+                    g.DrawLine(enabled ? Pens.Black : Pens.Gray, 0, y, RowSize.Width, y);
+                    y++;
+                    g.DrawLine(enabled ? Pens.White : Pens.LightGray, 0, y, RowSize.Width, y);
+
+                    PlayingPieceRect.Offset(0, -RowSize.Height - 2);
+                    ResultsPieceRect.Offset(0, -RowSize.Height - 2);
+                }
+
+                if (showWinner)
+                {
+                    r = PlayingPieceRect;
+                    for (int pegRight = 0, pegLeft = Globals.PegsPerRow - 1; pegRight < Globals.PegsPerRow; pegRight++, pegLeft--)
+                    {
+                        using (Brush brush = new SolidBrush(Globals.ColorsInUse.ElementAt(Globals.CurrentGame.Pattern[Globals.RightHanded ? pegRight : pegLeft])))
+                        {
+                            g.FillEllipse(brush, r);
+                        }
+                        r.Offset(2 * Globals.GamePegDiameter, 0);
+                    }
+                }
+            }
+
+            return boardBitmap;
+        }
+        public void SetPositionOfAcceptClearButtons()
+        {
+            if (acceptClearButtons is not null)
+            {
+                if (Globals.BottomToTop)
+                {
+                    acceptClearButtons.Margin = new Padding(3, Height - (Globals.CurrentGame.CurrentTurn() + 1) * (RowSize.Height + 2) + 5, 3, 0);
+                }
+                else
+                {
+                    acceptClearButtons.Margin = new Padding(3, Globals.CurrentGame.CurrentTurn() * (RowSize.Height + 2) + 5, 3, 0);
+                }
             }
         }
 
@@ -323,13 +598,34 @@ namespace MasterMind
         {
             cradle.PegSelected += Cradle_PegSelected;
         }
+        public void AttachAcceptClearButtons(AcceptClearButtons acb)
+        {
+            acb.AcceptClick += AcceptAndClearButtons_Accepted;
+            acb.ClearClick += AcceptAndClearButtons_Cleared;
+            acceptClearButtons = acb;
+        }
+        private AcceptClearButtons? acceptClearButtons;
+
+        public class GameOverEventArgs : EventArgs
+        {
+            public GameOverEventArgs(bool won, int turns) : base()
+            {
+                Won = won;
+                Turns = turns;
+            }
+            public bool Won;
+            public int Turns;
+        }
+        public delegate void GameOverEventHandler(object sender, GameOverEventArgs e);
+        public event GameOverEventHandler? GameOver;
 
         private void Cradle_PegSelected(object sender, Cradle.PegSelectedEventArgs e)
         {
             CurrentGame game = Globals.CurrentGame;
             if (game.Turns.Count() == 0)
             {
-                game.PlacePeg(e.Index, 0);
+                PlacePeg(e.colorIndex, 0);
+                acceptClearButtons.ClearEnabled = true;
                 Invalidate();
             }
             else
@@ -337,40 +633,310 @@ namespace MasterMind
                 CurrentGame.Guess guess = game.Turns.Last();
                 if (guess.Completed)
                 {
-                    game.PlacePeg(e.Index, 0);
+                    PlacePeg(e.colorIndex, 0);
+                    acceptClearButtons.ClearEnabled = true;
                     Invalidate();
                 }
                 else
                 {
-                    // temp code to place peg in next available hole
                     for (int i = 0; i < Globals.PegsPerRow; i++)
                     {
                         if (guess.Guesses[i] == -1)
                         {
-                            game.PlacePeg(e.Index, i);
+                            PlacePeg(e.colorIndex, i);
                             Invalidate();
                             break;
                         }
                     }
                     if (guess.Guesses.All(g => g > -1))
                     {
-                        if (game.EvaluateTurn())
-                        {
-                            Globals.CheatMode = true;
-                            Invalidate();
-                            Application.DoEvents();
-                            MessageBox.Show($"You won in {game.Turns.Count()} turns.");
-                        }
-                        else if(game.Turns.Count() == Globals.MaxTurns)
-                        {
-                            Globals.CheatMode = true;
-                            Invalidate();
-                            Application.DoEvents();
-                            MessageBox.Show("You ran out of turns.");
-                        }
+                        acceptClearButtons.AcceptEnabled = true;
+                        acceptClearButtons.ClearEnabled = true;
+                    }
+                    else
+                    {
+                        acceptClearButtons.AcceptEnabled = false;
+                        acceptClearButtons.ClearEnabled = true;
                     }
                 }
             }
+        }
+
+        private void AcceptAndClearButtons_Accepted(object sender, EventArgs e)
+        {
+            CurrentGame game = Globals.CurrentGame;
+            game.Turns.Last().Completed = true;
+            if (game.EvaluateTurn())
+            {
+                Globals.ShowSolution = true;
+                SetPositionOfAcceptClearButtons();
+                Invalidate();
+                Application.DoEvents();
+                GameOver?.Invoke(this, new GameOverEventArgs(true, Globals.CurrentGame.Turns.Count()));
+                Globals.NamePlates.First().GameOver();
+                MessageBox.Show($"You won in {game.Turns.Count()} turns.");
+            }
+            else if (game.Turns.Count() == Globals.MaxTurns)
+            {
+                Globals.ShowSolution = true;
+                Invalidate();
+                Application.DoEvents();
+                GameOver?.Invoke(this, new GameOverEventArgs(false, Globals.CurrentGame.Turns.Count()));
+                Globals.NamePlates.First().GameOver();
+                MessageBox.Show("You ran out of turns.");
+            }
+            else
+            {
+                foreach (Peg peg in Controls.OfType<Peg>().Where(p => p.Turn == (game.CurrentTurn() - 1)))
+                {
+                    peg.AllowMove = false;
+                    peg.AllowSwap = false;
+                }
+                SetPositionOfAcceptClearButtons();
+                Invalidate();       // todo: need to invalidate only the scoring pegs for this row
+            }
+            acceptClearButtons.AcceptEnabled = false;
+            acceptClearButtons.ClearEnabled = false;
+        }
+
+        private void AcceptAndClearButtons_Cleared(object sender, EventArgs e)
+        {
+            acceptClearButtons.AcceptEnabled = false;
+            acceptClearButtons.ClearEnabled = false;
+            Globals.CurrentGame.ClearPegs(); 
+            for (int i = 0; i < Globals.PegsPerRow; i++)
+            {
+                Controls.OfType<Peg>().First(p => p.Turn == Globals.CurrentGame.Turns.Count - 1 && p.Column == i).Visible = false;
+            }
+            Invalidate();
+        }
+
+        private void PegBoard_DragDrop(object sender, DragEventArgs e)
+        {
+            Peg? peg = (e.Data?.GetData(typeof(Peg))) as Peg;
+            Point p = PointToClient(new Point(e.X, e.Y));
+            int color = Globals.ColorsInUse.IndexOf(peg.PegColor);
+            int column = XtoColumn(p.X);
+
+            if (peg.Parent == this)
+            {
+                if (Globals.CurrentGame.Turns.ElementAt(peg.Turn).Completed || ((e.KeyState & 8) == 8))
+                {
+                    // * copy to the next turn or if Ctrl is pressed, same turn
+                    PlacePeg(color, column);
+                }
+                else if (Globals.CurrentGame.Turns.Last().Guesses[column] >= 0)
+                {
+                    // * swap two pegs on the same row
+                    SwapPegs(peg.Column, column);
+                }
+                else
+                {
+                    // * move a peg from one hole to the other
+                    peg.Visible = false;
+                    Globals.CurrentGame.RemovePeg(peg.Column);
+                    PlacePeg(color, column);
+                }
+            }
+            else
+            {
+                PlacePeg(color, column);
+            }
+            if (!LastDragDropTarget.Equals(Rectangle.Empty))
+            {
+                // erase the old rectangle
+                Rectangle rInner = LastDragDropTarget;
+                Region rgn = new Region(LastDragDropTarget);
+                rInner.Inflate(-1, -1);
+                rgn.Xor(rInner);
+                Invalidate(rgn);
+                LastDragDropTarget = Rectangle.Empty;
+            }
+            acceptClearButtons.AcceptEnabled = Globals.CurrentGame.Turns.Last().Guesses.All(g => g >= 0);
+            acceptClearButtons.ClearEnabled = true;
+            Invalidate();   // won't be needed after switching from drawing to placing Peg controls in this.Controls
+        }
+
+        private void Peg_Discarded(object sender, EventArgs e)
+        {
+            Peg peg = (Peg)sender;
+            if (peg.Turn != Globals.CurrentGame.CurrentTurn())
+            {
+                return;
+            }
+            peg.Visible = false;
+            Globals.CurrentGame.RemovePeg(peg.Column);
+            acceptClearButtons.AcceptEnabled = false;
+            acceptClearButtons.ClearEnabled = Globals.CurrentGame.Turns.Last().Guesses.Any(g => g >= 0);
+        }
+
+        private void PlacePeg(int color, int column)
+        {
+            Globals.CurrentGame.PlacePeg(color, column);
+            Peg peg = Controls.OfType<Peg>().First(p => p.Turn == Globals.CurrentGame.Turns.Count - 1 && p.Column == column);
+            peg.PegColor = Globals.ColorsInUse[color];
+            peg.Visible = true;
+        }
+
+        public void ShowCurrentGame()
+        {
+            for (int turn = 0; turn < Globals.CurrentGame.CurrentTurn(); turn++)
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    Peg peg = Controls.OfType<Peg>().First(p => p.Turn == turn && p.Column == i);
+                    peg.PegColor = Globals.ColorsInUse[Globals.CurrentGame.Turns[turn].Guesses[i]];
+                    peg.Visible = true;
+                }
+            }
+            Invalidate();
+        }
+
+        private void SwapPegs(int Column1, int Column2)
+        {
+            Color c1 = Globals.ColorsInUse[Globals.CurrentGame.Turns.Last().Guesses[Column1]];
+            Color c2 = Globals.ColorsInUse[Globals.CurrentGame.Turns.Last().Guesses[Column2]];
+            Controls.OfType<Peg>().First(p => p.Turn == Globals.CurrentGame.CurrentTurn() && p.Column == Column1).PegColor = c2;
+            Controls.OfType<Peg>().First(p => p.Turn == Globals.CurrentGame.CurrentTurn() && p.Column == Column2).PegColor = c1;
+            Globals.CurrentGame.PlacePeg(Globals.ColorsInUse.IndexOf(c2), Column1);
+            Globals.CurrentGame.PlacePeg(Globals.ColorsInUse.IndexOf(c1), Column2);
+        }
+
+        Rectangle LastDragDropTarget = Rectangle.Empty;
+        private void PegBoard_DragOver(object sender, DragEventArgs e)
+        {
+            if (e.Data != null && (e.Data.GetDataPresent(typeof(Peg))))
+            {
+                Point p = PointToClient(new Point(e.X, e.Y));
+                int column = XtoColumn(p.X);
+
+                Peg peg = (Peg)e.Data.GetData(typeof(Peg));
+                if (((e.KeyState & 8) == 8) || peg.Turn < Globals.CurrentGame.CurrentTurn())
+                {
+                    e.Effect = DragDropEffects.Copy;
+                    peg.AllowCopy = true;
+                    peg.AllowMove = false;
+                    peg.AllowSwap = false;
+                }
+                else
+                {
+                    // same row
+                    if (peg.Column == column)
+                    {
+                        // same peg
+                        peg.AllowCopy = false;
+                        peg.AllowMove = true;
+                        peg.AllowSwap = false;
+                    }
+                    else if (Controls.OfType<Peg>().First(p => p.Turn == peg.Turn && p.Column == column).Visible)
+                    {
+                        // allow swap
+                        peg.AllowCopy = false;
+                        peg.AllowMove = false;
+                        peg.AllowSwap = true;
+                    }
+                    else
+                    {
+                        // new column same turn
+                        peg.AllowCopy = false;
+                        peg.AllowMove = true;
+                        peg.AllowSwap = false;
+                    }
+                        e.Effect = DragDropEffects.Move;
+                }
+
+                Rectangle rNewDragDropTarget  = Controls.OfType<Peg>().First(p => p.Turn == Globals.CurrentGame.CurrentTurn() && p.Column == column).Bounds;
+
+                //Debug.WriteLine($"{column}{new string('-', 10)}");
+                //Debug.WriteLine($"CurrentTurn == {Globals.CurrentGame.CurrentTurn()}");
+                //Debug.WriteLine(rNewDragDropTarget.ToString());
+                //Debug.WriteLine(p.ToString());
+                //Debug.WriteLine($"{PegLeft},{Height}");
+                Region rgn;
+                if (!rNewDragDropTarget.Equals(LastDragDropTarget))
+                {
+                    if (!LastDragDropTarget.Equals(Rectangle.Empty))
+                    {
+                        // erase the old rectangle
+                        Rectangle rInner = LastDragDropTarget;
+                        rgn = new Region(LastDragDropTarget);
+                        rInner.Inflate(-1, -1);
+                        rgn.Xor(rInner);
+                        Invalidate(rgn);
+                    }
+                    // draw the new rectangle
+                    LastDragDropTarget = rNewDragDropTarget;
+                    rgn = new Region(LastDragDropTarget);
+                    rNewDragDropTarget.Inflate(-1, -1);
+                    rgn.Xor(rNewDragDropTarget);
+                    using (Brush brush = new HatchBrush(HatchStyle.Percent50, Color.Black, BackColor))
+                    {
+                        using (Graphics g = CreateGraphics())
+                        {
+                            g.FillRegion(brush, rgn);
+                        }
+                    }
+                    Update();
+                }
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
+            }
+        }
+        private int XtoColumn(int X)
+        {
+            int column;
+
+            if (Globals.BottomToTop)
+            {
+                if (Globals.RightHanded)
+                {
+                    int PegLeft = ResultsRowSize.Width;
+
+                    if (X < PegLeft)
+                    {
+                        column = 0;
+                    }
+                    else
+                    {
+                        column = Math.Min(Globals.PegsPerRow - 1, (X - PegLeft) / (2 * Globals.GamePegDiameter));
+                    }
+                }
+                else
+                {
+                    column = Math.Min(Globals.PegsPerRow - 1, X  / (2 * Globals.GamePegDiameter));
+                }
+            }
+            else
+            {
+                int PegLeft = Globals.RightHanded ? 0 : ResultsRowSize.Width;
+                if (X < PegLeft)
+                {
+                    column = 3;
+                }
+                else
+                {
+                    column = Globals.PegsPerRow - 1 - Math.Min(Globals.PegsPerRow - 1, (X - PegLeft) / (2 * Globals.GamePegDiameter));
+                }
+            }
+
+            return column;
+        }
+
+        private void PegBoard_DragLeave(object sender, EventArgs e)
+        {
+            if (!LastDragDropTarget.Equals(Rectangle.Empty))
+            {
+                Rectangle r = LastDragDropTarget;
+                Region rgn = new Region(LastDragDropTarget);
+                r.Inflate(-1, -1);
+                rgn.Xor(r);
+                Invalidate(rgn);
+                Update();
+                LastDragDropTarget = Rectangle.Empty;
+            }
+            // todo: (probably not possible in .Net, only with ole32.dll entry points) if the peg came from the pegboard, change the cursor to a trash can for Delete (remove peg from board)
         }
     }
 }
