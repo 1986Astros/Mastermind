@@ -45,7 +45,7 @@ namespace MasterMind
             Lost = false;
         }
 
-        public  int CurrentTurn()
+        public  int CurrentTurnIndex()
         {
             if (Turns.Count == 0)
             {
@@ -59,6 +59,22 @@ namespace MasterMind
             {
                 return Turns.Count - 1;
             }
+        }
+        public Guess LastTurn()
+        {
+            if (Turns.Count == 0)
+            {
+                return null;
+            }
+            else if (Turns.Last().Completed)
+            {
+                return Turns.Last();
+            }
+            else
+            {
+                return Turns[Turns.Count - 1];  
+            }
+            return Turns[CurrentTurnIndex()];
         }
         public void PlacePeg(int Color, int Position)
         {

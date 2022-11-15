@@ -575,11 +575,11 @@ namespace MasterMind
             {
                 if (Globals.BottomToTop)
                 {
-                    acceptClearButtons.Margin = new Padding(3, Height - (Globals.CurrentGame.CurrentTurn() + 1) * (RowSize.Height + 2) + 5, 3, 0);
+                    acceptClearButtons.Margin = new Padding(3, Height - (Globals.CurrentGame.CurrentTurnIndex() + 1) * (RowSize.Height + 2) + 5, 3, 0);
                 }
                 else
                 {
-                    acceptClearButtons.Margin = new Padding(3, Globals.CurrentGame.CurrentTurn() * (RowSize.Height + 2) + 5, 3, 0);
+                    acceptClearButtons.Margin = new Padding(3, Globals.CurrentGame.CurrentTurnIndex() * (RowSize.Height + 2) + 5, 3, 0);
                 }
             }
         }
@@ -687,7 +687,7 @@ namespace MasterMind
             }
             else
             {
-                foreach (Peg peg in Controls.OfType<Peg>().Where(p => p.Turn == (game.CurrentTurn() - 1)))
+                foreach (Peg peg in Controls.OfType<Peg>().Where(p => p.Turn == (game.CurrentTurnIndex() - 1)))
                 {
                     peg.AllowMove = false;
                     peg.AllowSwap = false;
@@ -760,7 +760,7 @@ namespace MasterMind
         private void Peg_Discarded(object sender, EventArgs e)
         {
             Peg peg = (Peg)sender;
-            if (peg.Turn != Globals.CurrentGame.CurrentTurn())
+            if (peg.Turn != Globals.CurrentGame.CurrentTurnIndex())
             {
                 return;
             }
@@ -780,7 +780,7 @@ namespace MasterMind
 
         public void ShowCurrentGame()
         {
-            for (int turn = 0; turn < Globals.CurrentGame.CurrentTurn(); turn++)
+            for (int turn = 0; turn < Globals.CurrentGame.CurrentTurnIndex(); turn++)
             {
                 for (int i = 0; i < 4; i++)
                 {
@@ -796,8 +796,8 @@ namespace MasterMind
         {
             Color c1 = Globals.ColorsInUse[Globals.CurrentGame.Turns.Last().Guesses[Column1]];
             Color c2 = Globals.ColorsInUse[Globals.CurrentGame.Turns.Last().Guesses[Column2]];
-            Controls.OfType<Peg>().First(p => p.Turn == Globals.CurrentGame.CurrentTurn() && p.Column == Column1).PegColor = c2;
-            Controls.OfType<Peg>().First(p => p.Turn == Globals.CurrentGame.CurrentTurn() && p.Column == Column2).PegColor = c1;
+            Controls.OfType<Peg>().First(p => p.Turn == Globals.CurrentGame.CurrentTurnIndex() && p.Column == Column1).PegColor = c2;
+            Controls.OfType<Peg>().First(p => p.Turn == Globals.CurrentGame.CurrentTurnIndex() && p.Column == Column2).PegColor = c1;
             Globals.CurrentGame.PlacePeg(Globals.ColorsInUse.IndexOf(c2), Column1);
             Globals.CurrentGame.PlacePeg(Globals.ColorsInUse.IndexOf(c1), Column2);
         }
@@ -811,7 +811,7 @@ namespace MasterMind
                 int column = XtoColumn(p.X);
 
                 Peg peg = (Peg)e.Data.GetData(typeof(Peg));
-                if (((e.KeyState & 8) == 8) || peg.Turn < Globals.CurrentGame.CurrentTurn())
+                if (((e.KeyState & 8) == 8) || peg.Turn < Globals.CurrentGame.CurrentTurnIndex())
                 {
                     e.Effect = DragDropEffects.Copy;
                     peg.AllowCopy = true;
@@ -845,7 +845,7 @@ namespace MasterMind
                         e.Effect = DragDropEffects.Move;
                 }
 
-                Rectangle rNewDragDropTarget  = Controls.OfType<Peg>().First(p => p.Turn == Globals.CurrentGame.CurrentTurn() && p.Column == column).Bounds;
+                Rectangle rNewDragDropTarget  = Controls.OfType<Peg>().First(p => p.Turn == Globals.CurrentGame.CurrentTurnIndex() && p.Column == column).Bounds;
 
                 //Debug.WriteLine($"{column}{new string('-', 10)}");
                 //Debug.WriteLine($"CurrentTurn == {Globals.CurrentGame.CurrentTurn()}");

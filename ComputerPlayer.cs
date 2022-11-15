@@ -428,7 +428,7 @@ namespace MasterMind
             }
         }
 #else
-        public void PlayTati()
+        public void PlayRenaldo()
         {
             #region "1st turn"
             for (int i = 0; i < 4; i++)
@@ -1779,7 +1779,7 @@ namespace MasterMind
             }
         }
 
-#if true
+#if false
         // On the first turn there are 0,1,2,3 correct.
         // Keep track of all the possible combinations of where it is.
         // When info is learned about another color, store that then compare that info to what was already learned, making decision about which combinations are eliminated
@@ -1787,6 +1787,7 @@ namespace MasterMind
         // Probably need to make everything linked in both directions, parents and children.
         private class PuzzleCrumb
         {
+            public int PegCount { get { return Positions.Count; } }
             public List<int> Positions = new List<int>();
         }
         private class PuzzleHints
@@ -1810,7 +1811,389 @@ namespace MasterMind
                 }
             }
         }
+        private class AllHints
+        {
+            public AllHints() { }
+
+            public int[] Colors = new int[4] { Enumerable.Range(0, 4).Select(i => -1) };
+        }
+#endif
 #endif
 
+        private void PlayTati()
+        {
+            {
+                int color = 0;
+                List<PegPositionInfo> Placements = new List<PegPositionInfo>(Enumerable.Range(0, 4).Select(i => new PegPositionInfo(i)));
+                List<MinMax> MinMaxes = new List<MinMax>(Enumerable.Range(0, 6).Select(i => new MinMax(0, 4)));
+                CurrentGame.Guess lastTurn;
+                do
+                {
+                    for (int i = 0; i < 4; i++)
+                    {
+                        Globals.CurrentGame.PlacePeg(ColorIndices[color], i);
+                    }
+                    if (Globals.CurrentGame.EvaluateTurn())
+                    {
+                        return;
+                    }
+                    lastTurn = Globals.CurrentGame.Turns[color];
+                    if (lastTurn.CorrectlyPlaced > 0)
+                    {
+                        for (int i = 0; i < 4; i++)
+                        {
+                            Placements[i].CanBe.Add(ColorIndices[color]);
+                        }
+                    }
+                    MinMaxes[ColorIndices[color]].MinCount = lastTurn.CorrectlyPlaced;
+                    color++;
+                } while (MinMaxes.Sum(mm => mm.MinCount) < 4);
+
+                // all the colors are known
+                // there's no info about positions, make a guess
+                switch (MinMaxes.Count(mm => mm.MinCount > 0))
+                {
+                    case 2:
+                        // either a 3/1 split or 2/2 split
+                        if (MinMaxes.Any(mm => mm.MinCount == 3))
+                        {
+                            SolveTati_3_1(MinMaxes);
+                        }
+                        else
+                        {
+                            SolveTati_2_2(MinMaxes);
+                        }
+                        break;
+                    case 3:
+                        // pair of one color and two singletons
+                        SolveTati_2_1_1(MinMaxes);
+                        break;
+                    case 4:
+                        // all singletons
+                        SolveTati_1_1_1_1(MinMaxes);
+                        break;
+                }
+            }
+        }
+
+        private void SolveTati_3_1(List<MinMax> MinMaxes)
+        {
+            // guaranteed min 2, max 3 turns to solve
+            int color3 = MinMaxes.IndexOf(MinMaxes.First(mm => mm.MinCount == 3));
+            int color1 = MinMaxes.IndexOf(MinMaxes.First(mm => mm.MinCount == 1));
+
+            Globals.CurrentGame.PlacePeg(color3, 0);
+            Globals.CurrentGame.PlacePeg(color3, 1);
+            Globals.CurrentGame.PlacePeg(color1, 2);
+            Globals.CurrentGame.PlacePeg(color1, 3);
+            Globals.CurrentGame.EvaluateTurn(); // this will have 3 correct
+            switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
+            {
+                case 1:
+                    // oddball on the left
+                    int i = Globals.rnd.Next(0, 2);
+                    Globals.CurrentGame.PlacePeg(color1, i);
+                    Globals.CurrentGame.PlacePeg(color3, 1 - i);
+                    Globals.CurrentGame.PlacePeg(color3, 2);
+                    Globals.CurrentGame.PlacePeg(color3, 3);
+                    if (Globals.CurrentGame.EvaluateTurn())
+                    {
+                        return;
+                    }
+                    Globals.CurrentGame.PlacePeg(color3, i);
+                    Globals.CurrentGame.PlacePeg(color1, 1 - i);
+                    Globals.CurrentGame.PlacePeg(color3, 2);
+                    Globals.CurrentGame.PlacePeg(color3, 3);
+                    if (Globals.CurrentGame.EvaluateTurn())
+                    {
+                        return;
+                    }
+                    throw new Exception();
+                case 3:
+                    // oddball on the right
+                    i = Globals.rnd.Next(2, 4);
+                    Globals.CurrentGame.PlacePeg(color3, 0);
+                    Globals.CurrentGame.PlacePeg(color3, 1);
+                    Globals.CurrentGame.PlacePeg(color3, i);
+                    Globals.CurrentGame.PlacePeg(color1, 5 - i);
+                    if (Globals.CurrentGame.EvaluateTurn())
+                    {
+                        return;
+                    }
+                    Globals.CurrentGame.PlacePeg(color3, 0);
+                    Globals.CurrentGame.PlacePeg(color3, 1);
+                    Globals.CurrentGame.PlacePeg(color1, i);
+                    Globals.CurrentGame.PlacePeg(color3, 5 - i);
+                    if (Globals.CurrentGame.EvaluateTurn())
+                    {
+                        return;
+                    }
+                    throw new Exception();
+            }
+            throw new Exception();
+        }
+
+        private void SolveTati_2_2(List<MinMax> MinMaxes)
+        {
+            // guaranteed min 3, max 4 turns to solve
+            int colorA = MinMaxes.IndexOf(MinMaxes.First(mm => mm.MinCount == 2));
+            int colorB = MinMaxes.IndexOf(MinMaxes.Skip(colorA + 1).First(mm => mm.MinCount == 2));
+
+            Globals.CurrentGame.PlacePeg(colorA, 0);
+            Globals.CurrentGame.PlacePeg(colorA, 1);
+            Globals.CurrentGame.PlacePeg(colorA, 2);
+            Globals.CurrentGame.PlacePeg(colorB, 3);
+            Globals.CurrentGame.EvaluateTurn(); // this will have 3 correct
+            switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
+            {
+                case 1:
+                    // pos 3 == color1
+                    Globals.CurrentGame.PlacePeg(colorB, 0);
+                    Globals.CurrentGame.PlacePeg(colorA, 1);
+                    Globals.CurrentGame.PlacePeg(colorA, 2);
+                    Globals.CurrentGame.PlacePeg(colorA, 3);
+                    Globals.CurrentGame.EvaluateTurn(); // this will have 3 correct
+                    switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
+                    {
+                        case 1:
+                            Globals.CurrentGame.PlacePeg(colorA, 0);
+                            Globals.CurrentGame.PlacePeg(colorB, 1);
+                            Globals.CurrentGame.PlacePeg(colorB, 2);
+                            Globals.CurrentGame.PlacePeg(colorA, 3);
+                            if (Globals.CurrentGame.EvaluateTurn())
+                            {
+                                return;
+                            }
+                            break;
+                        case 3:
+                            int i = Globals.rnd.Next(1, 3);
+                            // pos 0 == color2, pos 3 == color1
+                            Globals.CurrentGame.PlacePeg(colorB, 0);
+                            Globals.CurrentGame.PlacePeg(colorB, i);
+                            Globals.CurrentGame.PlacePeg(colorA, 3-i);
+                            Globals.CurrentGame.PlacePeg(colorA, 3);
+                            if (Globals.CurrentGame.EvaluateTurn())
+                            {
+                                return;
+                            }
+                            Globals.CurrentGame.PlacePeg(colorB, 0);
+                            Globals.CurrentGame.PlacePeg(colorA, i);
+                            Globals.CurrentGame.PlacePeg(colorB, 3 - i);
+                            Globals.CurrentGame.PlacePeg(colorA, 3);
+                            if (Globals.CurrentGame.EvaluateTurn())
+                            {
+                                return;
+                            }
+                            break;
+                    }
+                    throw new Exception();
+                case 3:
+                    // pos 3 == color2
+                    Globals.CurrentGame.PlacePeg(colorA, 0);
+                    Globals.CurrentGame.PlacePeg(colorB, 1);
+                    Globals.CurrentGame.PlacePeg(colorB, 2);
+                    Globals.CurrentGame.PlacePeg(colorA, 3);
+                    Globals.CurrentGame.EvaluateTurn(); // this will have 3 correct
+                    switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
+                    {
+                        case 0:
+                            // swap
+                            Globals.CurrentGame.PlacePeg(colorB, 0);
+                            Globals.CurrentGame.PlacePeg(colorA, 1);
+                            Globals.CurrentGame.PlacePeg(colorA, 2);
+                            Globals.CurrentGame.PlacePeg(colorB, 3);
+                            if (Globals.CurrentGame.EvaluateTurn())
+                            {
+                                return;
+                            }
+                            break;
+                        case 2:
+                            // pos 0 == color1, pos 3 == color2
+                            int i = Globals.rnd.Next(1, 3);
+                            Globals.CurrentGame.PlacePeg(colorA, 0);
+                            Globals.CurrentGame.PlacePeg(colorA, i);
+                            Globals.CurrentGame.PlacePeg(colorB, 3-i);
+                            Globals.CurrentGame.PlacePeg(colorB, 3);
+                            if (Globals.CurrentGame.EvaluateTurn())
+                            {
+                                return;
+                            }
+                            Globals.CurrentGame.PlacePeg(colorA, 0);
+                            Globals.CurrentGame.PlacePeg(colorB, i);
+                            Globals.CurrentGame.PlacePeg(colorA, 3-i);
+                            Globals.CurrentGame.PlacePeg(colorB, 3);
+                            if (Globals.CurrentGame.EvaluateTurn())
+                            {
+                                return;
+                            }
+                            break;
+                    }
+                    throw new Exception();
+            }
+            throw new Exception();
+        }
+
+        private void SolveTati_2_1_1(List<MinMax> MinMaxes)
+        {
+            // guaranteed min 3, max 4 turns to solve
+            int color2 = MinMaxes.IndexOf(MinMaxes.First(mm => mm.MinCount == 2));
+            int colorA = MinMaxes.IndexOf(MinMaxes.First(mm => mm.MinCount == 1));
+            int colorB = MinMaxes.IndexOf(MinMaxes.Skip(colorA + 1).First(mm => mm.MinCount == 1));
+
+            Globals.CurrentGame.PlacePeg(colorA, 0);
+            Globals.CurrentGame.PlacePeg(colorA, 1);
+            Globals.CurrentGame.PlacePeg(colorB, 2);
+            Globals.CurrentGame.PlacePeg(colorB, 3);
+            Globals.CurrentGame.EvaluateTurn(); // this will have 3 correct
+            int i = Globals.rnd.Next(2, 4);
+            switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
+            {
+                case 0:
+                    // left side color2 and colorB and right side color2 and colorA
+                    Globals.CurrentGame.PlacePeg(color2, 0);
+                    Globals.CurrentGame.PlacePeg(colorB, 1);
+                    Globals.CurrentGame.PlacePeg(colorA, 2);
+                    Globals.CurrentGame.PlacePeg(colorA, 3);
+                    Globals.CurrentGame.EvaluateTurn(); // this will fail
+                    switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
+                    {
+                        case 1:
+                            Globals.CurrentGame.PlacePeg(colorB, 0);
+                            Globals.CurrentGame.PlacePeg(color2, 1);
+                            Globals.CurrentGame.PlacePeg(color2, i);
+                            Globals.CurrentGame.PlacePeg(colorA, 5-i);
+                            if (Globals.CurrentGame.EvaluateTurn())
+                            {
+                                return;
+                            }
+                            Globals.CurrentGame.PlacePeg(colorB, 0);
+                            Globals.CurrentGame.PlacePeg(color2, 1);
+                            Globals.CurrentGame.PlacePeg(colorA, i);
+                            Globals.CurrentGame.PlacePeg(color2, 5-i);
+                            if (Globals.CurrentGame.EvaluateTurn())
+                            {
+                                return;
+                            }
+                            break;
+                        case 3:
+                            Globals.CurrentGame.PlacePeg(color2, 0);
+                            Globals.CurrentGame.PlacePeg(colorB, 1);
+                            Globals.CurrentGame.PlacePeg(color2, i);
+                            Globals.CurrentGame.PlacePeg(colorA, 5-i);
+                            if (Globals.CurrentGame.EvaluateTurn())
+                            {
+                                return;
+                            }
+                            Globals.CurrentGame.PlacePeg(color2, 0);
+                            Globals.CurrentGame.PlacePeg(colorB, 1);
+                            Globals.CurrentGame.PlacePeg(colorA, i);
+                            Globals.CurrentGame.PlacePeg(color2, 5-i);
+                            if (Globals.CurrentGame.EvaluateTurn())
+                            {
+                                return;
+                            }
+                            break;
+                    }
+                    break;
+                case 1:
+                    // color2 on left or right
+                    Globals.CurrentGame.PlacePeg(color2, 0);
+                    Globals.CurrentGame.PlacePeg(colorB, 1);
+                    Globals.CurrentGame.PlacePeg(colorA, 2);
+                    Globals.CurrentGame.PlacePeg(colorA, 3);
+                    Globals.CurrentGame.EvaluateTurn(); // this will fail
+                    switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
+                    {
+                        case 0:
+                            Globals.CurrentGame.PlacePeg(colorB, 0);
+                            Globals.CurrentGame.PlacePeg(colorA, 1);
+                            Globals.CurrentGame.PlacePeg(color2, 2);
+                            Globals.CurrentGame.PlacePeg(color2, 3);
+                            if (Globals.CurrentGame.EvaluateTurn())
+                            {
+                                return;
+                            }
+                            break;
+                        case 1:
+                            Globals.CurrentGame.PlacePeg(colorA, 0);
+                            Globals.CurrentGame.PlacePeg(colorB, 1);
+                            Globals.CurrentGame.PlacePeg(color2, 2);
+                            Globals.CurrentGame.PlacePeg(color2, 3);
+                            if (Globals.CurrentGame.EvaluateTurn())
+                            {
+                                return;
+                            }
+                            break;
+                        case 2:
+                            Globals.CurrentGame.PlacePeg(color2, 0);
+                            Globals.CurrentGame.PlacePeg(color2, 1);
+                            Globals.CurrentGame.PlacePeg(colorA, i);
+                            Globals.CurrentGame.PlacePeg(colorB, 5-i);
+                            if (Globals.CurrentGame.EvaluateTurn())
+                            {
+                                return;
+                            }
+                            Globals.CurrentGame.PlacePeg(color2, 0);
+                            Globals.CurrentGame.PlacePeg(color2, 1);
+                            Globals.CurrentGame.PlacePeg(colorB, i);
+                            Globals.CurrentGame.PlacePeg(colorA, 5-i);
+                            if (Globals.CurrentGame.EvaluateTurn())
+                            {
+                                return;
+                            }
+                            break;
+                    }
+                    break;
+                case 2:
+                    // left side color2 and colorA and right side color2 and colorB
+                    Globals.CurrentGame.PlacePeg(color2, 0);
+                    Globals.CurrentGame.PlacePeg(colorB, 1);
+                    Globals.CurrentGame.PlacePeg(colorA, 2);
+                    Globals.CurrentGame.PlacePeg(colorA, 3);
+                    Globals.CurrentGame.EvaluateTurn(); // this will fail
+                    switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
+                    {
+                        case 1:
+                            Globals.CurrentGame.PlacePeg(color2, 0);
+                            Globals.CurrentGame.PlacePeg(colorA, 1);
+                            Globals.CurrentGame.PlacePeg(color2, i);
+                            Globals.CurrentGame.PlacePeg(colorB, 5-i);
+                            if (Globals.CurrentGame.EvaluateTurn())
+                            {
+                                return;
+                            }
+                            Globals.CurrentGame.PlacePeg(color2, 0);
+                            Globals.CurrentGame.PlacePeg(colorA, 1);
+                            Globals.CurrentGame.PlacePeg(colorB, i);
+                            Globals.CurrentGame.PlacePeg(color2, 5-i);
+                            if (Globals.CurrentGame.EvaluateTurn())
+                            {
+                                return;
+                            }
+                            break;
+                        case 2:
+                            Globals.CurrentGame.PlacePeg(colorA, 0);
+                            Globals.CurrentGame.PlacePeg(color2, 1);
+                            Globals.CurrentGame.PlacePeg(color2, i);
+                            Globals.CurrentGame.PlacePeg(colorB, 5-i);
+                            if (Globals.CurrentGame.EvaluateTurn())
+                            {
+                                return;
+                            }
+                            Globals.CurrentGame.PlacePeg(colorA, 0);
+                            Globals.CurrentGame.PlacePeg(color2, 1);
+                            Globals.CurrentGame.PlacePeg(colorB, 1);
+                            Globals.CurrentGame.PlacePeg(color2, 5-1);
+                            break;
+                    }
+                    break;
+            }
+            throw new Exception();
+        }
+
+        private void SolveTati_1_1_1_1(List<MinMax> MinMaxes)
+        {
+            List<int> colors = new List<int>(Enumerable.Range(0, 6).Where(i => MinMaxes[i].MinCount == 1).Select(i => i));
+        }
     }
 }

@@ -215,7 +215,6 @@
             // 
             // tatiToolStripMenuItem
             // 
-            this.tatiToolStripMenuItem.Enabled = false;
             this.tatiToolStripMenuItem.Name = "tatiToolStripMenuItem";
             this.tatiToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.tatiToolStripMenuItem.Text = "Tati";

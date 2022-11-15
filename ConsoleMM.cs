@@ -302,8 +302,8 @@ namespace MasterMind
 
             if (TestTati)
             {
-                // 0,0,3,4 exposes a bug when then 3rd and 4th are found it still considers 1 and 2 as possibilities
-                Globals.CurrentGame.InitializeGame(new int[] { 0, 0, 3,4 });
+                // 0,0,3,4 exposes a bug in Renaldo when then 3rd and 4th are found it still considers 1 and 2 as possibilities
+                Globals.CurrentGame.InitializeGame(new int[] { 5,4,3,5 });
             }
             else
             {
