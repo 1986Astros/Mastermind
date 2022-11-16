@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace MasterMind
@@ -299,11 +300,41 @@ namespace MasterMind
         {
             ComputerPlayer Tati = new ComputerPlayer() { PlayerName = "Tati" };
 
+#if true
+            Globals.ShowSolution = true;
+            for (int i = 0; i < 6; i++)
+            {
+                for (int j = 0; j < 6; j++)
+                {
+                    for (int k = 0; k < 6; k++)
+                    {
+                        for (int m = 0; m < 6; m++)
+                        {
+                            Debug.WriteLine($"{i},{j},{k},{m}");
+                            Globals.CurrentGame.InitializeGame(new int[] { i, j, k, m });
+                            pegBoard1.InitializeGame();
+                            Tati.Solve();
 
-            if (TestTati)
+                            pegBoard1.ShowCurrentGame();
+
+                            if (Globals.CurrentGame.Solved)
+                            {
+                                Debug.WriteLine($"Tati solved in {Globals.CurrentGame.Turns.Count()} turns.");
+                            }
+                            else
+                            {
+                                Debug.WriteLine($"Tati FAILED to solve in {Globals.CurrentGame.Turns.Count()} turns.");
+                            }
+                            Debug.WriteLine(new string('-', 20));
+                        }
+                    }
+                }
+            }
+ #else
+           if (TestTati)
             {
                 // 0,0,3,4 exposes a bug in Renaldo when then 3rd and 4th are found it still considers 1 and 2 as possibilities
-                Globals.CurrentGame.InitializeGame(new int[] { 5,4,3,5 });
+                Globals.CurrentGame.InitializeGame(new int[] { 0,3,2,1 });
             }
             else
             {
@@ -318,10 +349,6 @@ namespace MasterMind
                     Globals.CurrentGame.InitializeGame();
                 }
             }
-
-
-
-
 
             Globals.ShowSolution = true;
             pegBoard1.Enabled = true;
@@ -341,6 +368,7 @@ namespace MasterMind
             {
                 MessageBox.Show($"Tati failed to solve.");
             }
+#endif
         }
 
         private void pepitoToolStripMenuItem_Click(object sender, EventArgs e)
