@@ -2211,7 +2211,7 @@ namespace MasterMind
 
         private void SolveTati_1_1_1_1(List<MinMax> MinMaxes)
         {
-            // min 3 turns to win, max 5, which worst case is 5 would be a loss
+            // min 3 turns to win, max 4, always succeeds in solving
             List<int> colors = new List<int>(Enumerable.Range(0, 6).Where(i => MinMaxes[i].MinCount == 1).Select(i => i));
             int colorA = colors[0];
             int colorB = colors[1];
@@ -2219,61 +2219,53 @@ namespace MasterMind
             int colorD = colors[3];
 
             Globals.CurrentGame.PlacePeg(colorA, 0);
-            Globals.CurrentGame.PlacePeg(colorA, 1);
-            Globals.CurrentGame.PlacePeg(colorB, 2);
+            Globals.CurrentGame.PlacePeg(colorB, 1);
+            Globals.CurrentGame.PlacePeg(colorA, 2);
             Globals.CurrentGame.PlacePeg(colorB, 3);
             Globals.CurrentGame.EvaluateTurn();     // guaranteed to fail - worst case turn 7
             int FirstCorrectCount = Globals.CurrentGame.LastTurn().CorrectlyPlaced;
-            Globals.CurrentGame.PlacePeg(colorC, 0);
-            Globals.CurrentGame.PlacePeg(colorD, 1);
-            Globals.CurrentGame.PlacePeg(colorD, 2);
-            Globals.CurrentGame.PlacePeg(colorC, 3);
-            Globals.CurrentGame.EvaluateTurn();     // guaranteed to fail - worst case turn 8
+            if (FirstCorrectCount == 1)
+            {
+                // ACBA
+                Globals.CurrentGame.PlacePeg(colorA, 0);
+                Globals.CurrentGame.PlacePeg(colorC, 1);
+                Globals.CurrentGame.PlacePeg(colorB, 2);
+                Globals.CurrentGame.PlacePeg(colorA, 3);
+                Globals.CurrentGame.EvaluateTurn();     // guaranteed to fail - worst case turn 8
+            }
+            else
+            {
+                // CDCD
+                Globals.CurrentGame.PlacePeg(colorC, 0);
+                Globals.CurrentGame.PlacePeg(colorD, 1);
+                Globals.CurrentGame.PlacePeg(colorC, 2);
+                Globals.CurrentGame.PlacePeg(colorD, 3);
+                Globals.CurrentGame.EvaluateTurn();     // guaranteed to fail - worst case turn 8
+            }
             int SecondCorrectCount = Globals.CurrentGame.LastTurn().CorrectlyPlaced;
             Debug.Write($"{FirstCorrectCount} / {SecondCorrectCount}");
             switch (FirstCorrectCount)
             {
                 case 0:
+                    // BADD
+                    Globals.CurrentGame.PlacePeg(colorB, 0);
+                    Globals.CurrentGame.PlacePeg(colorA, 1);
+                    Globals.CurrentGame.PlacePeg(colorD, 2);
+                    Globals.CurrentGame.PlacePeg(colorD, 3);
+                    Globals.CurrentGame.EvaluateTurn();
+                    Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
                     switch (SecondCorrectCount)
                     {
                         case 0:
-                            Globals.CurrentGame.PlacePeg(colorB, 0);
-                            Globals.CurrentGame.PlacePeg(colorC, 1);
-                            Globals.CurrentGame.PlacePeg(colorA, 2);
-                            Globals.CurrentGame.PlacePeg(colorD, 3);
-                            if (Globals.CurrentGame.EvaluateTurn())
-                            {
-                                Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-                                return;
-                            }
-                            Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-
-                            Globals.CurrentGame.PlacePeg(colorD, 0);
-                            Globals.CurrentGame.PlacePeg(colorB, 1);
-                            Globals.CurrentGame.PlacePeg(colorC, 2);
-                            Globals.CurrentGame.PlacePeg(colorA, 3);
-                            if (Globals.CurrentGame.EvaluateTurn())
-                            {
-                                Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-                                return;
-                            }
-                            Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-                            break;
-                        case 1:
-                            Globals.CurrentGame.PlacePeg(colorB, 0);
-                            Globals.CurrentGame.PlacePeg(colorD, 1);
-                            Globals.CurrentGame.PlacePeg(colorB, 2);
-                            Globals.CurrentGame.PlacePeg(colorD, 3);
-                            Globals.CurrentGame.EvaluateTurn();
-                            Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
                             switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
                             {
                                 case 0:
+                                    // DCBA
                                     Globals.CurrentGame.PlacePeg(colorD, 0);
-                                    Globals.CurrentGame.PlacePeg(colorB, 1);
-                                    Globals.CurrentGame.PlacePeg(colorA, 2);
-                                    Globals.CurrentGame.PlacePeg(colorC, 3);
-                                    if (Globals.CurrentGame.EvaluateTurn())
+                                    Globals.CurrentGame.PlacePeg(colorC, 1);
+                                    Globals.CurrentGame.PlacePeg(colorB, 2);
+                                    Globals.CurrentGame.PlacePeg(colorA, 3);
+                                    if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
                                     {
                                         Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
                                         return;
@@ -2281,27 +2273,12 @@ namespace MasterMind
                                     Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
                                     break;
                                 case 1:
-                                    Globals.CurrentGame.PlacePeg(colorB, 0);
-                                    Globals.CurrentGame.PlacePeg(colorC, 1);
-                                    Globals.CurrentGame.PlacePeg(colorD, 2);
-                                    Globals.CurrentGame.PlacePeg(colorA, 3);
-                                    if (Globals.CurrentGame.EvaluateTurn())
-                                    {
-                                        Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-                                        return;
-                                    }
-                                    if (Globals.CurrentGame.Turns.Count == 10)
-                                    {
-                                        Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-                                        return;
-                                    }
-                                    Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-
-                                    Globals.CurrentGame.PlacePeg(colorC, 0);
-                                    Globals.CurrentGame.PlacePeg(colorB, 1);
-                                    Globals.CurrentGame.PlacePeg(colorA, 2);
-                                    Globals.CurrentGame.PlacePeg(colorD, 3);
-                                    if (Globals.CurrentGame.EvaluateTurn())
+                                    // DABC
+                                    Globals.CurrentGame.PlacePeg(colorD, 0);
+                                    Globals.CurrentGame.PlacePeg(colorA, 1);
+                                    Globals.CurrentGame.PlacePeg(colorB, 2);
+                                    Globals.CurrentGame.PlacePeg(colorC, 3);
+                                    if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
                                     {
                                         Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
                                         return;
@@ -2309,11 +2286,25 @@ namespace MasterMind
                                     Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
                                     break;
                                 case 2:
+                                    // BCDA
                                     Globals.CurrentGame.PlacePeg(colorB, 0);
-                                    Globals.CurrentGame.PlacePeg(colorD, 1);
-                                    Globals.CurrentGame.PlacePeg(colorC, 2);
+                                    Globals.CurrentGame.PlacePeg(colorC, 1);
+                                    Globals.CurrentGame.PlacePeg(colorD, 2);
                                     Globals.CurrentGame.PlacePeg(colorA, 3);
-                                    if (Globals.CurrentGame.EvaluateTurn())
+                                    if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                    {
+                                        Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
+                                        return;
+                                    }
+                                    Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
+                                    break;
+                                case 3:
+                                    // BADC
+                                    Globals.CurrentGame.PlacePeg(colorB, 0);
+                                    Globals.CurrentGame.PlacePeg(colorA, 1);
+                                    Globals.CurrentGame.PlacePeg(colorD, 2);
+                                    Globals.CurrentGame.PlacePeg(colorC, 3);
+                                    if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
                                     {
                                         Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
                                         return;
@@ -2323,27 +2314,61 @@ namespace MasterMind
                             }
                             break;
                         case 2:
-                            Globals.CurrentGame.PlacePeg(colorB, 0);
-                            Globals.CurrentGame.PlacePeg(colorD, 1);
-                            Globals.CurrentGame.PlacePeg(colorA, 2);
-                            Globals.CurrentGame.PlacePeg(colorC, 3);
-                            if (Globals.CurrentGame.EvaluateTurn())
+                            switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
                             {
-                                Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-                                return;
+                                case 0:
+                                    // CDBA
+                                    Globals.CurrentGame.PlacePeg(colorC, 0);
+                                    Globals.CurrentGame.PlacePeg(colorD, 1);
+                                    Globals.CurrentGame.PlacePeg(colorB, 2);
+                                    Globals.CurrentGame.PlacePeg(colorA, 3);
+                                    if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                    {
+                                        Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
+                                        return;
+                                    }
+                                    Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
+                                    break;
+                                case 1:
+                                    // BDCA
+                                    Globals.CurrentGame.PlacePeg(colorB, 0);
+                                    Globals.CurrentGame.PlacePeg(colorD, 1);
+                                    Globals.CurrentGame.PlacePeg(colorC, 2);
+                                    Globals.CurrentGame.PlacePeg(colorA, 3);
+                                    if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                    {
+                                        Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
+                                        return;
+                                    }
+                                    Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
+                                    break;
+                                case 2:
+                                    // CABD
+                                    Globals.CurrentGame.PlacePeg(colorC, 0);
+                                    Globals.CurrentGame.PlacePeg(colorA, 1);
+                                    Globals.CurrentGame.PlacePeg(colorB, 2);
+                                    Globals.CurrentGame.PlacePeg(colorD, 3);
+                                    if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                    {
+                                        Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
+                                        return;
+                                    }
+                                    Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
+                                    break;
+                                case 3:
+                                    // BACD
+                                    Globals.CurrentGame.PlacePeg(colorB, 0);
+                                    Globals.CurrentGame.PlacePeg(colorA, 1);
+                                    Globals.CurrentGame.PlacePeg(colorC, 2);
+                                    Globals.CurrentGame.PlacePeg(colorD, 3);
+                                    if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                    {
+                                        Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
+                                        return;
+                                    }
+                                    Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
+                                    break;
                             }
-                            Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-
-                            Globals.CurrentGame.PlacePeg(colorC, 0);
-                            Globals.CurrentGame.PlacePeg(colorB, 1);
-                            Globals.CurrentGame.PlacePeg(colorD, 2);
-                            Globals.CurrentGame.PlacePeg(colorA, 3);
-                            if (Globals.CurrentGame.EvaluateTurn())
-                            {
-                                Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-                                return;
-                            }
-                            Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
                             break;
                     }
                     break;
@@ -2351,41 +2376,144 @@ namespace MasterMind
                     switch (SecondCorrectCount)
                     {
                         case 0:
-                            Globals.CurrentGame.PlacePeg(colorA, 0);
-                            Globals.CurrentGame.PlacePeg(colorB, 1);
-                            Globals.CurrentGame.PlacePeg(colorC, 2);
-                            Globals.CurrentGame.PlacePeg(colorD, 3);
-                            if (Globals.CurrentGame.EvaluateTurn())      // worst case turn 9
+                            // CADB
+                            Globals.CurrentGame.PlacePeg(colorC, 0);
+                            Globals.CurrentGame.PlacePeg(colorA, 1);
+                            Globals.CurrentGame.PlacePeg(colorD, 2);
+                            Globals.CurrentGame.PlacePeg(colorB, 3);
+                            if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
                             {
                                 Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
                                 return;
                             }
-                            Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
                             switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
                             {
                                 case 0:
+                                    // BDAC
+                                    Globals.CurrentGame.PlacePeg(colorB, 0);
+                                    Globals.CurrentGame.PlacePeg(colorD, 1);
+                                    Globals.CurrentGame.PlacePeg(colorA, 2);
+                                    Globals.CurrentGame.PlacePeg(colorC, 3);
+                                    if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                    {
+                                        Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
+                                        return;
+                                    }
+                                    break;
+                                case 2:
+                                    // DACB
+                                    Globals.CurrentGame.PlacePeg(colorD, 0);
+                                    Globals.CurrentGame.PlacePeg(colorA, 1);
+                                    Globals.CurrentGame.PlacePeg(colorC, 2);
+                                    Globals.CurrentGame.PlacePeg(colorB, 3);
+                                    if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                    {
+                                        Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
+                                        return;
+                                    }
+                                    break;
+                            }
+                            Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
+                            break;
+                        case 1:
+                            // CBDA
+                            Globals.CurrentGame.PlacePeg(colorC, 0);
+                            Globals.CurrentGame.PlacePeg(colorB, 1);
+                            Globals.CurrentGame.PlacePeg(colorD, 2);
+                            Globals.CurrentGame.PlacePeg(colorA, 3);
+                            if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                            {
+                                Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
+                                return;
+                            }
+                            switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
+                            {
+                                case 0:
+                                    // BCAD
+                                    Globals.CurrentGame.PlacePeg(colorB, 0);
+                                    Globals.CurrentGame.PlacePeg(colorC, 1);
+                                    Globals.CurrentGame.PlacePeg(colorA, 2);
+                                    Globals.CurrentGame.PlacePeg(colorD, 3);
+                                    if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                    {
+                                        Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
+                                        return;
+                                    }
+                                    break;
+                                case 2:
+                                    // DBCA
+                                    Globals.CurrentGame.PlacePeg(colorD, 0);
+                                    Globals.CurrentGame.PlacePeg(colorB, 1);
+                                    Globals.CurrentGame.PlacePeg(colorC, 2);
+                                    Globals.CurrentGame.PlacePeg(colorA, 3);
+                                    if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                    {
+                                        Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
+                                        return;
+                                    }
+                                    break;
+                            }
+                            Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
+                            break;
+                        case 2:
+                            // ADBC
+                            Globals.CurrentGame.PlacePeg(colorA, 0);
+                            Globals.CurrentGame.PlacePeg(colorD, 1);
+                            Globals.CurrentGame.PlacePeg(colorB, 2);
+                            Globals.CurrentGame.PlacePeg(colorC, 3);
+                            if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                            {
+                                Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
+                                return;
+                            }
+                            break;
+                        case 3:
+                            //ACBD
+                            Globals.CurrentGame.PlacePeg(colorA, 0);
+                            Globals.CurrentGame.PlacePeg(colorC, 1);
+                            Globals.CurrentGame.PlacePeg(colorB, 2);
+                            Globals.CurrentGame.PlacePeg(colorD, 3);
+                            if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                            {
+                                Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
+                                return;
+                            }
+                            break;
+                    }
+                    break;
+                case 2:
+                    // ABDD
+                    Globals.CurrentGame.PlacePeg(colorA, 0);
+                    Globals.CurrentGame.PlacePeg(colorB, 1);
+                    Globals.CurrentGame.PlacePeg(colorD, 2);
+                    Globals.CurrentGame.PlacePeg(colorD, 3);
+                    Globals.CurrentGame.EvaluateTurn();
+                    Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
+                    switch (SecondCorrectCount)
+                    {
+                        case 0:
+                            switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
+                            {
+                                case 0:
+                                    // DCAB
                                     Globals.CurrentGame.PlacePeg(colorD, 0);
                                     Globals.CurrentGame.PlacePeg(colorC, 1);
                                     Globals.CurrentGame.PlacePeg(colorA, 2);
                                     Globals.CurrentGame.PlacePeg(colorB, 3);
-                                    if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 10
+                                    if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
                                     {
                                         Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
                                         return;
                                     }
                                     Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-                                    if (Globals.CurrentGame.Turns.Count == 10)
-                                    {
-                                         Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-                                       return;
-                                    }
-                                    Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-
+                                    break;
+                                case 1:
+                                    // DBAC
                                     Globals.CurrentGame.PlacePeg(colorD, 0);
-                                    Globals.CurrentGame.PlacePeg(colorC, 1);
-                                    Globals.CurrentGame.PlacePeg(colorB, 2);
-                                    Globals.CurrentGame.PlacePeg(colorA, 3);
-                                    if (Globals.CurrentGame.EvaluateTurn())
+                                    Globals.CurrentGame.PlacePeg(colorB, 1);
+                                    Globals.CurrentGame.PlacePeg(colorA, 2);
+                                    Globals.CurrentGame.PlacePeg(colorC, 3);
+                                    if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
                                     {
                                         Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
                                         return;
@@ -2393,27 +2521,25 @@ namespace MasterMind
                                     Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
                                     break;
                                 case 2:
+                                    // ACDB
                                     Globals.CurrentGame.PlacePeg(colorA, 0);
                                     Globals.CurrentGame.PlacePeg(colorC, 1);
-                                    Globals.CurrentGame.PlacePeg(colorB, 2);
-                                    Globals.CurrentGame.PlacePeg(colorD, 3);
-                                    if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 10
-                                    {
-                                        Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-                                        return;
-                                    }
-                                    if (Globals.CurrentGame.Turns.Count == 10)
+                                    Globals.CurrentGame.PlacePeg(colorD, 2);
+                                    Globals.CurrentGame.PlacePeg(colorB, 3);
+                                    if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
                                     {
                                         Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
                                         return;
                                     }
                                     Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-
-                                    Globals.CurrentGame.PlacePeg(colorB, 0);
-                                    Globals.CurrentGame.PlacePeg(colorA, 1);
-                                    Globals.CurrentGame.PlacePeg(colorC, 2);
-                                    Globals.CurrentGame.PlacePeg(colorD, 3);
-                                    if (Globals.CurrentGame.EvaluateTurn())
+                                    break;
+                                case 3:
+                                    // ABDC
+                                    Globals.CurrentGame.PlacePeg(colorA, 0);
+                                    Globals.CurrentGame.PlacePeg(colorB, 1);
+                                    Globals.CurrentGame.PlacePeg(colorD, 2);
+                                    Globals.CurrentGame.PlacePeg(colorC, 3);
+                                    if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
                                     {
                                         Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
                                         return;
@@ -2423,17 +2549,6 @@ namespace MasterMind
                             }
                             break;
                         case 2:
-                            // ABDC
-                            Globals.CurrentGame.PlacePeg(colorA, 0);
-                            Globals.CurrentGame.PlacePeg(colorB, 1);
-                            Globals.CurrentGame.PlacePeg(colorD, 2);
-                            Globals.CurrentGame.PlacePeg(colorC, 3);
-                            if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
-                            {
-                                Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-                                return;
-                            }
-                                    Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
                             switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
                             {
                                 case 0:
@@ -2442,113 +2557,7 @@ namespace MasterMind
                                     Globals.CurrentGame.PlacePeg(colorD, 1);
                                     Globals.CurrentGame.PlacePeg(colorA, 2);
                                     Globals.CurrentGame.PlacePeg(colorB, 3);
-                                    if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 10
-                                    {
-                                        Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-                                        return;
-                                    }
-                                    if (Globals.CurrentGame.Turns.Count == 10)
-                                    {
-                                        Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-                                        return;
-                                    }
-                                    Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-
-                                    // CDBA
-                                    Globals.CurrentGame.PlacePeg(colorC, 0);
-                                    Globals.CurrentGame.PlacePeg(colorD, 1);
-                                    Globals.CurrentGame.PlacePeg(colorB, 2);
-                                    Globals.CurrentGame.PlacePeg(colorA, 3);
-                                    if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 10
-                                    {
-                                        Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-                                        return;
-                                    }
-                                    Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-                                    break;
-                                case 2:
-                                    // BADC
-                                    Globals.CurrentGame.PlacePeg(colorB, 0);
-                                    Globals.CurrentGame.PlacePeg(colorA, 1);
-                                    Globals.CurrentGame.PlacePeg(colorD, 2);
-                                    Globals.CurrentGame.PlacePeg(colorC, 3);
-                                    if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 10
-                                    {
-                                        Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-                                        return;
-                                    }
-                                    Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-                                    break;
-                            }
-                            break;
-                    }
-                    break;
-                case 2:
-                    switch (SecondCorrectCount)
-                    {
-                        case 0:
-                            // DACB
-                            Globals.CurrentGame.PlacePeg(colorD, 0);
-                            Globals.CurrentGame.PlacePeg(colorA, 1);
-                            Globals.CurrentGame.PlacePeg(colorC, 2);
-                            Globals.CurrentGame.PlacePeg(colorB, 3);
-                            Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-                            if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
-                            {
-                                Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-                                return;
-                            }
-                            Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-
-                            // ACBD
-                            Globals.CurrentGame.PlacePeg(colorA, 0);
-                            Globals.CurrentGame.PlacePeg(colorC, 1);
-                            Globals.CurrentGame.PlacePeg(colorB, 2);
-                            Globals.CurrentGame.PlacePeg(colorD, 3);
-                            if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 10
-                            {
-                                Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-                                return;
-                            }
-                            Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-                            break;
-                        case 1:
-                            Globals.CurrentGame.PlacePeg(colorA, 0);
-                            Globals.CurrentGame.PlacePeg(colorC, 1);
-                            Globals.CurrentGame.PlacePeg(colorD, 2);
-                            Globals.CurrentGame.PlacePeg(colorB, 3);
-                            if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
-                            {
-                                Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-                                return;
-                            }
-                            Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-                            switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
-                            {
-                                case 0:
-                                    // CABD
-                                    Globals.CurrentGame.PlacePeg(colorC, 0);
-                                    Globals.CurrentGame.PlacePeg(colorA, 1);
-                                    Globals.CurrentGame.PlacePeg(colorB, 2);
-                                    Globals.CurrentGame.PlacePeg(colorD, 3);
-                                    if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 10
-                                    {
-                                        Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-                                        return;
-                                    }
-                                    if (Globals.CurrentGame.Turns.Count == 10)
-                                    {
-                                        Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-                                        return;
-                                    }
-                                    Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-
-                                    // DABC
-                                    Globals.CurrentGame.PlacePeg(colorD, 0);
-                                    Globals.CurrentGame.PlacePeg(colorA, 1);
-                                    Globals.CurrentGame.PlacePeg(colorB, 2);
-                                    Globals.CurrentGame.PlacePeg(colorC, 3);
-                                    if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 11
+                                    if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
                                     {
                                         Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
                                         return;
@@ -2556,12 +2565,12 @@ namespace MasterMind
                                     Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
                                     break;
                                 case 1:
-                                    // ACBD
+                                    // ADCB
                                     Globals.CurrentGame.PlacePeg(colorA, 0);
-                                    Globals.CurrentGame.PlacePeg(colorC, 1);
-                                    Globals.CurrentGame.PlacePeg(colorD, 2);
+                                    Globals.CurrentGame.PlacePeg(colorD, 1);
+                                    Globals.CurrentGame.PlacePeg(colorC, 2);
                                     Globals.CurrentGame.PlacePeg(colorB, 3);
-                                    if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 11
+                                    if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
                                     {
                                         Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
                                         return;
@@ -2569,49 +2578,38 @@ namespace MasterMind
                                     Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
                                     break;
                                 case 2:
-                                    // ADCB
-                                    Globals.CurrentGame.PlacePeg(colorA, 0);
-                                    Globals.CurrentGame.PlacePeg(colorD, 1);
-                                    Globals.CurrentGame.PlacePeg(colorC, 2);
-                                    Globals.CurrentGame.PlacePeg(colorB, 3);
-                                    if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 10
+                                    // CBAD
+                                    Globals.CurrentGame.PlacePeg(colorC, 0);
+                                    Globals.CurrentGame.PlacePeg(colorB, 1);
+                                    Globals.CurrentGame.PlacePeg(colorA, 2);
+                                    Globals.CurrentGame.PlacePeg(colorD, 3);
+                                    if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
                                     {
                                         Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
                                         return;
                                     }
                                     Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
                                     break;
-
+                                case 3:
+                                    // ABCD
+                                    Globals.CurrentGame.PlacePeg(colorA, 0);
+                                    Globals.CurrentGame.PlacePeg(colorB, 1);
+                                    Globals.CurrentGame.PlacePeg(colorC, 2);
+                                    Globals.CurrentGame.PlacePeg(colorD, 3);
+                                    if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                    {
+                                        Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
+                                        return;
+                                    }
+                                    Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
+                                    break;
                             }
-                            break;
-                        case 2:
-                            Globals.CurrentGame.PlacePeg(colorA, 0);
-                            Globals.CurrentGame.PlacePeg(colorD, 1);
-                            Globals.CurrentGame.PlacePeg(colorB, 2);
-                            Globals.CurrentGame.PlacePeg(colorC, 3);
-                            if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
-                            {
-                                Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-                                return;
-                            }
-                            Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-
-                            // CADB
-                            Globals.CurrentGame.PlacePeg(colorC, 0);
-                            Globals.CurrentGame.PlacePeg(colorA, 1);
-                            Globals.CurrentGame.PlacePeg(colorD, 2);
-                            Globals.CurrentGame.PlacePeg(colorB, 3);
-                            if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 10
-                            {
-                                Debug.WriteLine($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
-                                return;
-                            }
-                            Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
                             break;
                     }
                     break;
             }
             Debug.WriteLine(" ");
         }
+
     }
 }
