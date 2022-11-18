@@ -1,14 +1,15 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.Metrics;
 using System.Drawing;
 
 namespace MasterMind
 {
     internal class ComputerPlayer
     {
-        //public ComputerPlayer() : base()
-        //{
-        //    PlayerName = "";
-        //}
+        public ComputerPlayer(string playerName) : base()
+        {
+            PlayerName = playerName;
+        }
         public string PlayerName { get; set; } = "";
         private int[] ColorIndices = new int[6];
 
@@ -41,11 +42,13 @@ namespace MasterMind
             switch (PlayerName)
             {
                 case "Renaldo":
+                    PlayRenaldo();
                     break;
                 case "Úrsula":
-                    PlayUrsula();
+                    PlayÚrsula();
                     break;
                 case "Andrés":
+                    PlayAndrés();
                     break;
                 case "Tati":
                     PlayTati();
@@ -55,9 +58,21 @@ namespace MasterMind
             }
         }
 
-        public  void PlayUrsula()
+        public void PlayRenaldo()
+        {
+            Renaldo renaldo = new Renaldo(new List<int>(ColorIndices));
+            renaldo.Solve();
+        }
+
+        public  void PlayÚrsula()
         {
 
+        }
+
+        public void PlayAndrés()
+        {
+            Andrés andrés = new Andrés(new List<int>(ColorIndices));
+            andrés.Solve();
         }
 
 #if false
@@ -428,9 +443,10 @@ namespace MasterMind
             }
         }
 #else
+#if false
         public void PlayRenaldo()
         {
-            #region "1st turn"
+        #region "1st turn"
             for (int i = 0; i < 4; i++)
             {
                 Globals.CurrentGame.PlacePeg(ColorIndices[0], i);
@@ -470,9 +486,9 @@ namespace MasterMind
                     MinMaxes[i].MaxCount = 4 - lastTurn.Placed;
                 }
             }
-            #endregion
+        #endregion
 
-            #region "2nd turn"
+        #region "2nd turn"
             Globals.CurrentGame.PlacePeg(ColorIndices[0], 0);
             Globals.CurrentGame.PlacePeg(ColorIndices[0], 1);
             Globals.CurrentGame.PlacePeg(ColorIndices[1], 2);
@@ -611,7 +627,7 @@ namespace MasterMind
                                     throw new Exception();
                             }
                             break;
-                            #endif
+#endif
                         case 1:
                             switch (lastTurn.IncorrectlyPlaced)
                             {
@@ -1609,7 +1625,7 @@ namespace MasterMind
                     break;
             }
 #endif
-#endregion
+        #endregion
         }
         private bool DeduceFromFourColors(IEnumerable<PegPositionInfo> ppiSource, IEnumerable<MinMax> mmSource)
         {
@@ -1778,6 +1794,7 @@ namespace MasterMind
                 return ($"Solved:{Solved}, PegColor:{PegColor}, CanBe:{CanBe.Select(cb => cb.ToString()).Aggregate((ag, c) => $"{ag}, {c}").Trim(',').Trim()}, IsNot:{IsNot.Select(cb => cb.ToString()).Aggregate((ag, c) => $"{ag}, {c}").Trim(',').Trim()}");
             }
         }
+#endif
 
 #if false
         // On the first turn there are 0,1,2,3 correct.
@@ -1822,9 +1839,12 @@ namespace MasterMind
 
         private void PlayTati()
         {
+            Tati tati = new Tati(new List<int>(ColorIndices));
+            tati.Solve();
+#if false
             {
                 int color = 0;
-                List<PegPositionInfo> Placements = new List<PegPositionInfo>(Enumerable.Range(0, 4).Select(i => new PegPositionInfo(i)));
+                //List<PegPositionInfo> Placements = new List<PegPositionInfo>(Enumerable.Range(0, 4).Select(i => new PegPositionInfo(i)));
                 List<MinMax> MinMaxes = new List<MinMax>(Enumerable.Range(0, 6).Select(i => new MinMax(0, 4)));
                 CurrentGame.Guess lastTurn;
                 do
@@ -1838,13 +1858,13 @@ namespace MasterMind
                         return;
                     }
                     lastTurn = Globals.CurrentGame.Turns[color];
-                    if (lastTurn.CorrectlyPlaced > 0)
-                    {
-                        for (int i = 0; i < 4; i++)
-                        {
-                            Placements[i].CanBe.Add(ColorIndices[color]);
-                        }
-                    }
+                    //if (lastTurn.CorrectlyPlaced > 0)
+                    //{
+                    //    for (int i = 0; i < 4; i++)
+                    //    {
+                    //        Placements[i].CanBe.Add(ColorIndices[color]);
+                    //    }
+                    //}
                     MinMaxes[ColorIndices[color]].MinCount = lastTurn.CorrectlyPlaced;
                     color++;
                 } while (MinMaxes.Sum(mm => mm.MinCount) < 4);
@@ -1873,9 +1893,10 @@ namespace MasterMind
                         SolveTati_1_1_1_1(MinMaxes);
                         break;
                 }
+#endif
             }
-        }
 
+#if false
         private void SolveTati_3_1(List<MinMax> MinMaxes)
         {
             // guaranteed min 2, max 3 turns to solve
@@ -2610,6 +2631,1016 @@ namespace MasterMind
             }
             Debug.WriteLine(" ");
         }
+#endif
 
+        abstract private class EspookyPlayer
+        {
+            public EspookyPlayer(List<int> ColorIndices) : base()
+            {
+                this.ColorIndices = ColorIndices;
+            }
+            protected List<int> ColorIndices { get; }
+            protected List<int> colors;
+
+            abstract protected bool FindColors();
+            public void Solve()
+            {
+                if (FindColors())
+                {
+                    return; // solved while looking for colors
+                }
+
+                switch (colors.Count(c => c > 0))
+                {
+                    case 2:
+                        // either a 3/1 split or 2/2 split
+                        if (colors.Any(c => c == 3))
+                        {
+                            Solve_3_1();
+                        }
+                        else
+                        {
+                            Solve_2_2();
+                        }
+                        break;
+                    case 3:
+                        // pair of one color and two singletons
+                        Solve_2_1_1();
+                        break;
+                    case 4:
+                        // all singletons
+                        Solve_1_1_1_1();
+                        break;
+                }
+            }
+
+            protected virtual void Solve_3_1()
+            {
+                // guaranteed min 2, max 3 turns to solve
+                int color3 = colors.IndexOf(colors.First(mm => mm == 3));
+                int color1 = colors.IndexOf(colors.First(mm => mm == 1));
+
+                Globals.CurrentGame.PlacePeg(color3, 0);
+                Globals.CurrentGame.PlacePeg(color3, 1);
+                Globals.CurrentGame.PlacePeg(color1, 2);
+                Globals.CurrentGame.PlacePeg(color1, 3);
+                Globals.CurrentGame.EvaluateTurn(); // this will have 3 correct
+                switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
+                {
+                    case 1:
+                        // oddball on the left
+                        int i = Globals.rnd.Next(0, 2);
+                        Globals.CurrentGame.PlacePeg(color1, i);
+                        Globals.CurrentGame.PlacePeg(color3, 1 - i);
+                        Globals.CurrentGame.PlacePeg(color3, 2);
+                        Globals.CurrentGame.PlacePeg(color3, 3);
+                        if (Globals.CurrentGame.EvaluateTurn())
+                        {
+                            return;
+                        }
+                        if (Globals.CurrentGame.Turns.Count >= 10)
+                        {
+                            return;
+                        }
+                        Globals.CurrentGame.PlacePeg(color3, i);
+                        Globals.CurrentGame.PlacePeg(color1, 1 - i);
+                        Globals.CurrentGame.PlacePeg(color3, 2);
+                        Globals.CurrentGame.PlacePeg(color3, 3);
+                        if (Globals.CurrentGame.EvaluateTurn())
+                        {
+                            return;
+                        }
+                        break;
+                    case 3:
+                        // oddball on the right
+                        i = Globals.rnd.Next(2, 4);
+                        Globals.CurrentGame.PlacePeg(color3, 0);
+                        Globals.CurrentGame.PlacePeg(color3, 1);
+                        Globals.CurrentGame.PlacePeg(color3, i);
+                        Globals.CurrentGame.PlacePeg(color1, 5 - i);
+                        if (Globals.CurrentGame.EvaluateTurn())
+                        {
+                            return;
+                        }
+                        if (Globals.CurrentGame.Turns.Count >= 10)
+                        {
+                            return;
+                        }
+                        Globals.CurrentGame.PlacePeg(color3, 0);
+                        Globals.CurrentGame.PlacePeg(color3, 1);
+                        Globals.CurrentGame.PlacePeg(color1, i);
+                        Globals.CurrentGame.PlacePeg(color3, 5 - i);
+                        if (Globals.CurrentGame.EvaluateTurn())
+                        {
+                            return;
+                        }
+                        break;
+                }
+            }
+            protected virtual void Solve_2_2()
+            {
+                // guaranteed min 3, max 4 turns to solve
+                int colorA = colors.IndexOf(colors.First(mm => mm == 2));
+                int colorB = colors.IndexOf(colors.Skip(colorA + 1).First(mm => mm == 2),colorA + 1);
+
+                Globals.CurrentGame.PlacePeg(colorA, 0);
+                Globals.CurrentGame.PlacePeg(colorA, 1);
+                Globals.CurrentGame.PlacePeg(colorA, 2);
+                Globals.CurrentGame.PlacePeg(colorB, 3);
+                Globals.CurrentGame.EvaluateTurn(); // this will have 3 correct
+                switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
+                {
+                    case 1:
+                        // pos 3 == color1
+                        Globals.CurrentGame.PlacePeg(colorB, 0);
+                        Globals.CurrentGame.PlacePeg(colorA, 1);
+                        Globals.CurrentGame.PlacePeg(colorA, 2);
+                        Globals.CurrentGame.PlacePeg(colorA, 3);
+                        Globals.CurrentGame.EvaluateTurn(); // this will have 3 correct
+                        switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
+                        {
+                            case 1:
+                                Globals.CurrentGame.PlacePeg(colorA, 0);
+                                Globals.CurrentGame.PlacePeg(colorB, 1);
+                                Globals.CurrentGame.PlacePeg(colorB, 2);
+                                Globals.CurrentGame.PlacePeg(colorA, 3);
+                                if (Globals.CurrentGame.EvaluateTurn())
+                                {
+                                    return;
+                                }
+                                break;
+                            case 3:
+                                int i = Globals.rnd.Next(1, 3);
+                                // pos 0 == color2, pos 3 == color1
+                                Globals.CurrentGame.PlacePeg(colorB, 0);
+                                Globals.CurrentGame.PlacePeg(colorB, i);
+                                Globals.CurrentGame.PlacePeg(colorA, 3 - i);
+                                Globals.CurrentGame.PlacePeg(colorA, 3);
+                                if (Globals.CurrentGame.EvaluateTurn())
+                                {
+                                    return;
+                                }
+                                if (Globals.CurrentGame.Turns.Count >= 10)
+                                {
+                                    return;
+                                }
+                                Globals.CurrentGame.PlacePeg(colorB, 0);
+                                Globals.CurrentGame.PlacePeg(colorA, i);
+                                Globals.CurrentGame.PlacePeg(colorB, 3 - i);
+                                Globals.CurrentGame.PlacePeg(colorA, 3);
+                                if (Globals.CurrentGame.EvaluateTurn())
+                                {
+                                    return;
+                                }
+                                break;
+                        }
+                        throw new Exception();
+                    case 3:
+                        // pos 3 == color2
+                        Globals.CurrentGame.PlacePeg(colorA, 0);
+                        Globals.CurrentGame.PlacePeg(colorB, 1);
+                        Globals.CurrentGame.PlacePeg(colorB, 2);
+                        Globals.CurrentGame.PlacePeg(colorA, 3);
+                        Globals.CurrentGame.EvaluateTurn(); // this will have 3 correct
+                        switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
+                        {
+                            case 0:
+                                // swap
+                                Globals.CurrentGame.PlacePeg(colorB, 0);
+                                Globals.CurrentGame.PlacePeg(colorA, 1);
+                                Globals.CurrentGame.PlacePeg(colorA, 2);
+                                Globals.CurrentGame.PlacePeg(colorB, 3);
+                                if (Globals.CurrentGame.EvaluateTurn())
+                                {
+                                    return;
+                                }
+                                break;
+                            case 2:
+                                // pos 0 == color1, pos 3 == color2
+                                int i = Globals.rnd.Next(1, 3);
+                                Globals.CurrentGame.PlacePeg(colorA, 0);
+                                Globals.CurrentGame.PlacePeg(colorA, i);
+                                Globals.CurrentGame.PlacePeg(colorB, 3 - i);
+                                Globals.CurrentGame.PlacePeg(colorB, 3);
+                                if (Globals.CurrentGame.EvaluateTurn())
+                                {
+                                    return;
+                                }
+                                if (Globals.CurrentGame.Turns.Count >= 10)
+                                {
+                                    return;
+                                }
+                                Globals.CurrentGame.PlacePeg(colorA, 0);
+                                Globals.CurrentGame.PlacePeg(colorB, i);
+                                Globals.CurrentGame.PlacePeg(colorA, 3 - i);
+                                Globals.CurrentGame.PlacePeg(colorB, 3);
+                                if (Globals.CurrentGame.EvaluateTurn())
+                                {
+                                    return;
+                                }
+                                break;
+                        }
+                        break;
+                }
+            }
+            protected virtual void Solve_2_1_1()
+            {
+                // guaranteed min 3, max 4 turns to solve
+                int color2 = colors.IndexOf(colors.First(mm => mm == 2));
+                int colorA = colors.IndexOf(colors.First(mm => mm == 1));
+                int colorB = colors.IndexOf(colors.Skip(colorA + 1).First(mm => mm == 1), colorA + 1);
+
+                Globals.CurrentGame.PlacePeg(colorA, 0);
+                Globals.CurrentGame.PlacePeg(colorA, 1);
+                Globals.CurrentGame.PlacePeg(colorB, 2);
+                Globals.CurrentGame.PlacePeg(colorB, 3);
+                Globals.CurrentGame.EvaluateTurn(); // this will have 3 correct
+                int i = Globals.rnd.Next(2, 4);
+                switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
+                {
+                    case 0:
+                        // left side color2 and colorB and right side color2 and colorA
+                        Globals.CurrentGame.PlacePeg(color2, 0);
+                        Globals.CurrentGame.PlacePeg(colorB, 1);
+                        Globals.CurrentGame.PlacePeg(colorA, 2);
+                        Globals.CurrentGame.PlacePeg(colorA, 3);
+                        Globals.CurrentGame.EvaluateTurn(); // this will fail
+                        switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
+                        {
+                            case 1:
+                                Globals.CurrentGame.PlacePeg(colorB, 0);
+                                Globals.CurrentGame.PlacePeg(color2, 1);
+                                Globals.CurrentGame.PlacePeg(color2, i);
+                                Globals.CurrentGame.PlacePeg(colorA, 5 - i);
+                                if (Globals.CurrentGame.EvaluateTurn())
+                                {
+                                    return;
+                                }
+                                if (Globals.CurrentGame.Turns.Count >= 10)
+                                {
+                                    return;
+                                }
+                                Globals.CurrentGame.PlacePeg(colorB, 0);
+                                Globals.CurrentGame.PlacePeg(color2, 1);
+                                Globals.CurrentGame.PlacePeg(colorA, i);
+                                Globals.CurrentGame.PlacePeg(color2, 5 - i);
+                                if (Globals.CurrentGame.EvaluateTurn())
+                                {
+                                    return;
+                                }
+                                break;
+                            case 3:
+                                Globals.CurrentGame.PlacePeg(color2, 0);
+                                Globals.CurrentGame.PlacePeg(colorB, 1);
+                                Globals.CurrentGame.PlacePeg(color2, i);
+                                Globals.CurrentGame.PlacePeg(colorA, 5 - i);
+                                if (Globals.CurrentGame.EvaluateTurn())
+                                {
+                                    return;
+                                }
+                                if (Globals.CurrentGame.Turns.Count >= 10)
+                                {
+                                    return;
+                                }
+                                Globals.CurrentGame.PlacePeg(color2, 0);
+                                Globals.CurrentGame.PlacePeg(colorB, 1);
+                                Globals.CurrentGame.PlacePeg(colorA, i);
+                                Globals.CurrentGame.PlacePeg(color2, 5 - i);
+                                if (Globals.CurrentGame.EvaluateTurn())
+                                {
+                                    return;
+                                }
+                                break;
+                        }
+                        break;
+                    case 1:
+                        // color2 on left or right
+                        Globals.CurrentGame.PlacePeg(color2, 0);
+                        Globals.CurrentGame.PlacePeg(colorB, 1);
+                        Globals.CurrentGame.PlacePeg(colorA, 2);
+                        Globals.CurrentGame.PlacePeg(colorA, 3);
+                        Globals.CurrentGame.EvaluateTurn(); // this will fail
+                        switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
+                        {
+                            case 0:
+                                Globals.CurrentGame.PlacePeg(colorB, 0);
+                                Globals.CurrentGame.PlacePeg(colorA, 1);
+                                Globals.CurrentGame.PlacePeg(color2, 2);
+                                Globals.CurrentGame.PlacePeg(color2, 3);
+                                if (Globals.CurrentGame.EvaluateTurn())
+                                {
+                                    return;
+                                }
+                                break;
+                            case 1:
+                                Globals.CurrentGame.PlacePeg(colorA, 0);
+                                Globals.CurrentGame.PlacePeg(colorB, 1);
+                                Globals.CurrentGame.PlacePeg(color2, 2);
+                                Globals.CurrentGame.PlacePeg(color2, 3);
+                                if (Globals.CurrentGame.EvaluateTurn())
+                                {
+                                    return;
+                                }
+                                break;
+                            case 2:
+                                Globals.CurrentGame.PlacePeg(color2, 0);
+                                Globals.CurrentGame.PlacePeg(color2, 1);
+                                Globals.CurrentGame.PlacePeg(colorA, i);
+                                Globals.CurrentGame.PlacePeg(colorB, 5 - i);
+                                if (Globals.CurrentGame.EvaluateTurn())
+                                {
+                                    return;
+                                }
+                                Globals.CurrentGame.PlacePeg(color2, 0);
+                                Globals.CurrentGame.PlacePeg(color2, 1);
+                                Globals.CurrentGame.PlacePeg(colorB, i);
+                                Globals.CurrentGame.PlacePeg(colorA, 5 - i);
+                                if (Globals.CurrentGame.EvaluateTurn())
+                                {
+                                    return;
+                                }
+                                break;
+                        }
+                        break;
+                    case 2:
+                        // left side color2 and colorA and right side color2 and colorB
+                        Globals.CurrentGame.PlacePeg(color2, 0);
+                        Globals.CurrentGame.PlacePeg(colorB, 1);
+                        Globals.CurrentGame.PlacePeg(colorA, 2);
+                        Globals.CurrentGame.PlacePeg(colorA, 3);
+                        Globals.CurrentGame.EvaluateTurn(); // this will fail
+                        switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
+                        {
+                            case 0:
+                                Globals.CurrentGame.PlacePeg(colorA, 0);
+                                Globals.CurrentGame.PlacePeg(color2, 1);
+                                Globals.CurrentGame.PlacePeg(color2, i);
+                                Globals.CurrentGame.PlacePeg(colorB, 5 - i);
+                                if (Globals.CurrentGame.EvaluateTurn())
+                                {
+                                    return;
+                                }
+                                if (Globals.CurrentGame.Turns.Count >= 10)
+                                {
+                                    return;
+                                }
+                                Globals.CurrentGame.PlacePeg(colorA, 0);
+                                Globals.CurrentGame.PlacePeg(color2, 1);
+                                Globals.CurrentGame.PlacePeg(colorB, i);
+                                Globals.CurrentGame.PlacePeg(color2, 5 - i);
+                                if (Globals.CurrentGame.EvaluateTurn())
+                                {
+                                    return;
+                                }
+                                break;
+                            case 1:
+                                Globals.CurrentGame.PlacePeg(color2, 0);
+                                Globals.CurrentGame.PlacePeg(colorA, 1);
+                                Globals.CurrentGame.PlacePeg(color2, i);
+                                Globals.CurrentGame.PlacePeg(colorB, 5 - i);
+                                if (Globals.CurrentGame.EvaluateTurn())
+                                {
+                                    return;
+                                }
+                                if (Globals.CurrentGame.Turns.Count >= 10)
+                                {
+                                    return;
+                                }
+                                Globals.CurrentGame.PlacePeg(color2, 0);
+                                Globals.CurrentGame.PlacePeg(colorA, 1);
+                                Globals.CurrentGame.PlacePeg(colorB, i);
+                                Globals.CurrentGame.PlacePeg(color2, 5 - i);
+                                if (Globals.CurrentGame.EvaluateTurn())
+                                {
+                                    return;
+                                }
+                                break;
+                            case 2:
+                                Globals.CurrentGame.PlacePeg(colorA, 0);
+                                Globals.CurrentGame.PlacePeg(color2, 1);
+                                Globals.CurrentGame.PlacePeg(color2, i);
+                                Globals.CurrentGame.PlacePeg(colorB, 5 - i);
+                                if (Globals.CurrentGame.EvaluateTurn())
+                                {
+                                    return;
+                                }
+                                if (Globals.CurrentGame.Turns.Count >= 10)
+                                {
+                                    return;
+                                }
+                                Globals.CurrentGame.PlacePeg(colorA, 0);
+                                Globals.CurrentGame.PlacePeg(color2, 1);
+                                Globals.CurrentGame.PlacePeg(colorB, 1);
+                                Globals.CurrentGame.PlacePeg(color2, 5 - 1);
+                                break;
+                        }
+                        break;
+                }
+            }
+
+            protected virtual void Solve_1_1_1_1()
+            {
+                // min 3 turns to win, max 4, always succeeds in solving
+                List<int> colorsUsed = new List<int>(Enumerable.Range(0, 6).Where(i => colors[i] == 1).Select(i => i));
+                int colorA = colorsUsed[0];
+                int colorB = colorsUsed[1];
+                int colorC = colorsUsed[2];
+                int colorD = colorsUsed[3];
+
+                Globals.CurrentGame.PlacePeg(colorA, 0);
+                Globals.CurrentGame.PlacePeg(colorB, 1);
+                Globals.CurrentGame.PlacePeg(colorA, 2);
+                Globals.CurrentGame.PlacePeg(colorB, 3);
+                Globals.CurrentGame.EvaluateTurn();     // guaranteed to fail
+                if (Globals.CurrentGame.Turns.Count >= 10)
+                {
+                    return;
+                }
+                int FirstCorrectCount = Globals.CurrentGame.LastTurn().CorrectlyPlaced;
+                if (FirstCorrectCount == 1)
+                {
+                    // ACBA
+                    Globals.CurrentGame.PlacePeg(colorA, 0);
+                    Globals.CurrentGame.PlacePeg(colorC, 1);
+                    Globals.CurrentGame.PlacePeg(colorB, 2);
+                    Globals.CurrentGame.PlacePeg(colorA, 3);
+                    Globals.CurrentGame.EvaluateTurn();     // guaranteed to fail
+                }
+                else
+                {
+                    // CDCD
+                    Globals.CurrentGame.PlacePeg(colorC, 0);
+                    Globals.CurrentGame.PlacePeg(colorD, 1);
+                    Globals.CurrentGame.PlacePeg(colorC, 2);
+                    Globals.CurrentGame.PlacePeg(colorD, 3);
+                    Globals.CurrentGame.EvaluateTurn();     // guaranteed to fail
+                }
+                if (Globals.CurrentGame.Turns.Count >= 10)
+                {
+                    return;
+                }
+                int SecondCorrectCount = Globals.CurrentGame.LastTurn().CorrectlyPlaced;
+                switch (FirstCorrectCount)
+                {
+                    case 0:
+                        // BADD
+                        Globals.CurrentGame.PlacePeg(colorB, 0);
+                        Globals.CurrentGame.PlacePeg(colorA, 1);
+                        Globals.CurrentGame.PlacePeg(colorD, 2);
+                        Globals.CurrentGame.PlacePeg(colorD, 3);
+                        Globals.CurrentGame.EvaluateTurn();
+                        if (Globals.CurrentGame.Turns.Count >= 10)
+                        {
+                            return;
+                        }
+                        switch (SecondCorrectCount)
+                        {
+                            case 0:
+                                switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
+                                {
+                                    case 0:
+                                        // DCBA
+                                        Globals.CurrentGame.PlacePeg(colorD, 0);
+                                        Globals.CurrentGame.PlacePeg(colorC, 1);
+                                        Globals.CurrentGame.PlacePeg(colorB, 2);
+                                        Globals.CurrentGame.PlacePeg(colorA, 3);
+                                        if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                        {
+                                            return;
+                                        }
+                                        if (Globals.CurrentGame.Turns.Count >= 10)
+                                        {
+                                            return;
+                                        }
+                                        break;
+                                    case 1:
+                                        // DABC
+                                        Globals.CurrentGame.PlacePeg(colorD, 0);
+                                        Globals.CurrentGame.PlacePeg(colorA, 1);
+                                        Globals.CurrentGame.PlacePeg(colorB, 2);
+                                        Globals.CurrentGame.PlacePeg(colorC, 3);
+                                        if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                        {
+                                            return;
+                                        }
+                                        if (Globals.CurrentGame.Turns.Count >= 10)
+                                        {
+                                            return;
+                                        }
+                                        break;
+                                    case 2:
+                                        // BCDA
+                                        Globals.CurrentGame.PlacePeg(colorB, 0);
+                                        Globals.CurrentGame.PlacePeg(colorC, 1);
+                                        Globals.CurrentGame.PlacePeg(colorD, 2);
+                                        Globals.CurrentGame.PlacePeg(colorA, 3);
+                                        if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                        {
+                                            return;
+                                        }
+                                        if (Globals.CurrentGame.Turns.Count >= 10)
+                                        {
+                                            return;
+                                        }
+                                        break;
+                                    case 3:
+                                        // BADC
+                                        Globals.CurrentGame.PlacePeg(colorB, 0);
+                                        Globals.CurrentGame.PlacePeg(colorA, 1);
+                                        Globals.CurrentGame.PlacePeg(colorD, 2);
+                                        Globals.CurrentGame.PlacePeg(colorC, 3);
+                                        if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                        {
+                                            return;
+                                        }
+                                        if (Globals.CurrentGame.Turns.Count >= 10)
+                                        {
+                                            return;
+                                        }
+                                        break;
+                                }
+                                break;
+                            case 2:
+                                switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
+                                {
+                                    case 0:
+                                        // CDBA
+                                        Globals.CurrentGame.PlacePeg(colorC, 0);
+                                        Globals.CurrentGame.PlacePeg(colorD, 1);
+                                        Globals.CurrentGame.PlacePeg(colorB, 2);
+                                        Globals.CurrentGame.PlacePeg(colorA, 3);
+                                        if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                        {
+                                            return;
+                                        }
+                                        if (Globals.CurrentGame.Turns.Count >= 10)
+                                        {
+                                            return;
+                                        }
+                                        break;
+                                    case 1:
+                                        // BDCA
+                                        Globals.CurrentGame.PlacePeg(colorB, 0);
+                                        Globals.CurrentGame.PlacePeg(colorD, 1);
+                                        Globals.CurrentGame.PlacePeg(colorC, 2);
+                                        Globals.CurrentGame.PlacePeg(colorA, 3);
+                                        if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                        {
+                                            return;
+                                        }
+                                        if (Globals.CurrentGame.Turns.Count >= 10)
+                                        {
+                                            return;
+                                        }
+                                        break;
+                                    case 2:
+                                        // CABD
+                                        Globals.CurrentGame.PlacePeg(colorC, 0);
+                                        Globals.CurrentGame.PlacePeg(colorA, 1);
+                                        Globals.CurrentGame.PlacePeg(colorB, 2);
+                                        Globals.CurrentGame.PlacePeg(colorD, 3);
+                                        if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                        {
+                                            return;
+                                        }
+                                        if (Globals.CurrentGame.Turns.Count >= 10)
+                                        {
+                                            return;
+                                        }
+                                        break;
+                                    case 3:
+                                        // BACD
+                                        Globals.CurrentGame.PlacePeg(colorB, 0);
+                                        Globals.CurrentGame.PlacePeg(colorA, 1);
+                                        Globals.CurrentGame.PlacePeg(colorC, 2);
+                                        Globals.CurrentGame.PlacePeg(colorD, 3);
+                                        if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                        {
+                                            return;
+                                        }
+                                        if (Globals.CurrentGame.Turns.Count >= 10)
+                                        {
+                                            return;
+                                        }
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    case 1:
+                        switch (SecondCorrectCount)
+                        {
+                            case 0:
+                                // CADB
+                                Globals.CurrentGame.PlacePeg(colorC, 0);
+                                Globals.CurrentGame.PlacePeg(colorA, 1);
+                                Globals.CurrentGame.PlacePeg(colorD, 2);
+                                Globals.CurrentGame.PlacePeg(colorB, 3);
+                                if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                {
+                                    return;
+                                }
+                                if (Globals.CurrentGame.Turns.Count >= 10)
+                                {
+                                    return;
+                                }
+                                switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
+                                {
+                                    case 0:
+                                        // BDAC
+                                        Globals.CurrentGame.PlacePeg(colorB, 0);
+                                        Globals.CurrentGame.PlacePeg(colorD, 1);
+                                        Globals.CurrentGame.PlacePeg(colorA, 2);
+                                        Globals.CurrentGame.PlacePeg(colorC, 3);
+                                        if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                        {
+                                            return;
+                                        }
+                                        if (Globals.CurrentGame.Turns.Count >= 10)
+                                        {
+                                            return;
+                                        }
+                                        break;
+                                    case 2:
+                                        // DACB
+                                        Globals.CurrentGame.PlacePeg(colorD, 0);
+                                        Globals.CurrentGame.PlacePeg(colorA, 1);
+                                        Globals.CurrentGame.PlacePeg(colorC, 2);
+                                        Globals.CurrentGame.PlacePeg(colorB, 3);
+                                        if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                        {
+                                            return;
+                                        }
+                                        if (Globals.CurrentGame.Turns.Count >= 10)
+                                        {
+                                            return;
+                                        }
+                                        break;
+                                }
+                                break;
+                            case 1:
+                                // CBDA
+                                Globals.CurrentGame.PlacePeg(colorC, 0);
+                                Globals.CurrentGame.PlacePeg(colorB, 1);
+                                Globals.CurrentGame.PlacePeg(colorD, 2);
+                                Globals.CurrentGame.PlacePeg(colorA, 3);
+                                if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                {
+                                    return;
+                                }
+                                if (Globals.CurrentGame.Turns.Count >= 10)
+                                {
+                                    return;
+                                }
+                                switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
+                                {
+                                    case 0:
+                                        // BCAD
+                                        Globals.CurrentGame.PlacePeg(colorB, 0);
+                                        Globals.CurrentGame.PlacePeg(colorC, 1);
+                                        Globals.CurrentGame.PlacePeg(colorA, 2);
+                                        Globals.CurrentGame.PlacePeg(colorD, 3);
+                                        if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                        {
+                                            return;
+                                        }
+                                        if (Globals.CurrentGame.Turns.Count >= 10)
+                                        {
+                                            return;
+                                        }
+                                        break;
+                                    case 2:
+                                        // DBCA
+                                        Globals.CurrentGame.PlacePeg(colorD, 0);
+                                        Globals.CurrentGame.PlacePeg(colorB, 1);
+                                        Globals.CurrentGame.PlacePeg(colorC, 2);
+                                        Globals.CurrentGame.PlacePeg(colorA, 3);
+                                        if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                        {
+                                            return;
+                                        }
+                                        if (Globals.CurrentGame.Turns.Count >= 10)
+                                        {
+                                            return;
+                                        }
+                                        break;
+                                }
+                                Debug.Write($" / {Globals.CurrentGame.LastTurn().CorrectlyPlaced}");
+                                break;
+                            case 2:
+                                // ADBC
+                                Globals.CurrentGame.PlacePeg(colorA, 0);
+                                Globals.CurrentGame.PlacePeg(colorD, 1);
+                                Globals.CurrentGame.PlacePeg(colorB, 2);
+                                Globals.CurrentGame.PlacePeg(colorC, 3);
+                                if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                {
+                                    return;
+                                }
+                                if (Globals.CurrentGame.Turns.Count >= 10)
+                                {
+                                    return;
+                                }
+                                break;
+                            case 3:
+                                //ACBD
+                                Globals.CurrentGame.PlacePeg(colorA, 0);
+                                Globals.CurrentGame.PlacePeg(colorC, 1);
+                                Globals.CurrentGame.PlacePeg(colorB, 2);
+                                Globals.CurrentGame.PlacePeg(colorD, 3);
+                                if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                {
+                                    return;
+                                }
+                                if (Globals.CurrentGame.Turns.Count >= 10)
+                                {
+                                    return;
+                                }
+                                break;
+                        }
+                        break;
+                    case 2:
+                        // ABDD
+                        Globals.CurrentGame.PlacePeg(colorA, 0);
+                        Globals.CurrentGame.PlacePeg(colorB, 1);
+                        Globals.CurrentGame.PlacePeg(colorD, 2);
+                        Globals.CurrentGame.PlacePeg(colorD, 3);
+                        Globals.CurrentGame.EvaluateTurn();
+                        if (Globals.CurrentGame.Turns.Count >= 10)
+                        {
+                            return;
+                        }
+                        switch (SecondCorrectCount)
+                        {
+                            case 0:
+                                switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
+                                {
+                                    case 0:
+                                        // DCAB
+                                        Globals.CurrentGame.PlacePeg(colorD, 0);
+                                        Globals.CurrentGame.PlacePeg(colorC, 1);
+                                        Globals.CurrentGame.PlacePeg(colorA, 2);
+                                        Globals.CurrentGame.PlacePeg(colorB, 3);
+                                        if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                        {
+                                            return;
+                                        }
+                                        if (Globals.CurrentGame.Turns.Count >= 10)
+                                        {
+                                            return;
+                                        }
+                                        break;
+                                    case 1:
+                                        // DBAC
+                                        Globals.CurrentGame.PlacePeg(colorD, 0);
+                                        Globals.CurrentGame.PlacePeg(colorB, 1);
+                                        Globals.CurrentGame.PlacePeg(colorA, 2);
+                                        Globals.CurrentGame.PlacePeg(colorC, 3);
+                                        if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                        {
+                                            return;
+                                        }
+                                        if (Globals.CurrentGame.Turns.Count >= 10)
+                                        {
+                                            return;
+                                        }
+                                        break;
+                                    case 2:
+                                        // ACDB
+                                        Globals.CurrentGame.PlacePeg(colorA, 0);
+                                        Globals.CurrentGame.PlacePeg(colorC, 1);
+                                        Globals.CurrentGame.PlacePeg(colorD, 2);
+                                        Globals.CurrentGame.PlacePeg(colorB, 3);
+                                        if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                        {
+                                            return;
+                                        }
+                                        if (Globals.CurrentGame.Turns.Count >= 10)
+                                        {
+                                            return;
+                                        }
+                                        break;
+                                    case 3:
+                                        // ABDC
+                                        Globals.CurrentGame.PlacePeg(colorA, 0);
+                                        Globals.CurrentGame.PlacePeg(colorB, 1);
+                                        Globals.CurrentGame.PlacePeg(colorD, 2);
+                                        Globals.CurrentGame.PlacePeg(colorC, 3);
+                                        if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                        {
+                                            return;
+                                        }
+                                        if (Globals.CurrentGame.Turns.Count >= 10)
+                                        {
+                                            return;
+                                        }
+                                        break;
+                                }
+                                break;
+                            case 2:
+                                switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
+                                {
+                                    case 0:
+                                        // CDAB
+                                        Globals.CurrentGame.PlacePeg(colorC, 0);
+                                        Globals.CurrentGame.PlacePeg(colorD, 1);
+                                        Globals.CurrentGame.PlacePeg(colorA, 2);
+                                        Globals.CurrentGame.PlacePeg(colorB, 3);
+                                        if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                        {
+                                            return;
+                                        }
+                                        if (Globals.CurrentGame.Turns.Count >= 10)
+                                        {
+                                            return;
+                                        }
+                                        break;
+                                    case 1:
+                                        // ADCB
+                                        Globals.CurrentGame.PlacePeg(colorA, 0);
+                                        Globals.CurrentGame.PlacePeg(colorD, 1);
+                                        Globals.CurrentGame.PlacePeg(colorC, 2);
+                                        Globals.CurrentGame.PlacePeg(colorB, 3);
+                                        if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                        {
+                                            return;
+                                        }
+                                        if (Globals.CurrentGame.Turns.Count >= 10)
+                                        {
+                                            return;
+                                        }
+                                        break;
+                                    case 2:
+                                        // CBAD
+                                        Globals.CurrentGame.PlacePeg(colorC, 0);
+                                        Globals.CurrentGame.PlacePeg(colorB, 1);
+                                        Globals.CurrentGame.PlacePeg(colorA, 2);
+                                        Globals.CurrentGame.PlacePeg(colorD, 3);
+                                        if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                        {
+                                            return;
+                                        }
+                                        if (Globals.CurrentGame.Turns.Count >= 10)
+                                        {
+                                            return;
+                                        }
+                                        break;
+                                    case 3:
+                                        // ABCD
+                                        Globals.CurrentGame.PlacePeg(colorA, 0);
+                                        Globals.CurrentGame.PlacePeg(colorB, 1);
+                                        Globals.CurrentGame.PlacePeg(colorC, 2);
+                                        Globals.CurrentGame.PlacePeg(colorD, 3);
+                                        if (Globals.CurrentGame.EvaluateTurn()) // worst case turn 9
+                                        {
+                                            return;
+                                        }
+                                        if (Globals.CurrentGame.Turns.Count >= 10)
+                                        {
+                                            return;
+                                        }
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                }
+            }
+        }
+        private class Renaldo : EspookyPlayer
+        {
+            public Renaldo(List<int> ColorIndices) : base(ColorIndices)
+            {
+
+            }
+            protected override bool FindColors()
+            {
+                int color = 0;
+                colors = new List<int>(Enumerable.Range(0, 6).Select(i => 0));
+                do
+                {
+                    for (int i = 0; i < 4; i++)
+                    {
+                        Globals.CurrentGame.PlacePeg(ColorIndices[color], i);
+                    }
+                    if (Globals.CurrentGame.EvaluateTurn())
+                    {
+                        return true;
+                    }
+                    colors[ColorIndices[color]] = Globals.CurrentGame.Turns[color].CorrectlyPlaced;
+                    color++;
+                } while (colors.Sum() < 4);
+                return false;
+            }
+        }
+        private class Andrés : EspookyPlayer
+        {
+            public Andrés(List<int> ColorIndices) : base(ColorIndices)
+            {
+
+            }
+            protected override bool FindColors()
+            {
+                // find the color index for the bluest color
+                // move that index to the front of the ColorIndices so that it's guessed first
+                // guess it one extra time for no reason
+                int bluestColor = int.MinValue;
+                int bluestIndex = -1;
+                int blueness;
+                for (int colorIndex = 0; colorIndex < 6; colorIndex++)
+                {
+                    blueness = Globals.ColorsInUse[colorIndex].B - Globals.ColorsInUse[colorIndex].R - Globals.ColorsInUse[colorIndex].G;
+                    if (blueness > bluestColor)
+                    {
+                        bluestColor = blueness;
+                        bluestIndex = colorIndex;
+                    }
+                }
+                if (bluestIndex > 0)
+                {
+                    int otherColor = ColorIndices[0];
+                    ColorIndices[0] = bluestIndex;
+                    ColorIndices[bluestIndex] = otherColor;
+                }
+
+                int color = 0;
+                bool guessedBlueAgain = false;
+                colors = new List<int>(Enumerable.Range(0, 6).Select(i => 0));
+                do
+                {
+                    if (color > 1 && !guessedBlueAgain && Globals.rnd.Next(0, 2) == 0)
+                    {
+                        // guess blue again
+                        for (int i = 0; i < 4; i++)
+                        {
+                            Globals.CurrentGame.PlacePeg(ColorIndices[color], i);
+                        }
+                        Globals.CurrentGame.EvaluateTurn();
+                        guessedBlueAgain = true;
+                    }
+                    else
+                    {
+                        for (int i = 0; i < 4; i++)
+                        {
+                            Globals.CurrentGame.PlacePeg(ColorIndices[color], i);
+                        }
+                        if (Globals.CurrentGame.EvaluateTurn())
+                        {
+                            return true;
+                        }
+                        colors[ColorIndices[color]] = Globals.CurrentGame.Turns[color].CorrectlyPlaced;
+                        color++;
+                    }
+                } while (colors.Sum() < 4);
+                if (!guessedBlueAgain)
+                {
+                    // guess blue again, "just in case"
+                    for (int i = 0; i < 4; i++)
+                    {
+                        Globals.CurrentGame.PlacePeg(ColorIndices[color], i);
+                    }
+                    Globals.CurrentGame.EvaluateTurn();
+                    guessedBlueAgain = true;
+                }
+
+                return false;
+            }
+        }
+        private class Tati : EspookyPlayer
+        {
+            public Tati(List<int> ColorIndices) : base(ColorIndices)
+            {
+
+            }
+            protected override bool FindColors()
+            {
+                // for Tati time goes in a circle so she knows the colors
+                colors = new List<int>(Enumerable.Range(0, 6).Select(c => Globals.CurrentGame.Pattern.Where(p => p == c).Count()));
+                for (int i = 0;i < 6; i++)
+                {
+                    if (colors[i] > 0)
+                    {
+                        for (int j = 0; j < 4; j++)
+                        {
+                            Globals.CurrentGame.PlacePeg(ColorIndices[i], j);
+                        }
+                        if (Globals.CurrentGame.EvaluateTurn())
+                        {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+        }
     }
 }
+
+#if false
+    Renaldo - plays this strategy
+    Andres - same, but always starts with Blue
+    Tati - gets the colors in an order that will solve the particular puzzle quickest - she sees the colors in the future
+
+    Ursula - should be the best player
+    Pepito - weird-ass guesses
+#endif

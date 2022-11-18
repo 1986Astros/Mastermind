@@ -191,7 +191,6 @@
             // 
             // renaldoToolStripMenuItem
             // 
-            this.renaldoToolStripMenuItem.Enabled = false;
             this.renaldoToolStripMenuItem.Name = "renaldoToolStripMenuItem";
             this.renaldoToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.renaldoToolStripMenuItem.Text = "Renaldo";
@@ -207,7 +206,6 @@
             // 
             // andrésToolStripMenuItem
             // 
-            this.andrésToolStripMenuItem.Enabled = false;
             this.andrésToolStripMenuItem.Name = "andrésToolStripMenuItem";
             this.andrésToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.andrésToolStripMenuItem.Text = "Andrés";
@@ -248,56 +246,56 @@
             this.righthandedToolStripMenuItem.Checked = true;
             this.righthandedToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.righthandedToolStripMenuItem.Name = "righthandedToolStripMenuItem";
-            this.righthandedToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.righthandedToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.righthandedToolStripMenuItem.Text = "Right-handed";
             this.righthandedToolStripMenuItem.Click += new System.EventHandler(this.righthandedToolStripMenuItem_Click);
             // 
             // lefthandedToolStripMenuItem
             // 
             this.lefthandedToolStripMenuItem.Name = "lefthandedToolStripMenuItem";
-            this.lefthandedToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.lefthandedToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.lefthandedToolStripMenuItem.Text = "Left-handed";
             this.lefthandedToolStripMenuItem.Click += new System.EventHandler(this.lefthandedToolStripMenuItem_Click);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(161, 6);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(177, 6);
             // 
             // playerAtBottomToolStripMenuItem
             // 
             this.playerAtBottomToolStripMenuItem.Checked = true;
             this.playerAtBottomToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.playerAtBottomToolStripMenuItem.Name = "playerAtBottomToolStripMenuItem";
-            this.playerAtBottomToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.playerAtBottomToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.playerAtBottomToolStripMenuItem.Text = "Player at bottom";
             this.playerAtBottomToolStripMenuItem.Click += new System.EventHandler(this.playerAtBottomToolStripMenuItem_Click);
             // 
             // playerAtTopToolStripMenuItem
             // 
             this.playerAtTopToolStripMenuItem.Name = "playerAtTopToolStripMenuItem";
-            this.playerAtTopToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.playerAtTopToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.playerAtTopToolStripMenuItem.Text = "Player at top";
             this.playerAtTopToolStripMenuItem.Click += new System.EventHandler(this.playerAtTopToolStripMenuItem_Click);
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(161, 6);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(177, 6);
             // 
             // verticalTrayToolStripMenuItem
             // 
             this.verticalTrayToolStripMenuItem.Checked = true;
             this.verticalTrayToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.verticalTrayToolStripMenuItem.Name = "verticalTrayToolStripMenuItem";
-            this.verticalTrayToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.verticalTrayToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.verticalTrayToolStripMenuItem.Text = "Vertical cradle";
             this.verticalTrayToolStripMenuItem.Click += new System.EventHandler(this.verticalTrayToolStripMenuItem_Click);
             // 
             // horizontalTrayToolStripMenuItem
             // 
             this.horizontalTrayToolStripMenuItem.Name = "horizontalTrayToolStripMenuItem";
-            this.horizontalTrayToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.horizontalTrayToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.horizontalTrayToolStripMenuItem.Text = "Horizontal cradle";
             this.horizontalTrayToolStripMenuItem.Click += new System.EventHandler(this.horizontalTrayToolStripMenuItem_Click);
             // 
