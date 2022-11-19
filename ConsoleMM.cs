@@ -408,7 +408,7 @@ namespace MasterMind
                                     Debug.WriteLine($"{hal.PlayerName} FAILED to solve in {Globals.CurrentGame.Turns.Count()} turns.");
                                 }
                                 Debug.WriteLine(new string('-', 20));
-                                MessageBox.Show("next");
+                                //MessageBox.Show("next");
                             }
                         }
                     }

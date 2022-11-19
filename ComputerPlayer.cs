@@ -13,11 +13,11 @@ namespace MasterMind
         public string PlayerName { get; set; } = "";
         private int[] ColorIndices = new int[6];
 
-        const bool TestingTati = true;
+        const bool Testing = true;
 
         public void Solve()
         {
-            if (TestingTati)
+            if (Testing)
             {
                 for (int i = 0; i < 6; i++)
                 {
@@ -2650,6 +2650,11 @@ namespace MasterMind
                     return; // solved while looking for colors
                 }
 
+                if (Globals.CurrentGame.Turns.Count >= 10)
+                {
+                    return;
+                }
+
                 switch (colors.Count(c => c > 0))
                 {
                     case 2:
@@ -2748,6 +2753,10 @@ namespace MasterMind
                 Globals.CurrentGame.PlacePeg(colorA, 2);
                 Globals.CurrentGame.PlacePeg(colorB, 3);
                 Globals.CurrentGame.EvaluateTurn(); // this will have 3 correct
+                if (Globals.CurrentGame.Turns.Count >= 10)
+                {
+                    return;
+                }
                 switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
                 {
                     case 1:
@@ -2757,6 +2766,10 @@ namespace MasterMind
                         Globals.CurrentGame.PlacePeg(colorA, 2);
                         Globals.CurrentGame.PlacePeg(colorA, 3);
                         Globals.CurrentGame.EvaluateTurn(); // this will have 3 correct
+                        if (Globals.CurrentGame.Turns.Count >= 10)
+                        {
+                            return;
+                        }
                         switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
                         {
                             case 1:
@@ -2765,6 +2778,10 @@ namespace MasterMind
                                 Globals.CurrentGame.PlacePeg(colorB, 2);
                                 Globals.CurrentGame.PlacePeg(colorA, 3);
                                 if (Globals.CurrentGame.EvaluateTurn())
+                                {
+                                    return;
+                                }
+                                if (Globals.CurrentGame.Turns.Count >= 10)
                                 {
                                     return;
                                 }
@@ -2792,6 +2809,10 @@ namespace MasterMind
                                 {
                                     return;
                                 }
+                                if (Globals.CurrentGame.Turns.Count >= 10)
+                                {
+                                    return;
+                                }
                                 break;
                         }
                         throw new Exception();
@@ -2802,6 +2823,10 @@ namespace MasterMind
                         Globals.CurrentGame.PlacePeg(colorB, 2);
                         Globals.CurrentGame.PlacePeg(colorA, 3);
                         Globals.CurrentGame.EvaluateTurn(); // this will have 3 correct
+                        if (Globals.CurrentGame.Turns.Count >= 10)
+                        {
+                            return;
+                        }
                         switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
                         {
                             case 0:
@@ -2811,6 +2836,10 @@ namespace MasterMind
                                 Globals.CurrentGame.PlacePeg(colorA, 2);
                                 Globals.CurrentGame.PlacePeg(colorB, 3);
                                 if (Globals.CurrentGame.EvaluateTurn())
+                                {
+                                    return;
+                                }
+                                if (Globals.CurrentGame.Turns.Count >= 10)
                                 {
                                     return;
                                 }
@@ -2838,6 +2867,10 @@ namespace MasterMind
                                 {
                                     return;
                                 }
+                                if (Globals.CurrentGame.Turns.Count >= 10)
+                                {
+                                    return;
+                                }
                                 break;
                         }
                         break;
@@ -2855,6 +2888,10 @@ namespace MasterMind
                 Globals.CurrentGame.PlacePeg(colorB, 2);
                 Globals.CurrentGame.PlacePeg(colorB, 3);
                 Globals.CurrentGame.EvaluateTurn(); // this will have 3 correct
+                if (Globals.CurrentGame.Turns.Count >= 10)
+                {
+                    return;
+                }
                 int i = Globals.rnd.Next(2, 4);
                 switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
                 {
@@ -2865,6 +2902,10 @@ namespace MasterMind
                         Globals.CurrentGame.PlacePeg(colorA, 2);
                         Globals.CurrentGame.PlacePeg(colorA, 3);
                         Globals.CurrentGame.EvaluateTurn(); // this will fail
+                        if (Globals.CurrentGame.Turns.Count >= 10)
+                        {
+                            return;
+                        }
                         switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
                         {
                             case 1:
@@ -2885,6 +2926,10 @@ namespace MasterMind
                                 Globals.CurrentGame.PlacePeg(colorA, i);
                                 Globals.CurrentGame.PlacePeg(color2, 5 - i);
                                 if (Globals.CurrentGame.EvaluateTurn())
+                                {
+                                    return;
+                                }
+                                if (Globals.CurrentGame.Turns.Count >= 10)
                                 {
                                     return;
                                 }
@@ -2910,6 +2955,10 @@ namespace MasterMind
                                 {
                                     return;
                                 }
+                                if (Globals.CurrentGame.Turns.Count >= 10)
+                                {
+                                    return;
+                                }
                                 break;
                         }
                         break;
@@ -2920,6 +2969,10 @@ namespace MasterMind
                         Globals.CurrentGame.PlacePeg(colorA, 2);
                         Globals.CurrentGame.PlacePeg(colorA, 3);
                         Globals.CurrentGame.EvaluateTurn(); // this will fail
+                        if (Globals.CurrentGame.Turns.Count >= 10)
+                        {
+                            return;
+                        }
                         switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
                         {
                             case 0:
@@ -2928,6 +2981,10 @@ namespace MasterMind
                                 Globals.CurrentGame.PlacePeg(color2, 2);
                                 Globals.CurrentGame.PlacePeg(color2, 3);
                                 if (Globals.CurrentGame.EvaluateTurn())
+                                {
+                                    return;
+                                }
+                                if (Globals.CurrentGame.Turns.Count >= 10)
                                 {
                                     return;
                                 }
@@ -2941,6 +2998,10 @@ namespace MasterMind
                                 {
                                     return;
                                 }
+                                if (Globals.CurrentGame.Turns.Count >= 10)
+                                {
+                                    return;
+                                }
                                 break;
                             case 2:
                                 Globals.CurrentGame.PlacePeg(color2, 0);
@@ -2951,11 +3012,19 @@ namespace MasterMind
                                 {
                                     return;
                                 }
+                                if (Globals.CurrentGame.Turns.Count >= 10)
+                                {
+                                    return;
+                                }
                                 Globals.CurrentGame.PlacePeg(color2, 0);
                                 Globals.CurrentGame.PlacePeg(color2, 1);
                                 Globals.CurrentGame.PlacePeg(colorB, i);
                                 Globals.CurrentGame.PlacePeg(colorA, 5 - i);
                                 if (Globals.CurrentGame.EvaluateTurn())
+                                {
+                                    return;
+                                }
+                                if (Globals.CurrentGame.Turns.Count >= 10)
                                 {
                                     return;
                                 }
@@ -2969,6 +3038,10 @@ namespace MasterMind
                         Globals.CurrentGame.PlacePeg(colorA, 2);
                         Globals.CurrentGame.PlacePeg(colorA, 3);
                         Globals.CurrentGame.EvaluateTurn(); // this will fail
+                        if (Globals.CurrentGame.Turns.Count >= 10)
+                        {
+                            return;
+                        }
                         switch (Globals.CurrentGame.LastTurn().CorrectlyPlaced)
                         {
                             case 0:
@@ -2992,6 +3065,10 @@ namespace MasterMind
                                 {
                                     return;
                                 }
+                                if (Globals.CurrentGame.Turns.Count >= 10)
+                                {
+                                    return;
+                                }
                                 break;
                             case 1:
                                 Globals.CurrentGame.PlacePeg(color2, 0);
@@ -3011,6 +3088,10 @@ namespace MasterMind
                                 Globals.CurrentGame.PlacePeg(colorB, i);
                                 Globals.CurrentGame.PlacePeg(color2, 5 - i);
                                 if (Globals.CurrentGame.EvaluateTurn())
+                                {
+                                    return;
+                                }
+                                if (Globals.CurrentGame.Turns.Count >= 10)
                                 {
                                     return;
                                 }
@@ -3032,6 +3113,14 @@ namespace MasterMind
                                 Globals.CurrentGame.PlacePeg(color2, 1);
                                 Globals.CurrentGame.PlacePeg(colorB, 1);
                                 Globals.CurrentGame.PlacePeg(color2, 5 - 1);
+                                if (Globals.CurrentGame.EvaluateTurn())
+                                {
+                                    return;
+                                }
+                                if (Globals.CurrentGame.Turns.Count >= 10)
+                                {
+                                    return;
+                                }
                                 break;
                         }
                         break;
@@ -3573,7 +3662,7 @@ namespace MasterMind
                         // guess blue again
                         for (int i = 0; i < 4; i++)
                         {
-                            Globals.CurrentGame.PlacePeg(ColorIndices[color], i);
+                            Globals.CurrentGame.PlacePeg(bluestIndex, i);
                         }
                         Globals.CurrentGame.EvaluateTurn();
                         guessedBlueAgain = true;
@@ -3588,7 +3677,7 @@ namespace MasterMind
                         {
                             return true;
                         }
-                        colors[ColorIndices[color]] = Globals.CurrentGame.Turns[color].CorrectlyPlaced;
+                        colors[ColorIndices[color]] = Globals.CurrentGame.LastTurn().CorrectlyPlaced;
                         color++;
                     }
                 } while (colors.Sum() < 4);
@@ -3597,7 +3686,7 @@ namespace MasterMind
                     // guess blue again, "just in case"
                     for (int i = 0; i < 4; i++)
                     {
-                        Globals.CurrentGame.PlacePeg(ColorIndices[color], i);
+                        Globals.CurrentGame.PlacePeg(bluestIndex, i);
                     }
                     Globals.CurrentGame.EvaluateTurn();
                     guessedBlueAgain = true;
