@@ -282,7 +282,7 @@ namespace MasterMind
 
         private void renaldoToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SolveWithAI(new ComputerPlayer("Renaldo") , true);
+            SolveWithAI(new ComputerPlayer("Renaldo") , false);
         }
 
         private void úrsulaToolStripMenuItem_Click(object sender, EventArgs e)
@@ -292,86 +292,13 @@ namespace MasterMind
 
         private void andrésToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SolveWithAI(new ComputerPlayer("Andrés"), true);
+            SolveWithAI(new ComputerPlayer("Andrés"), false);
         }
 
-        private const bool UseHardCodedPuzzle = true;
+        private const bool UseHardCodedPuzzle = false;
         private void tatiToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SolveWithAI(new ComputerPlayer("Tati"),true);
-            return;
-
-            //ComputerPlayer Tati = new ComputerPlayer() { PlayerName = "Tati" };
-
-#if true
-            Globals.ShowSolution = true;
-            for (int i = 0; i < 6; i++)
-            {
-                for (int j = 0; j < 6; j++)
-                {
-                    for (int k = 0; k < 6; k++)
-                    {
-                        for (int m = 0; m < 6; m++)
-                        {
-                            Debug.WriteLine($"{i},{j},{k},{m}");
-                            Globals.CurrentGame.InitializeGame(new int[] { i, j, k, m });
-                            pegBoard1.InitializeGame();
-                            //Tati.Solve();
-
-                            pegBoard1.ShowCurrentGame();
-
-                            if (Globals.CurrentGame.Solved)
-                            {
-                                Debug.WriteLine($"Tati solved in {Globals.CurrentGame.Turns.Count()} turns.");
-                            }
-                            else
-                            {
-                                Debug.WriteLine($"Tati FAILED to solve in {Globals.CurrentGame.Turns.Count()} turns.");
-                            }
-                            Debug.WriteLine(new string('-', 20));
-                        }
-                    }
-                }
-            }
- #else
-           if (TestTati)
-            {
-                // 0,0,3,4 exposes a bug in Renaldo when then 3rd and 4th are found it still considers 1 and 2 as possibilities
-                Globals.CurrentGame.InitializeGame(new int[] { 0,3,2,1 });
-            }
-            else
-            {
-                CreatePuzzle cp = new CreatePuzzle();
-                DialogResult dr = cp.ShowDialog();
-                if (dr == DialogResult.OK)
-                {
-                    Globals.CurrentGame.InitializeGame(cp.GetColors());
-                }
-                else
-                {
-                    Globals.CurrentGame.InitializeGame();
-                }
-            }
-
-            Globals.ShowSolution = true;
-            pegBoard1.Enabled = true;
-            pegBoard1.InitializeGame();
-            cradle1.Enabled = true;
-            acceptClearButtons1.Enabled = true;
-
-            Tati.Solve();
-
-            pegBoard1.ShowCurrentGame();
-
-            if (Globals.CurrentGame.Solved)
-            {
-                MessageBox.Show($"Tati solved in {Globals.CurrentGame.Turns.Count()} turns.");
-            }
-            else
-            {
-                MessageBox.Show($"Tati failed to solve.");
-            }
-#endif
+            SolveWithAI(new ComputerPlayer("Tati"),false);
         }
 
         private void pepitoToolStripMenuItem_Click(object sender, EventArgs e)
@@ -423,16 +350,16 @@ namespace MasterMind
                 }
                 else
                 {
-                    CreatePuzzle cp = new CreatePuzzle();
-                    DialogResult dr = cp.ShowDialog();
-                    if (dr == DialogResult.OK)
-                    {
-                        Globals.CurrentGame.InitializeGame(cp.GetColors());
-                    }
-                    else
-                    {
-                        Globals.CurrentGame.InitializeGame();
-                    }
+                    //CreatePuzzle cp = new CreatePuzzle();
+                    //DialogResult dr = cp.ShowDialog();
+                    //if (dr == DialogResult.OK)
+                    //{
+                    //    Globals.CurrentGame.InitializeGame(cp.GetColors());
+                    //}
+                    //else
+                    //{
+                    //}
+                    Globals.CurrentGame.InitializeGame();
                 }
 
                 Globals.ShowSolution = true;
