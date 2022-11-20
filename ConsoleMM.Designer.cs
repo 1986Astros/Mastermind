@@ -397,6 +397,9 @@
             this.playerControl1.PlayerName = "";
             this.playerControl1.Size = new System.Drawing.Size(350, 474);
             this.playerControl1.TabIndex = 1;
+            this.playerControl1.NewPlayer += new MasterMind.PlayerControl.NewPlayerEventHandler(this.playerControl1_NewPlayer);
+            this.playerControl1.ReplacePlayer += new MasterMind.PlayerControl.ReplacePlayerEventHandler(this.playerControl1_ReplacePlayer);
+            this.playerControl1.RemovePlayer += new MasterMind.PlayerControl.RemovePlayerEventHandler(this.playerControl1_RemovePlayer);
             // 
             // ConsoleMM
             // 

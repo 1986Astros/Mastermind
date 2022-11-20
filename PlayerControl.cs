@@ -141,7 +141,7 @@ namespace MasterMind
 
             ToolStripMenuItem tsmi;
             playerToolStripDropDownButton.Text = PlayerName;
-            foreach (Records.PlayerInfo pi in Globals.Records.AllPlayers)
+            foreach (Records.PlayerInfo pi in Globals.Records.AllPlayers.Where(pi => pi.IsHuman))
             {
                 tsmi = new ToolStripMenuItem(pi.PlayerName, null,new EventHandler(humanPlayerToolStripMenuItem_Click))
                 {
@@ -191,6 +191,7 @@ namespace MasterMind
         }
         private void AddNewPlayer()
         {
+            // BUG: The other human-player menu items aren't unchecked and disabled.
             Records.PlayerInfo pi = Globals.Records.AddPlayer(newPlayerToolStripTextBox.Text);
             ToolStripMenuItem tsmi = new ToolStripMenuItem(newPlayerToolStripTextBox.Text, null, humanPlayerToolStripMenuItem_Click) { Checked = true, Enabled = false };
             playerToolStripDropDownButton.DropDownItems.Add(tsmi);

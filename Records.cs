@@ -11,34 +11,12 @@ namespace MasterMind
 {
     public class Records
     {
-#if false
-        public class DeleteMe
-        {
-            public int deleteInt { get; set; }
-            public string deleteString { get; set; }
-            public DateTime deleteDateTime { get; set; }
-            [JsonInclude]
-            public List<int>  deleteCollection = new List<int>();
-            public class DeleteClass
-            {
-                [JsonConstructor]
-                //public DeleteClass(int dc) : base() => (deleteClassDeleteInt) = dc;
-                public DeleteClass(int DeleteClassDeleteInt) : base() => (deleteClassDeleteInt) = (DeleteClassDeleteInt);
-                //{
-                //    deleteClassDeleteInt = i;
-                //}
-                public int deleteClassDeleteInt { get; /*set;*/ }   // try this w/o set;
-            }
-            [JsonInclude]
-            public IList<DeleteClass> deleteClass = new List<DeleteClass>() ;
-        }
-#endif
         public string RecordsPath { get; set; } = "";
         public static Records FromFile(string FileName)
         {
             Records records;
             string fullPath = System.IO.Path.Combine(Application.UserAppDataPath, FileName  + ".json");
-            if (/*false*/File.Exists(fullPath))
+            if (File.Exists(fullPath))
             {
                 string jsonString = File.ReadAllText(fullPath);
                 JsonSerializerOptions options = new JsonSerializerOptions() { WriteIndented = true };
@@ -46,10 +24,12 @@ namespace MasterMind
             }
             else
             {
-                //string jsonString = File.ReadAllText(fullPath);
-                //JsonSerializerOptions options = new JsonSerializerOptions() { WriteIndented = true };
-                //DeleteMe dm = JsonSerializer.Deserialize<DeleteMe>(jsonString, options);
                 records = new Records() { RecordsPath = fullPath };
+                records.AllPlayers.Add(new PlayerInfo("Renaldo") { ID = -5 });
+                records.AllPlayers.Add(new PlayerInfo("Úrsula") { ID = -4 });
+                records.AllPlayers.Add(new PlayerInfo("Andrés") { ID = -3 });
+                records.AllPlayers.Add(new PlayerInfo("Tati") { ID = -2 });
+                records.AllPlayers.Add(new PlayerInfo("Pepito") { ID = -1 });
                 records.AllPlayers.Add(new PlayerInfo("Guest") { ID = 0 });
                 records.WriteRecords();
             }
@@ -60,19 +40,6 @@ namespace MasterMind
             using (FileStream fileStream = System.IO.File.Create(RecordsPath))
             {
                 JsonSerializerOptions options = new JsonSerializerOptions() { WriteIndented = true };
-                //int[] ints = { 44, 2 };
-                //List<DeleteMe.DeleteClass> classes = new List<DeleteMe.DeleteClass>();
-                //classes.Add(new DeleteMe.DeleteClass(10) /*{ deleteClassDeleteInt = 10 }*/);
-                //classes.Add(new DeleteMe.DeleteClass(24) /*{ deleteClassDeleteInt = 24 }*/);
-                //JsonSerializer.Serialize(fileStream, new DeleteMe()
-                //{
-                //    deleteInt = 1,
-                //    deleteString = "Ralph",
-                //    deleteDateTime = DateTime.Now,
-                //    deleteCollection = new List<int>(ints),
-                //    deleteClass = classes
-                //},
-                //    options);
                 JsonSerializer.Serialize(fileStream, this, options);
             }
         }
@@ -92,6 +59,10 @@ namespace MasterMind
             public string PlayerName { get; set; } = "";
             [JsonInclude]
             public List<PuzzleInfo> PuzzleHistory = new List<PuzzleInfo>();
+            [JsonIgnore]
+            public bool IsAI { get { return ID < 0; } }
+            [JsonIgnore]
+            public bool IsHuman { get { return ID >= 0; } }
             public float AverageTurnsPerWin()
             {
                 int puzzleCount = PuzzleHistory.Count(ph => ph.Won);

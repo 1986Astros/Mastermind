@@ -49,7 +49,7 @@ namespace MasterMind
 
         private void PegBoard_GameOver(object sender, PegBoard.GameOverEventArgs e)
         {
-            Globals.Records.AddGameResult("Guest", Globals.CurrentGame.Pattern.ToArray(), e.Won, e.Turns);
+            Globals.Records.AddGameResult(playerControl1.PlayerName, Globals.CurrentGame.Pattern.ToArray(), e.Won, e.Turns);
             pegBoard1.Enabled = false;
             cradle1.Enabled = false;
             acceptClearButtons1.Enabled = false;
@@ -381,6 +381,36 @@ namespace MasterMind
                     MessageBox.Show($"{hal.PlayerName} failed to solve.");
                 }
             }
+        }
+
+        private void playerControl1_NewPlayer(object sender, PlayerControl.NewPlayerEventArgs e)
+        {
+
+        }
+
+        private void playerControl1_RemovePlayer(object sender, EventArgs e)
+        {
+
+        }
+
+        private void playerControl1_ReplacePlayer(object sender, PlayerControl.ReplacePlayerEventArgs e)
+        {
+
+        }
+
+        private void playerControl1_NewPlayer(object sender, PlayerControl.NewPlayerEventArgs e)
+        {
+
+        }
+
+        private void playerControl1_RemovePlayer(object sender, EventArgs e)
+        {
+
+        }
+
+        private void playerControl1_ReplacePlayer(object sender, PlayerControl.ReplacePlayerEventArgs e)
+        {
+
         }
     }
 }
