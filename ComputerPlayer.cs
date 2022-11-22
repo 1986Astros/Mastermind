@@ -12,6 +12,7 @@ namespace MasterMind
         }
         public string PlayerName { get; set; } = "";
         private int[] ColorIndices = new int[6];
+        public CurrentGame CurrentGame;
 
         const bool Testing = false;
 
@@ -55,6 +56,8 @@ namespace MasterMind
                 case "Pepito":
                     break;
             }
+            CurrentGame = Globals.CurrentGame;
+            //Globals.CurrentGame = new CurrentGame(CurrentGame.Pattern);
         }
 
         public void PlayRenaldo()
@@ -2421,7 +2424,7 @@ namespace MasterMind
                     colors[ColorIndices[color]] = Globals.CurrentGame.Turns[color].CorrectlyPlaced;
                     if (++color == 5)
                     {
-                        colors[5] = 4 - colors.Sum();
+                        colors[ColorIndices[5]] = 4 - colors.Sum();
                     }
                 } while (colors.Sum() < 4);
                 return false;

@@ -65,11 +65,84 @@ namespace MasterMind
         public delegate void RemovePlayerEventHandler(object sender, EventArgs e);
         public event RemovePlayerEventHandler? RemovePlayer;
         #endregion
-        public void StartGame()
+        [Browsable(false)]
+        public bool Solved
         {
+            get
+            {
+                if (LastGame == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    return LastGame.Solved;
+                }
+            }
+        }
+        [Browsable(false)]
+        public int Turns
+        {
+            get
+            {
+                if (LastGame == null)
+                {
+                    return 0;
+                }
+                else
+                {
+                    return LastGame.Turns.Count();
+                }
+            }
+        } 
+        [Browsable(false)]
+        public CurrentGame LastGame = null;
+
+        public bool ShowPegboard
+        {
+            get
+            {
+                return pegBoard1.Visible;
+            }
+            set
+            {
+                if (value != pegBoard1.Visible)
+                {
+                    pegBoard1.Visible = value;
+                    lvPerformance.Visible = !value;
+                    if (lvPerformance.Visible)
+                    {
+                        tlpPerformance.ColumnStyles[0] = new ColumnStyle(SizeType.Absolute, 00);
+                        tlpPerformance.ColumnStyles[1] = new ColumnStyle(SizeType.Percent, 100);
+                    }
+                    else
+                    {
+                        tlpPerformance.ColumnStyles[0] = new ColumnStyle(SizeType.Percent, 100);
+                        tlpPerformance.ColumnStyles[1] = new ColumnStyle(SizeType.Absolute, 0);
+                    }
+                }
+            }
+        }
+        public void ShowPegboardResults()
+        {
+            pegBoard1.ArrangePegs();
+            pegBoard1.ShowSolution = true;
+            pegBoard1.CurrentGame = LastGame;
+        }
+        private void PlayerControl_Load(object sender, EventArgs e)
+        {
+            pegBoard1.Visible = ShowPegboard;
+            lvPerformance.Visible = !ShowPegboard;
+        }
+
+        public void StartGame(bool ExposePegboard)
+        {
+            pegBoard1.CurrentGame = null;
+            ShowPegboard = ExposePegboard;
             playerToolStripDropDownButton.Enabled = false;
             addOpponentToolStripMenuItem.Enabled = false;
             removeFromGameToolStripMenuItem.Enabled = false;
+            LastGame = null;
             GameUnderway = true;
         }
         public void GameOver()
@@ -78,7 +151,16 @@ namespace MasterMind
             addOpponentToolStripMenuItem.Enabled = true;
             removeFromGameToolStripMenuItem.Enabled = Globals.NamePlates.Count > 1;
             GameUnderway = false;
+            LastGame = Globals.CurrentGame;
+            Globals.CurrentGame = new CurrentGame(LastGame.Pattern);
             LoadPlayerStats();
+        }
+        public void Clear()
+        {
+            LastGame = null;
+            ShowPegboard = false;
+            pegBoard1.InitializeGame();
+            Invalidate();
         }
 
         private void LoadPlayerStats()
@@ -146,7 +228,7 @@ namespace MasterMind
                 tsmi = new ToolStripMenuItem(pi.PlayerName, null,new EventHandler(humanPlayerToolStripMenuItem_Click))
                 {
                     Checked = pi.PlayerName == PlayerName,
-                    Enabled = pi.PlayerName != PlayerName
+                    Enabled = !Globals.NamePlates.Any(np => np.PlayerName.Equals(pi.PlayerName, StringComparison.CurrentCultureIgnoreCase))
                 };
                 PlayerMenuItems.Add(tsmi);
             }
@@ -170,7 +252,13 @@ namespace MasterMind
 
         private void newPlayerToolStripTextBox_TextChanged(object sender, EventArgs e)
         {
-            if (Globals.Records.AllPlayers.Any(pi => pi.PlayerName.Equals(newPlayerToolStripTextBox.Text, StringComparison.CurrentCultureIgnoreCase)))
+            if (newPlayerToolStripTextBox.Text.Contains(','))
+            {
+                newPlayerToolStripTextBox.BackColor = Color.MistyRose;
+                newPlayerLabelToolStripMenuItem.Text = "Commas not allowed.";
+                newPlayerLabelToolStripMenuItem.Enabled = false;
+            }
+            else if (Globals.Records.AllPlayers.Any(pi => pi.PlayerName.Equals(newPlayerToolStripTextBox.Text, StringComparison.CurrentCultureIgnoreCase)))
             {
                 newPlayerToolStripTextBox.BackColor = Color.MistyRose;
                 newPlayerLabelToolStripMenuItem.Text = "Player exists.";
@@ -191,10 +279,9 @@ namespace MasterMind
         }
         private void AddNewPlayer()
         {
-            // BUG: The other human-player menu items aren't unchecked and disabled.
             Records.PlayerInfo pi = Globals.Records.AddPlayer(newPlayerToolStripTextBox.Text);
             ToolStripMenuItem tsmi = new ToolStripMenuItem(newPlayerToolStripTextBox.Text, null, humanPlayerToolStripMenuItem_Click) { Checked = true, Enabled = false };
-            playerToolStripDropDownButton.DropDownItems.Add(tsmi);
+            PlayerMenuItems.Add(tsmi);
 
             newPlayerToolStripTextBox.Text = "";
             newPlayerToolStripTextBox.BackColor = Color.MistyRose;
@@ -207,14 +294,17 @@ namespace MasterMind
         private void humanPlayerToolStripMenuItem_Click(object sender, EventArgs e)
         {
             string PreviousPlayerName = playerToolStripDropDownButton.Text;
-            ToolStripMenuItem tsmi = PlayerMenuItems.First(pmi => pmi.Text == playerToolStripDropDownButton.Text);
-            tsmi.Checked = false;
-            tsmi.Enabled = true;
-            tsmi = (ToolStripMenuItem)sender;
-            PlayerName = tsmi.Text;
-            playerToolStripDropDownButton.Text = PlayerName;
-            tsmi.Enabled = false;
-            tsmi.Checked = true;
+            ToolStripMenuItem tsmi = PlayerMenuItems.FirstOrDefault(pmi => pmi.Text == playerToolStripDropDownButton.Text);
+            if (tsmi != null)
+            {
+                tsmi.Checked = false;
+                tsmi.Enabled = true;
+                tsmi = (ToolStripMenuItem)sender;
+                PlayerName = tsmi.Text;
+                playerToolStripDropDownButton.Text = PlayerName;
+                tsmi.Enabled = false;
+                tsmi.Checked = true;
+            }
             ReplacePlayer?.Invoke(this, new ReplacePlayerEventArgs(PreviousPlayerName, PlayerName));
         }
         #endregion
@@ -222,11 +312,17 @@ namespace MasterMind
         #region "Settings menu"
         private void settingsToolStripDropDownButton_DropDownOpening(object sender, EventArgs e)
         {
-            //removeFromGameToolStripMenuItem.Enabled = Globals.NamePlates.Count() > 1;
+            removeFromGameToolStripMenuItem.Enabled = Globals.NamePlates.Count() > 1;
 
             addOpponentToolStripMenuItem.DropDownItems.Clear();
-            foreach (Records.PlayerInfo pi in Globals.Records.AllPlayers.Where(pi => !pi.PlayerName.Equals(PlayerName, StringComparison.CurrentCultureIgnoreCase)))
+            bool separatorAdded = false;
+            foreach (Records.PlayerInfo pi in Globals.Records.AllPlayers.Where(pi => !Globals.NamePlates.Any(np => np.PlayerName.Equals(pi.PlayerName, StringComparison.CurrentCultureIgnoreCase))).OrderBy(pi => pi.ID))
             {
+                if (!separatorAdded && pi.ID >=0)
+                {
+                    addOpponentToolStripMenuItem.DropDownItems.Add(new ToolStripSeparator());
+                    separatorAdded = true;
+                }
                 addOpponentToolStripMenuItem.DropDownItems.Add(new ToolStripMenuItem(pi.PlayerName, null, addOpponent_Click));
             }
             addOpponentToolStripMenuItem.Enabled = !GameUnderway /*&& addOpponentToolStripMenuItem.DropDownItems.Count > 0*/;
@@ -268,13 +364,13 @@ namespace MasterMind
                 e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                 Rectangle pegRect = new Rectangle(e.Bounds.Left, e.Bounds.Top, e.Bounds.Height, e.Bounds.Height);
                 pegRect.Inflate(pegRectInset, pegRectInset);
-                for (int i = 0;i < e.SubItem.Text.Length; i++)
+                for (int i = 0; i < e.SubItem.Text.Length; i++)
                 {
                     using (Brush brush = new SolidBrush(Globals.ColorsInUse[Convert.ToInt32(e.SubItem.Text[i].ToString())]))
                     {
                         e.Graphics.FillEllipse(brush, pegRect);
                     }
-                    using (Pen pen = new Pen(Color.Black,0.25f) { Alignment = System.Drawing.Drawing2D.PenAlignment.Inset})
+                    using (Pen pen = new Pen(Color.Black, 0.25f) { Alignment = System.Drawing.Drawing2D.PenAlignment.Inset })
                     {
                         e.Graphics.DrawEllipse(Pens.Black, pegRect);
                     }

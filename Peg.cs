@@ -196,7 +196,6 @@ namespace MasterMind
 
         private void Peg_GiveFeedback(object sender, GiveFeedbackEventArgs e)
         {
-            Debug.WriteLine($"GiveFeedback {e.Effect.ToString()}");
             // BUG: Currently allowing pegs from PegBoard to be dropped on Cradle which can eliminate colors in the Cradle
             if ((e.Effect & DragDropEffects.Move) == DragDropEffects.Move)
             {

@@ -15,21 +15,30 @@ namespace MasterMind
         public static Records FromFile(string FileName)
         {
             Records records;
-            string fullPath = System.IO.Path.Combine(Application.UserAppDataPath, FileName  + ".json");
+            string fullPath = System.IO.Path.Combine(Application.UserAppDataPath, FileName + ".json");
             if (File.Exists(fullPath))
             {
                 string jsonString = File.ReadAllText(fullPath);
                 JsonSerializerOptions options = new JsonSerializerOptions() { WriteIndented = true };
-                records = JsonSerializer.Deserialize<Records>(jsonString,options);
+                records = JsonSerializer.Deserialize<Records>(jsonString, options);
+                if (!records.AllPlayers.Any(pi => pi.ID < 0))
+                {
+                    records.AllPlayers.Add(new PlayerInfo("Renaldo") { ID = -500 });
+                    records.AllPlayers.Add(new PlayerInfo("Úrsula") { ID = -400 });
+                    records.AllPlayers.Add(new PlayerInfo("Andrés") { ID = -300 });
+                    records.AllPlayers.Add(new PlayerInfo("Tati") { ID = -200 });
+                    records.AllPlayers.Add(new PlayerInfo("Pepito") { ID = -100 });
+                    records.WriteRecords();
+                }
             }
             else
             {
                 records = new Records() { RecordsPath = fullPath };
-                records.AllPlayers.Add(new PlayerInfo("Renaldo") { ID = -5 });
-                records.AllPlayers.Add(new PlayerInfo("Úrsula") { ID = -4 });
-                records.AllPlayers.Add(new PlayerInfo("Andrés") { ID = -3 });
-                records.AllPlayers.Add(new PlayerInfo("Tati") { ID = -2 });
-                records.AllPlayers.Add(new PlayerInfo("Pepito") { ID = -1 });
+                records.AllPlayers.Add(new PlayerInfo("Renaldo") { ID = -500 });
+                records.AllPlayers.Add(new PlayerInfo("Úrsula") { ID = -400 });
+                records.AllPlayers.Add(new PlayerInfo("Andrés") { ID = -300 });
+                records.AllPlayers.Add(new PlayerInfo("Tati") { ID = -200 });
+                records.AllPlayers.Add(new PlayerInfo("Pepito") { ID = -100 });
                 records.AllPlayers.Add(new PlayerInfo("Guest") { ID = 0 });
                 records.WriteRecords();
             }
@@ -93,7 +102,7 @@ namespace MasterMind
                 int wins = puzzleHistory.Count(ph => ph.Won);
                 if (wins > 0)
                 {
-                return puzzleHistory.Sum(ph => ph.Turns) / wins;
+                    return puzzleHistory.Sum(ph => ph.Turns) / wins;
                 }
                 else
                 {
@@ -117,6 +126,14 @@ namespace MasterMind
         }
         [JsonInclude]
         public List<PlayerInfo> AllPlayers = new List<PlayerInfo>();
+        public static PlayerInfo Player(string Name)
+        {
+            return Globals.Records.AllPlayers.FirstOrDefault(p => p.PlayerName.Equals(Name, StringComparison.CurrentCultureIgnoreCase));
+        }
+        public static PlayerInfo Player(int ID)
+        {
+            return Globals.Records.AllPlayers.FirstOrDefault(p => p.ID == ID);
+        }
         public class PuzzleInfo
         {
             [JsonConstructor]

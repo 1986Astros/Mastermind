@@ -12,6 +12,10 @@ namespace MasterMind
         {
 
         }
+        public CurrentGame(IEnumerable<int> Puzzle) : base()
+        {
+            InitializeGame(Puzzle);
+        }
         public List<int> Pattern = new List<int>();
         public List<Guess> Turns = new List<Guess>();
         public bool Completed = false;

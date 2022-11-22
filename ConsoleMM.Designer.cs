@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            MasterMind.CurrentGame currentGame1 = new MasterMind.CurrentGame();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConsoleMM));
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.startGameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -62,11 +63,21 @@
             this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
             this.tlpCradleBoardCradle = new System.Windows.Forms.TableLayoutPanel();
             this.tlpBoard = new System.Windows.Forms.TableLayoutPanel();
+            this.tableLayoutPanelScorecards = new System.Windows.Forms.TableLayoutPanel();
             this.playerControl1 = new MasterMind.PlayerControl();
+            this.panelScorecardOuter = new System.Windows.Forms.Panel();
+            this.panelScorecardInner = new System.Windows.Forms.Panel();
+            this.labelInfo = new System.Windows.Forms.Label();
+            this.tableLayoutPanelInfo = new System.Windows.Forms.TableLayoutPanel();
+            this.linkLabelInfo = new System.Windows.Forms.LinkLabel();
             this.menuStrip1.SuspendLayout();
             this.tlpMain.SuspendLayout();
             this.tlpCradleBoardCradle.SuspendLayout();
             this.tlpBoard.SuspendLayout();
+            this.tableLayoutPanelScorecards.SuspendLayout();
+            this.panelScorecardOuter.SuspendLayout();
+            this.panelScorecardInner.SuspendLayout();
+            this.tableLayoutPanelInfo.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -192,7 +203,7 @@
             // renaldoToolStripMenuItem
             // 
             this.renaldoToolStripMenuItem.Name = "renaldoToolStripMenuItem";
-            this.renaldoToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.renaldoToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
             this.renaldoToolStripMenuItem.Text = "Renaldo";
             this.renaldoToolStripMenuItem.Click += new System.EventHandler(this.renaldoToolStripMenuItem_Click);
             // 
@@ -200,21 +211,21 @@
             // 
             this.úrsulaToolStripMenuItem.Enabled = false;
             this.úrsulaToolStripMenuItem.Name = "úrsulaToolStripMenuItem";
-            this.úrsulaToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.úrsulaToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
             this.úrsulaToolStripMenuItem.Text = "Úrsula";
             this.úrsulaToolStripMenuItem.Click += new System.EventHandler(this.úrsulaToolStripMenuItem_Click);
             // 
             // andrésToolStripMenuItem
             // 
             this.andrésToolStripMenuItem.Name = "andrésToolStripMenuItem";
-            this.andrésToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.andrésToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
             this.andrésToolStripMenuItem.Text = "Andrés";
             this.andrésToolStripMenuItem.Click += new System.EventHandler(this.andrésToolStripMenuItem_Click);
             // 
             // tatiToolStripMenuItem
             // 
             this.tatiToolStripMenuItem.Name = "tatiToolStripMenuItem";
-            this.tatiToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.tatiToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
             this.tatiToolStripMenuItem.Text = "Tati";
             this.tatiToolStripMenuItem.Click += new System.EventHandler(this.tatiToolStripMenuItem_Click);
             // 
@@ -222,7 +233,7 @@
             // 
             this.pepitoToolStripMenuItem.Enabled = false;
             this.pepitoToolStripMenuItem.Name = "pepitoToolStripMenuItem";
-            this.pepitoToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.pepitoToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
             this.pepitoToolStripMenuItem.Text = "Pepito";
             this.pepitoToolStripMenuItem.Click += new System.EventHandler(this.pepitoToolStripMenuItem_Click);
             // 
@@ -246,56 +257,56 @@
             this.righthandedToolStripMenuItem.Checked = true;
             this.righthandedToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.righthandedToolStripMenuItem.Name = "righthandedToolStripMenuItem";
-            this.righthandedToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.righthandedToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
             this.righthandedToolStripMenuItem.Text = "Right-handed";
             this.righthandedToolStripMenuItem.Click += new System.EventHandler(this.righthandedToolStripMenuItem_Click);
             // 
             // lefthandedToolStripMenuItem
             // 
             this.lefthandedToolStripMenuItem.Name = "lefthandedToolStripMenuItem";
-            this.lefthandedToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.lefthandedToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
             this.lefthandedToolStripMenuItem.Text = "Left-handed";
             this.lefthandedToolStripMenuItem.Click += new System.EventHandler(this.lefthandedToolStripMenuItem_Click);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(177, 6);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(161, 6);
             // 
             // playerAtBottomToolStripMenuItem
             // 
             this.playerAtBottomToolStripMenuItem.Checked = true;
             this.playerAtBottomToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.playerAtBottomToolStripMenuItem.Name = "playerAtBottomToolStripMenuItem";
-            this.playerAtBottomToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.playerAtBottomToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
             this.playerAtBottomToolStripMenuItem.Text = "Player at bottom";
             this.playerAtBottomToolStripMenuItem.Click += new System.EventHandler(this.playerAtBottomToolStripMenuItem_Click);
             // 
             // playerAtTopToolStripMenuItem
             // 
             this.playerAtTopToolStripMenuItem.Name = "playerAtTopToolStripMenuItem";
-            this.playerAtTopToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.playerAtTopToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
             this.playerAtTopToolStripMenuItem.Text = "Player at top";
             this.playerAtTopToolStripMenuItem.Click += new System.EventHandler(this.playerAtTopToolStripMenuItem_Click);
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(177, 6);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(161, 6);
             // 
             // verticalTrayToolStripMenuItem
             // 
             this.verticalTrayToolStripMenuItem.Checked = true;
             this.verticalTrayToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.verticalTrayToolStripMenuItem.Name = "verticalTrayToolStripMenuItem";
-            this.verticalTrayToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.verticalTrayToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
             this.verticalTrayToolStripMenuItem.Text = "Vertical cradle";
             this.verticalTrayToolStripMenuItem.Click += new System.EventHandler(this.verticalTrayToolStripMenuItem_Click);
             // 
             // horizontalTrayToolStripMenuItem
             // 
             this.horizontalTrayToolStripMenuItem.Name = "horizontalTrayToolStripMenuItem";
-            this.horizontalTrayToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.horizontalTrayToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
             this.horizontalTrayToolStripMenuItem.Text = "Horizontal cradle";
             this.horizontalTrayToolStripMenuItem.Click += new System.EventHandler(this.horizontalTrayToolStripMenuItem_Click);
             // 
@@ -306,11 +317,14 @@
             this.pegBoard1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.pegBoard1.BackColor = System.Drawing.Color.BurlyWood;
             this.pegBoard1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pegBoard1.CurrentGame = currentGame1;
             this.pegBoard1.Enabled = false;
             this.pegBoard1.Location = new System.Drawing.Point(29, 3);
             this.pegBoard1.Name = "pegBoard1";
+            this.pegBoard1.ShowSolution = false;
             this.pegBoard1.Size = new System.Drawing.Size(192, 462);
             this.pegBoard1.TabIndex = 2;
+            this.pegBoard1.GameOver += new MasterMind.PegBoard.GameOverEventHandler(this.PegBoard_GameOver);
             // 
             // cradle1
             // 
@@ -343,14 +357,14 @@
             this.tlpMain.ColumnCount = 2;
             this.tlpMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tlpMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tlpMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tlpMain.Controls.Add(this.tlpCradleBoardCradle, 0, 0);
-            this.tlpMain.Controls.Add(this.playerControl1, 1, 0);
             this.tlpMain.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.FixedSize;
-            this.tlpMain.Location = new System.Drawing.Point(12, 37);
+            this.tlpMain.Location = new System.Drawing.Point(12, 74);
             this.tlpMain.Name = "tlpMain";
             this.tlpMain.RowCount = 1;
             this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tlpMain.Size = new System.Drawing.Size(638, 480);
+            this.tlpMain.Size = new System.Drawing.Size(282, 480);
             this.tlpMain.TabIndex = 6;
             // 
             // tlpCradleBoardCradle
@@ -389,23 +403,100 @@
             this.tlpBoard.Size = new System.Drawing.Size(270, 468);
             this.tlpBoard.TabIndex = 0;
             // 
+            // tableLayoutPanelScorecards
+            // 
+            this.tableLayoutPanelScorecards.AutoSize = true;
+            this.tableLayoutPanelScorecards.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.tableLayoutPanelScorecards.ColumnCount = 1;
+            this.tableLayoutPanelScorecards.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanelScorecards.Controls.Add(this.playerControl1, 0, 0);
+            this.tableLayoutPanelScorecards.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanelScorecards.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanelScorecards.Name = "tableLayoutPanelScorecards";
+            this.tableLayoutPanelScorecards.RowCount = 1;
+            this.tableLayoutPanelScorecards.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanelScorecards.Size = new System.Drawing.Size(356, 517);
+            this.tableLayoutPanelScorecards.TabIndex = 2;
+            this.tableLayoutPanelScorecards.Resize += new System.EventHandler(this.tableLayoutPanelScorecards_Resize);
+            // 
             // playerControl1
             // 
-            this.playerControl1.Dock = System.Windows.Forms.DockStyle.Left;
-            this.playerControl1.Location = new System.Drawing.Point(285, 3);
+            this.playerControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.playerControl1.Location = new System.Drawing.Point(3, 3);
             this.playerControl1.Name = "playerControl1";
             this.playerControl1.PlayerName = "";
-            this.playerControl1.Size = new System.Drawing.Size(350, 474);
+            this.playerControl1.ShowPegboard = false;
+            this.playerControl1.Size = new System.Drawing.Size(350, 511);
             this.playerControl1.TabIndex = 1;
             this.playerControl1.NewPlayer += new MasterMind.PlayerControl.NewPlayerEventHandler(this.playerControl1_NewPlayer);
             this.playerControl1.ReplacePlayer += new MasterMind.PlayerControl.ReplacePlayerEventHandler(this.playerControl1_ReplacePlayer);
             this.playerControl1.RemovePlayer += new MasterMind.PlayerControl.RemovePlayerEventHandler(this.playerControl1_RemovePlayer);
             // 
+            // panelScorecardOuter
+            // 
+            this.panelScorecardOuter.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.panelScorecardOuter.AutoScroll = true;
+            this.panelScorecardOuter.Controls.Add(this.panelScorecardInner);
+            this.panelScorecardOuter.Location = new System.Drawing.Point(300, 25);
+            this.panelScorecardOuter.Name = "panelScorecardOuter";
+            this.panelScorecardOuter.Size = new System.Drawing.Size(884, 527);
+            this.panelScorecardOuter.TabIndex = 7;
+            // 
+            // panelScorecardInner
+            // 
+            this.panelScorecardInner.AutoSize = true;
+            this.panelScorecardInner.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.panelScorecardInner.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panelScorecardInner.Controls.Add(this.tableLayoutPanelScorecards);
+            this.panelScorecardInner.Location = new System.Drawing.Point(3, 3);
+            this.panelScorecardInner.Name = "panelScorecardInner";
+            this.panelScorecardInner.Size = new System.Drawing.Size(358, 519);
+            this.panelScorecardInner.TabIndex = 0;
+            // 
+            // labelInfo
+            // 
+            this.labelInfo.AutoSize = true;
+            this.labelInfo.Location = new System.Drawing.Point(3, 0);
+            this.labelInfo.Name = "labelInfo";
+            this.labelInfo.Size = new System.Drawing.Size(188, 15);
+            this.labelInfo.TabIndex = 8;
+            this.labelInfo.Text = "Click \"Start game\" to start playing.";
+            // 
+            // tableLayoutPanelInfo
+            // 
+            this.tableLayoutPanelInfo.ColumnCount = 1;
+            this.tableLayoutPanelInfo.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanelInfo.Controls.Add(this.labelInfo, 0, 0);
+            this.tableLayoutPanelInfo.Controls.Add(this.linkLabelInfo, 0, 1);
+            this.tableLayoutPanelInfo.Location = new System.Drawing.Point(12, 31);
+            this.tableLayoutPanelInfo.Name = "tableLayoutPanelInfo";
+            this.tableLayoutPanelInfo.RowCount = 2;
+            this.tableLayoutPanelInfo.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanelInfo.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanelInfo.Size = new System.Drawing.Size(282, 38);
+            this.tableLayoutPanelInfo.TabIndex = 9;
+            // 
+            // linkLabelInfo
+            // 
+            this.linkLabelInfo.AutoSize = true;
+            this.linkLabelInfo.Location = new System.Drawing.Point(3, 19);
+            this.linkLabelInfo.Name = "linkLabelInfo";
+            this.linkLabelInfo.Size = new System.Drawing.Size(75, 15);
+            this.linkLabelInfo.TabIndex = 9;
+            this.linkLabelInfo.TabStop = true;
+            this.linkLabelInfo.Text = "linkLabelInfo";
+            this.linkLabelInfo.Visible = false;
+            this.linkLabelInfo.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabelInfo_LinkClicked);
+            // 
             // ConsoleMM
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1196, 659);
+            this.ClientSize = new System.Drawing.Size(1196, 558);
+            this.Controls.Add(this.tableLayoutPanelInfo);
+            this.Controls.Add(this.panelScorecardOuter);
             this.Controls.Add(this.tlpMain);
             this.Controls.Add(this.menuStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -421,6 +512,13 @@
             this.tlpCradleBoardCradle.PerformLayout();
             this.tlpBoard.ResumeLayout(false);
             this.tlpBoard.PerformLayout();
+            this.tableLayoutPanelScorecards.ResumeLayout(false);
+            this.panelScorecardOuter.ResumeLayout(false);
+            this.panelScorecardOuter.PerformLayout();
+            this.panelScorecardInner.ResumeLayout(false);
+            this.panelScorecardInner.PerformLayout();
+            this.tableLayoutPanelInfo.ResumeLayout(false);
+            this.tableLayoutPanelInfo.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -461,5 +559,11 @@
         private ToolStripMenuItem andrésToolStripMenuItem;
         private ToolStripMenuItem tatiToolStripMenuItem;
         private ToolStripMenuItem pepitoToolStripMenuItem;
+        private TableLayoutPanel tableLayoutPanelScorecards;
+        private Panel panelScorecardOuter;
+        private Panel panelScorecardInner;
+        private Label labelInfo;
+        private TableLayoutPanel tableLayoutPanelInfo;
+        private LinkLabel linkLabelInfo;
     }
 }

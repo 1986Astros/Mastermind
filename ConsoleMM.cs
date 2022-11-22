@@ -14,10 +14,6 @@ namespace MasterMind
         {
             Globals.Registry.AddFormKey(this);
 
-            pegBoard1.GameOver += PegBoard_GameOver;
-            Globals.NamePlates.Add(playerControl1);
-            playerControl1.PlayerName = "Guest";
-
             verticalTrayToolStripMenuItem.Checked = Globals.CradleOrientation == Cradle.Orientations.Vertical;
             horizontalTrayToolStripMenuItem.Checked = Globals.CradleOrientation == Cradle.Orientations.Horizontal;
             if  (Globals.CradleOrientation == Cradle.Orientations.Horizontal)
@@ -44,16 +40,31 @@ namespace MasterMind
             pegBoard1.AttachCradle(cradle1);
             pegBoard1.AttachAcceptClearButtons(acceptClearButtons1);
 
+            IEnumerable<string> LastPlayers = Globals.LastPlayers;
+            Globals.NamePlates.Add(playerControl1);
+            playerControl1.PlayerName = LastPlayers.ElementAt(0);
+            for (int i = 1; i < LastPlayers.Count(); i++)
+            {
+                playerControl1_NewPlayer(this, new PlayerControl.NewPlayerEventArgs(LastPlayers.ElementAt(i)));
+            }
+            tableLayoutPanelScorecards_Resize(this, EventArgs.Empty);
+
             Globals.CurrentGame.InitializeGame();
+            UpdateGameStatus();
+            Initialized = true;
         }
+        private bool Initialized = false;
 
         private void PegBoard_GameOver(object sender, PegBoard.GameOverEventArgs e)
         {
-            Globals.Records.AddGameResult(playerControl1.PlayerName, Globals.CurrentGame.Pattern.ToArray(), e.Won, e.Turns);
+            pegBoard1.ShowSolution = true;
+            PlayerControl pc =  Globals.NamePlates.First(np => np.PlayerName.Equals(HumansPlaying[NextHuman], StringComparison.InvariantCultureIgnoreCase));
+            Globals.Records.AddGameResult(HumansPlaying[NextHuman], Globals.CurrentGame.Pattern.ToArray(), e.Won, e.Turns);
+            pc.GameOver();
             pegBoard1.Enabled = false;
             cradle1.Enabled = false;
-            acceptClearButtons1.Enabled = false;
-            startGameToolStripMenuItem.Enabled = true;
+            NextHuman++;
+            UpdateGameStatus();
         }
 
         private void humansSamePuzzlesToolStripMenuItem_Click(object sender, EventArgs e)
@@ -61,17 +72,185 @@ namespace MasterMind
 
         }
 
+        private List<string> HumansPlaying;
+        private int NextHuman;
         private void startGameToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Globals.ShowSolution = false;
+            pegBoard1.ShowSolution = false;
             Globals.CurrentGame.InitializeGame();
-            pegBoard1.Enabled = true;
-            pegBoard1.InitializeGame();
-            cradle1.Enabled = true;
-            acceptClearButtons1.Enabled = true;
-            startGameToolStripMenuItem.Enabled = false;
+
+            HumansPlaying = new List<string>(Globals.NamePlates.Where(np => Records.Player(np.PlayerName).ID >= 0).Select(np => np.PlayerName));
+            NextHuman = 0;
+
+            foreach (PlayerControl pc in Globals.NamePlates)
+            {
+                pc.Enabled = false;
+                if (HumansPlaying.Count > 1 || Records.Player(pc.PlayerName).ID < 0)
+                {
+                    pc.ShowPegboard = true;
+                }
+            }
+
+            ComputerPlayer hal;
+            foreach (PlayerControl playerControl in Globals.NamePlates.Where(np => Records.Player(np.PlayerName).ID < 0))
+            {
+                playerControl.StartGame(true);
+                hal = new ComputerPlayer(playerControl.PlayerName);
+                hal.Solve();
+                playerControl.LastGame = hal.CurrentGame;
+                Globals.Records.AddGameResult(playerControl.PlayerName, hal.CurrentGame.Pattern.ToArray(), hal.CurrentGame.Solved, hal.CurrentGame.Turns.Count());
+                playerControl.GameOver();
+            }
+
+            pegBoard1.CurrentGame = null;
+            if (HumansPlaying.Count > 0)
+            {
+                pegBoard1.Enabled = true;
+                cradle1.Enabled = true;
+                acceptClearButtons1.Enabled = true;
+
+                PlayerControl playerControl = Globals.NamePlates.First(np => np.PlayerName.Equals(HumansPlaying[NextHuman], StringComparison.InvariantCultureIgnoreCase));
+                pegBoard1.InitializeGame();
+                playerControl.StartGame(false);
+                startGameToolStripMenuItem.Enabled = false;
+            }
+            UpdateGameStatus();
         }
 
+        enum LinkActions
+        {
+            None = 0,
+            Start,
+            Close,
+            Next,
+            Skip
+        }
+        private void UpdateGameStatus()
+        {
+            if (HumansPlaying == null )
+            {
+                // game hasn't begun
+                labelInfo.Visible = false;
+                linkLabelInfo.Text = "Start";
+                linkLabelInfo.Anchor = AnchorStyles.Left;
+                linkLabelInfo.Links.Clear();
+                linkLabelInfo.Links.Add(new LinkLabel.Link(0, -1, LinkActions.Start));
+                linkLabelInfo.Visible = true;
+            }
+            else if(NextHuman == HumansPlaying.Count)
+            {
+                // game over, determine the winner
+                int WinningScore = Globals.NamePlates.Min(np => np.Turns);
+                List<PlayerControl> pis = new List<PlayerControl>(Globals.NamePlates.Where(np => np.Turns == WinningScore && np.Solved));
+                switch (pis.Count)
+                {
+                    case 0:
+                        if (Globals.NamePlates.Count() == 1)
+                        {
+                            labelInfo.Text = $"{Globals.NamePlates[0].PlayerName} lost.";
+                        }
+                        else
+                        {
+                            labelInfo.Text = $"No one won.";
+                        }
+                        break;
+                    case 1:
+                        labelInfo.Text = $"{Globals.NamePlates.First(np => np.Turns == WinningScore).PlayerName} won.";
+                        break;
+                    default:
+                        labelInfo.Text = "It's a tie.";
+                        break;
+                }
+                foreach (PlayerControl pc in Globals.NamePlates)
+                {
+                    pc.ShowPegboard = true;
+                    pc.ShowPegboardResults();
+                }
+                labelInfo.Visible = true;
+                linkLabelInfo.Text = "Close game";
+                linkLabelInfo.Anchor = AnchorStyles.Right;
+                linkLabelInfo.Links.Clear();
+                linkLabelInfo.Links.Add(new LinkLabel.Link(0, -1, LinkActions.Close));
+                linkLabelInfo.Visible = true;
+            }
+            else if(pegBoard1.Enabled)
+            {
+                // say whose turn it is
+                labelInfo.Text = $"{HumansPlaying[NextHuman]}, it's your turn.";
+                labelInfo.Visible = true;
+                linkLabelInfo.Visible = false;
+            }
+            else
+            {
+                // prompt for next player
+                if (Globals.CurrentGame.Solved)
+                {
+                    if (Globals.CurrentGame.Turns.Count() == 1)
+                    {
+                        labelInfo.Text = $"{HumansPlaying[NextHuman]} solved in 1 turn.";
+                    }
+                    else
+                    {
+                        labelInfo.Text = $"{HumansPlaying[NextHuman]} solved in {Globals.CurrentGame.Turns.Count()} turns.";
+                    }
+                }
+                else
+                {
+                    labelInfo.Text = $"{HumansPlaying[NextHuman]} failed to solve.";
+                }
+                labelInfo.Visible = true;
+                string NextPlayerName = HumansPlaying[NextHuman + 1];
+                linkLabelInfo.Text = $"Next: {NextPlayerName} | Skip {NextPlayerName}";
+                linkLabelInfo.Links.Clear();
+                LinkLabel.Link newLLL = new LinkLabel.Link("Next: ".Length, NextPlayerName.Length, LinkActions.Next);
+                linkLabelInfo.Links.Add(newLLL);
+                newLLL = new LinkLabel.Link(newLLL.Start + newLLL.Length + " | Skip ".Length, NextPlayerName.Length, LinkActions.Skip);
+                linkLabelInfo.Links.Add(newLLL);
+                linkLabelInfo.Visible = true;
+            }
+        }
+
+        private void linkLabelInfo_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            switch ((LinkActions)e.Link.LinkData)
+            {
+                case LinkActions.Start:
+                    startGameToolStripMenuItem_Click(this, EventArgs.Empty);
+                    break;
+                case LinkActions.Close:
+                    foreach(PlayerControl pc in Globals.NamePlates)
+                    {
+                        pc.Clear();
+                        pc.Enabled = true;
+                    }
+                    HumansPlaying = null;
+                    UpdateGameStatus();
+                    break;
+                case LinkActions.Next:
+                    NextHuman++;
+                    pegBoard1.InitializeGame();
+                    pegBoard1.Enabled = true;
+                    cradle1.Enabled = true;
+                    CurrentGame newGame = new CurrentGame();
+                    newGame.InitializeGame(Globals.CurrentGame.Pattern);
+                    Globals.CurrentGame = newGame;
+                    UpdateGameStatus();
+                    break;
+                case LinkActions.Skip:
+                    if (MessageBox.Show("Really?", "Skip player", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation) == DialogResult.OK)
+                    {
+                        NextHuman += 2;
+                        newGame = new CurrentGame();
+                        newGame.InitializeGame(Globals.CurrentGame.Pattern);
+                        Globals.CurrentGame = newGame;
+                        pegBoard1.InitializeGame();
+                        UpdateGameStatus();
+                    }
+                    break;
+            }
+        }
+
+        #region "Tabletop configuration"
         private void righthandedToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (lefthandedToolStripMenuItem.Checked)
@@ -279,7 +458,9 @@ namespace MasterMind
             tlpCradleBoardCradle.ResumeLayout(false);
             tlpCradleBoardCradle.PerformLayout();
         }
+        #endregion
 
+        private const bool UseHardCodedPuzzle = false;
         private void renaldoToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SolveWithAI(new ComputerPlayer("Renaldo") , false);
@@ -287,7 +468,7 @@ namespace MasterMind
 
         private void úrsulaToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            SolveWithAI(new ComputerPlayer("Úrsula"), false);
         }
 
         private void andrésToolStripMenuItem_Click(object sender, EventArgs e)
@@ -295,7 +476,6 @@ namespace MasterMind
             SolveWithAI(new ComputerPlayer("Andrés"), false);
         }
 
-        private const bool UseHardCodedPuzzle = false;
         private void tatiToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SolveWithAI(new ComputerPlayer("Tati"),false);
@@ -303,14 +483,15 @@ namespace MasterMind
 
         private void pepitoToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            SolveWithAI(new ComputerPlayer("Pepito"), false);
         }
 
         private void SolveWithAI(ComputerPlayer hal, bool Testing)
         {
             if (Testing)
             {
-                Globals.ShowSolution = true;
+                pegBoard1.ShowSolution = true;
+                //Globals.ShowSolution = true;
                 for (int i = 0; i < 6; i++)
                 {
                     for (int j = 0; j < 6; j++)
@@ -362,7 +543,8 @@ namespace MasterMind
                     Globals.CurrentGame.InitializeGame();
                 }
 
-                Globals.ShowSolution = true;
+                pegBoard1.ShowSolution = true;
+                //Globals.ShowSolution = true;
                 pegBoard1.Enabled = true;
                 pegBoard1.InitializeGame();
                 cradle1.Enabled = true;
@@ -383,34 +565,63 @@ namespace MasterMind
             }
         }
 
-        private void playerControl1_NewPlayer(object sender, PlayerControl.NewPlayerEventArgs e)
+        private void tableLayoutPanelScorecards_Resize(object sender, EventArgs e)
         {
-
-        }
-
-        private void playerControl1_RemovePlayer(object sender, EventArgs e)
-        {
-
-        }
-
-        private void playerControl1_ReplacePlayer(object sender, PlayerControl.ReplacePlayerEventArgs e)
-        {
-
+            panelScorecardOuter.Size = new Size(panelScorecardOuter.Width, tableLayoutPanelScorecards.Margin.Vertical + panelScorecardInner.Margin.Vertical + 2 + tableLayoutPanelScorecards.Height + SystemInformation.HorizontalScrollBarHeight);
         }
 
         private void playerControl1_NewPlayer(object sender, PlayerControl.NewPlayerEventArgs e)
         {
-
+            PlayerControl pc = new PlayerControl() { PlayerName = e.PlayerName, Dock = DockStyle.Fill, Margin = Globals.NamePlates[0].Margin };
+            pc.NewPlayer += playerControl1_NewPlayer;
+            pc.ReplacePlayer += playerControl1_ReplacePlayer;
+            pc.RemovePlayer += playerControl1_RemovePlayer;
+            Globals.NamePlates.Add(pc);
+            tableLayoutPanelScorecards.ColumnCount++;
+            tableLayoutPanelScorecards.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            tableLayoutPanelScorecards.Controls.Add(pc, Globals.NamePlates.Count - 1, 0);
+            if (Initialized)
+            {
+                Globals.LastPlayers = Globals.NamePlates.Select(np => np.PlayerName).ToArray();
+            }
         }
 
         private void playerControl1_RemovePlayer(object sender, EventArgs e)
         {
-
+            PlayerControl pc = (PlayerControl)sender;
+            int col = tableLayoutPanelScorecards.GetColumn(pc);
+            tableLayoutPanelScorecards.Controls.Remove(pc);
+            foreach (Control c in tableLayoutPanelScorecards.Controls)
+            {
+                if (tableLayoutPanelScorecards.GetColumn(c) > col)
+                {
+                    tableLayoutPanelScorecards.SetColumn(c, tableLayoutPanelScorecards.GetColumn(c) - 1);
+                }
+            }
+            tableLayoutPanelScorecards.ColumnStyles.RemoveAt(--tableLayoutPanelScorecards.ColumnCount);
+            Globals.NamePlates.Remove(pc);
+            if (Initialized)
+            {
+                Globals.LastPlayers = Globals.NamePlates.Select(np => np.PlayerName).ToArray();
+            }
         }
 
         private void playerControl1_ReplacePlayer(object sender, PlayerControl.ReplacePlayerEventArgs e)
         {
-
+            if (Initialized)
+            {
+                Globals.LastPlayers = Globals.NamePlates.Select(np => np.PlayerName).ToArray();
+            }
         }
     }
 }
+
+#if false
+Start Game
+----------
+For each solution save a copy of the turns List.
+Solve for the computer players.
+Humans solve.
+- After each turn over, show a summary - "won in 9 turns" - then a hotlink to clear the board and start {nextplayer}'s turn.
+Replace the records ListView with a copy of the board for each player.
+#endif

@@ -17,8 +17,33 @@ namespace MasterMind
         public static int ResultsPegDiameter = 8;
         public static CurrentGame CurrentGame = new CurrentGame();
         public static Random rnd = new Random();
-        public static bool ShowSolution = false;
         public static Records Records = Records.FromFile("MasterMindRecords");
+        public static IEnumerable<string> LastPlayers
+        {
+            get
+            {
+                if (!LastPlayersHasBeenTested)
+                {
+                    List<string> Players = new List<string>(((string)(Registry.GetValue("General", "LastPlayers", Records.AllPlayers.First(pi => pi.ID>=0).PlayerName))).Split(',').Where(pn => Records.AllPlayers.Select(p => p.PlayerName).Contains(pn)));
+                    if (Players.Count == 0)
+                    {
+                        Registry.SetValue("General", "LastPlayers", Records.AllPlayers.First(pi => pi.ID >= 0).PlayerName);
+                    }
+                    else
+                    {
+                        Registry.SetValue("General", "LastPlayers", Players.Aggregate<string, string>("", (ag, s) => $"{ag},{s}").TrimStart(','));
+                    }
+                    LastPlayersHasBeenTested = true;
+                }
+                return ((string)(Registry.GetValue("General", "LastPlayers", Records.AllPlayers.First(pi => pi.ID >= 0).PlayerName))).Split(',');
+            }
+            set
+            {
+                Registry.SetValue("General", "LastPlayers", value.Aggregate<string, string>("", (ag, s) => $"{ag},{s}").TrimStart(','));
+            }
+        }
+        private static bool LastPlayersHasBeenTested = false;
+
         public static List<PlayerControl> NamePlates = new List<PlayerControl>();
         private static bool Initialize()
         {
@@ -32,11 +57,9 @@ namespace MasterMind
 
             return true;
         }
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public static Cursor PegCopyCursor;
         public static Cursor PegMoveCursor;
         public static Cursor PegSwapCursor;
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         public static RegistryExtensions.RegistryEx Registry = new RegistryExtensions.RegistryEx(RegistryExtensions.RegistryEx.HKey.CurrentUser, "Shark In Seine", "MasterMind");
         public static bool RightHanded
