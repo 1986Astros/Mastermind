@@ -207,32 +207,73 @@ namespace MasterMind
             lvPerformance.ResumeLayout();
         }
 
-        private List<ToolStripMenuItem> PlayerMenuItems = new List<ToolStripMenuItem>();
+        private List<ToolStripItem> PlayerMenuItems = new List<ToolStripItem>();
 
         #region "Player menu"
         private void playerToolStripDropDownButton_DropDownOpening(object sender, EventArgs e)
         {
-            if (PlayerMenuItems.Count != 0)
+            if (PlayerMenuItems.Count() > 0)
             {
                 foreach (ToolStripMenuItem _tsmi in PlayerMenuItems)
                 {
                     playerToolStripDropDownButton.DropDownItems.Remove(_tsmi);
                 }
                 PlayerMenuItems.Clear();
+                playerToolStripDropDownButton.DropDownItems.RemoveAt(playerToolStripDropDownButton.DropDownItems.Count - 1);    // the separator that was added previously
             }
 
             ToolStripMenuItem tsmi;
             playerToolStripDropDownButton.Text = PlayerName;
-            foreach (Records.PlayerInfo pi in Globals.Records.AllPlayers.Where(pi => pi.IsHuman))
+            List<ToolStripItem> ComputerPlayerMenuItems() 
             {
-                tsmi = new ToolStripMenuItem(pi.PlayerName, null,new EventHandler(humanPlayerToolStripMenuItem_Click))
+                List<ToolStripItem> items = new List<ToolStripItem>();
+                foreach (Records.PlayerInfo pi in Globals.Records.AllPlayers.Where(pi => pi.IsAI))
                 {
-                    Checked = pi.PlayerName == PlayerName,
-                    Enabled = !Globals.NamePlates.Any(np => np.PlayerName.Equals(pi.PlayerName, StringComparison.CurrentCultureIgnoreCase))
-                };
-                PlayerMenuItems.Add(tsmi);
+                    tsmi = new ToolStripMenuItem(pi.PlayerName, null, new EventHandler(humanPlayerToolStripMenuItem_Click))
+                    {
+                        Checked = pi.PlayerName == PlayerName,
+                        Enabled = !Globals.NamePlates.Any(np => np.PlayerName.Equals(pi.PlayerName, StringComparison.CurrentCultureIgnoreCase))
+                    };
+                    items.Add(tsmi);
+                }
+                return items;
             }
-            playerToolStripDropDownButton.DropDownItems.AddRange(PlayerMenuItems.ToArray());
+            List<ToolStripItem> HumanPlayersMenuItems() 
+            {
+                List<ToolStripItem> items = new List<ToolStripItem>();
+                foreach (Records.PlayerInfo pi in Globals.Records.AllPlayers.Where(pi => pi.IsHuman))
+                {
+                    tsmi = new ToolStripMenuItem(pi.PlayerName, null, new EventHandler(humanPlayerToolStripMenuItem_Click))
+                    {
+                        Checked = pi.PlayerName == PlayerName,
+                        Enabled = !Globals.NamePlates.Any(np => np.PlayerName.Equals(pi.PlayerName, StringComparison.CurrentCultureIgnoreCase))
+                    };
+                    items.Add(tsmi);
+                }
+                return items;
+            }
+            List<ToolStripItem> items;
+            ToolStripItem separator = new ToolStripSeparator();
+            if (Records.Player(PlayerName).IsAI)
+            {
+                items = ComputerPlayerMenuItems();
+                PlayerMenuItems.AddRange(items);
+                playerToolStripDropDownButton.DropDownItems.AddRange( items.ToArray());
+                playerToolStripDropDownButton.DropDownItems.Add(separator);
+                items = HumanPlayersMenuItems();
+                PlayerMenuItems.AddRange(items);
+                playerToolStripDropDownButton.DropDownItems.AddRange(items.ToArray());
+            }
+            else
+            {
+                items = HumanPlayersMenuItems();
+                PlayerMenuItems.AddRange(items);
+                playerToolStripDropDownButton.DropDownItems.AddRange(items.ToArray());
+                playerToolStripDropDownButton.DropDownItems.Add(separator);
+                items = ComputerPlayerMenuItems();
+                PlayerMenuItems.AddRange(items);
+                playerToolStripDropDownButton.DropDownItems.AddRange(items.ToArray());
+            }
         }
 
         #region "New player name"
@@ -294,17 +335,17 @@ namespace MasterMind
         private void humanPlayerToolStripMenuItem_Click(object sender, EventArgs e)
         {
             string PreviousPlayerName = playerToolStripDropDownButton.Text;
-            ToolStripMenuItem tsmi = PlayerMenuItems.FirstOrDefault(pmi => pmi.Text == playerToolStripDropDownButton.Text);
+            ToolStripMenuItem tsmi = (ToolStripMenuItem)PlayerMenuItems.FirstOrDefault(pmi => pmi.Text == PreviousPlayerName);
             if (tsmi != null)
             {
                 tsmi.Checked = false;
                 tsmi.Enabled = true;
-                tsmi = (ToolStripMenuItem)sender;
-                PlayerName = tsmi.Text;
-                playerToolStripDropDownButton.Text = PlayerName;
-                tsmi.Enabled = false;
-                tsmi.Checked = true;
             }
+            tsmi = (ToolStripMenuItem)sender;
+            PlayerName = tsmi.Text;
+            playerToolStripDropDownButton.Text = PlayerName;
+            tsmi.Enabled = false;
+            tsmi.Checked = true;
             ReplacePlayer?.Invoke(this, new ReplacePlayerEventArgs(PreviousPlayerName, PlayerName));
         }
         #endregion
@@ -316,16 +357,61 @@ namespace MasterMind
 
             addOpponentToolStripMenuItem.DropDownItems.Clear();
             bool separatorAdded = false;
-            foreach (Records.PlayerInfo pi in Globals.Records.AllPlayers.Where(pi => !Globals.NamePlates.Any(np => np.PlayerName.Equals(pi.PlayerName, StringComparison.CurrentCultureIgnoreCase))).OrderBy(pi => pi.ID))
+            IEnumerable<Records.PlayerInfo> items;
+            if (Records.Player(PlayerName).IsHuman)
             {
-                if (!separatorAdded && pi.ID >=0)
+                items = Globals.Records.AllPlayers.Where(pi => pi.IsHuman).OrderBy(pi => pi.ID);
+                foreach (Records.PlayerInfo item in items)
                 {
-                    addOpponentToolStripMenuItem.DropDownItems.Add(new ToolStripSeparator());
-                    separatorAdded = true;
+                    addOpponentToolStripMenuItem.DropDownItems.Add(new ToolStripMenuItem(item.PlayerName, null, addOpponent_Click)
+                    {
+                        Enabled = !Globals.NamePlates.Any(np => np.PlayerName==item.PlayerName),
+                        Checked = item.PlayerName == PlayerName
+                    });
                 }
-                addOpponentToolStripMenuItem.DropDownItems.Add(new ToolStripMenuItem(pi.PlayerName, null, addOpponent_Click));
+                addOpponentToolStripMenuItem.DropDownItems.Add(new ToolStripSeparator());
+                items = Globals.Records.AllPlayers.Where(pi => pi.IsAI).OrderBy(pi => pi.ID);
+                foreach (Records.PlayerInfo item in items)
+                {
+                    addOpponentToolStripMenuItem.DropDownItems.Add(new ToolStripMenuItem(item.PlayerName, null, addOpponent_Click)
+                    { 
+                        Enabled = !Globals.NamePlates.Any(np => np.PlayerName==item.PlayerName) 
+                    });
+                }
             }
-            addOpponentToolStripMenuItem.Enabled = !GameUnderway /*&& addOpponentToolStripMenuItem.DropDownItems.Count > 0*/;
+            else
+            {
+                items = Globals.Records.AllPlayers.Where(pi => pi.IsAI).OrderBy(pi => pi.ID);
+                foreach (Records.PlayerInfo item in items)
+                {
+                    addOpponentToolStripMenuItem.DropDownItems.Add(new ToolStripMenuItem(item.PlayerName, null, addOpponent_Click)
+                    {
+                        Enabled = !Globals.NamePlates.Any(np => np.PlayerName==item.PlayerName),
+                        Checked = item.PlayerName == PlayerName
+                    });
+
+                }
+                addOpponentToolStripMenuItem.DropDownItems.Add(new ToolStripSeparator());
+                items = Globals.Records.AllPlayers.Where(pi => pi.IsHuman).OrderBy(pi => pi.ID);
+                foreach (Records.PlayerInfo item in items)
+                {
+                    addOpponentToolStripMenuItem.DropDownItems.Add(new ToolStripMenuItem(item.PlayerName, null, addOpponent_Click)
+                    {
+                        Enabled = !Globals.NamePlates.Any(np => np.PlayerName == item.PlayerName)
+                    });
+                }
+
+            }
+            //foreach (Records.PlayerInfo pi in Globals.Records.AllPlayers.Where(pi => !Globals.NamePlates.Any(np => np.PlayerName.Equals(pi.PlayerName, StringComparison.CurrentCultureIgnoreCase))).OrderBy(pi => pi.ID))
+            //{
+            //    if (!separatorAdded && pi.ID >=0)
+            //    {
+            //        addOpponentToolStripMenuItem.DropDownItems.Add(new ToolStripSeparator());
+            //        separatorAdded = true;
+            //    }
+            //    addOpponentToolStripMenuItem.DropDownItems.Add(new ToolStripMenuItem(pi.PlayerName, null, addOpponent_Click));
+            //}
+            //addOpponentToolStripMenuItem.Enabled = !GameUnderway;
         }
 
         private void addOpponent_Click(object sender, EventArgs e)

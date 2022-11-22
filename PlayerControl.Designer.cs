@@ -71,7 +71,7 @@
             this.tlpMain.RowCount = 2;
             this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlpMain.Size = new System.Drawing.Size(350, 499);
+            this.tlpMain.Size = new System.Drawing.Size(348, 497);
             this.tlpMain.TabIndex = 0;
             // 
             // playerToolStrip
@@ -174,7 +174,7 @@
             this.tlpPerformance.Name = "tlpPerformance";
             this.tlpPerformance.RowCount = 1;
             this.tlpPerformance.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tlpPerformance.Size = new System.Drawing.Size(344, 468);
+            this.tlpPerformance.Size = new System.Drawing.Size(344, 466);
             this.tlpPerformance.TabIndex = 1;
             // 
             // lvPerformance
@@ -272,9 +272,10 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Controls.Add(this.tlpMain);
             this.Name = "PlayerControl";
-            this.Size = new System.Drawing.Size(350, 499);
+            this.Size = new System.Drawing.Size(348, 497);
             this.Load += new System.EventHandler(this.PlayerControl_Load);
             this.tlpMain.ResumeLayout(false);
             this.tlpMain.PerformLayout();
