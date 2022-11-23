@@ -70,6 +70,7 @@
             this.labelInfo = new System.Windows.Forms.Label();
             this.tableLayoutPanelInfo = new System.Windows.Forms.TableLayoutPanel();
             this.linkLabelInfo = new System.Windows.Forms.LinkLabel();
+            this.gameflowControl1 = new MasterMind.GameflowControl();
             this.menuStrip1.SuspendLayout();
             this.tlpMain.SuspendLayout();
             this.tlpCradleBoardCradle.SuspendLayout();
@@ -360,7 +361,7 @@
             this.tlpMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tlpMain.Controls.Add(this.tlpCradleBoardCradle, 0, 0);
             this.tlpMain.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.FixedSize;
-            this.tlpMain.Location = new System.Drawing.Point(12, 74);
+            this.tlpMain.Location = new System.Drawing.Point(12, 199);
             this.tlpMain.Name = "tlpMain";
             this.tlpMain.RowCount = 1;
             this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -421,6 +422,7 @@
             // 
             // playerControl1
             // 
+            this.playerControl1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.playerControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.playerControl1.Location = new System.Drawing.Point(3, 3);
             this.playerControl1.Name = "playerControl1";
@@ -428,9 +430,9 @@
             this.playerControl1.ShowPegboard = false;
             this.playerControl1.Size = new System.Drawing.Size(350, 511);
             this.playerControl1.TabIndex = 1;
-            this.playerControl1.NewPlayer += new MasterMind.PlayerControl.NewPlayerEventHandler(this.playerControl1_NewPlayer);
-            this.playerControl1.ReplacePlayer += new MasterMind.PlayerControl.ReplacePlayerEventHandler(this.playerControl1_ReplacePlayer);
-            this.playerControl1.RemovePlayer += new MasterMind.PlayerControl.RemovePlayerEventHandler(this.playerControl1_RemovePlayer);
+            this.playerControl1.NewPlayer += new MasterMind.PlayerControl.NewPlayerEventHandler(this.playerControl_NewPlayer);
+            this.playerControl1.ReplacePlayer += new MasterMind.PlayerControl.ReplacePlayerEventHandler(this.playerControl_ReplacePlayer);
+            this.playerControl1.RemovePlayer += new MasterMind.PlayerControl.RemovePlayerEventHandler(this.playerControl_RemovePlayer);
             // 
             // panelScorecardOuter
             // 
@@ -441,7 +443,7 @@
             this.panelScorecardOuter.Controls.Add(this.panelScorecardInner);
             this.panelScorecardOuter.Location = new System.Drawing.Point(300, 25);
             this.panelScorecardOuter.Name = "panelScorecardOuter";
-            this.panelScorecardOuter.Size = new System.Drawing.Size(884, 527);
+            this.panelScorecardOuter.Size = new System.Drawing.Size(884, 654);
             this.panelScorecardOuter.TabIndex = 7;
             // 
             // panelScorecardInner
@@ -475,7 +477,7 @@
             this.tableLayoutPanelInfo.RowCount = 2;
             this.tableLayoutPanelInfo.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanelInfo.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanelInfo.Size = new System.Drawing.Size(282, 38);
+            this.tableLayoutPanelInfo.Size = new System.Drawing.Size(245, 38);
             this.tableLayoutPanelInfo.TabIndex = 9;
             // 
             // linkLabelInfo
@@ -490,11 +492,25 @@
             this.linkLabelInfo.Visible = false;
             this.linkLabelInfo.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabelInfo_LinkClicked);
             // 
+            // gameflowControl1
+            // 
+            this.gameflowControl1.AutoSize = true;
+            this.gameflowControl1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.gameflowControl1.Location = new System.Drawing.Point(12, 83);
+            this.gameflowControl1.MessageType = MasterMind.GameflowControl.MessageTypes.Start;
+            this.gameflowControl1.Name = "gameflowControl1";
+            this.gameflowControl1.Size = new System.Drawing.Size(282, 106);
+            this.gameflowControl1.TabIndex = 10;
+            this.gameflowControl1.StartGame += new MasterMind.GameflowControl.StartEventHandler(this.gameflowControl1_StartGame);
+            this.gameflowControl1.NextPlayer += new MasterMind.GameflowControl.NextPlayerHandler(this.gameflowControl1_NextPlayer);
+            this.gameflowControl1.NextGame += new MasterMind.GameflowControl.NextGameEventHandler(this.gameflowControl1_NextGame);
+            // 
             // ConsoleMM
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1196, 558);
+            this.ClientSize = new System.Drawing.Size(1196, 685);
+            this.Controls.Add(this.gameflowControl1);
             this.Controls.Add(this.tableLayoutPanelInfo);
             this.Controls.Add(this.panelScorecardOuter);
             this.Controls.Add(this.tlpMain);
@@ -565,5 +581,6 @@
         private Label labelInfo;
         private TableLayoutPanel tableLayoutPanelInfo;
         private LinkLabel linkLabelInfo;
+        private GameflowControl gameflowControl1;
     }
 }

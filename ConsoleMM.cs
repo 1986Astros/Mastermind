@@ -8,6 +8,7 @@ namespace MasterMind
         public ConsoleMM()
         {
             InitializeComponent();
+            //Controls.Add(new GameflowControl() { Location = new Point(10, 50) });
         }
         
         private void ConsoleMM_Load(object sender, EventArgs e)
@@ -45,7 +46,7 @@ namespace MasterMind
             playerControl1.PlayerName = LastPlayers.ElementAt(0);
             for (int i = 1; i < LastPlayers.Count(); i++)
             {
-                playerControl1_NewPlayer(this, new PlayerControl.NewPlayerEventArgs(LastPlayers.ElementAt(i)));
+                playerControl_NewPlayer(this, new PlayerControl.NewPlayerEventArgs(LastPlayers.ElementAt(i)));
             }
             tableLayoutPanelScorecards_Resize(this, EventArgs.Empty);
 
@@ -57,7 +58,8 @@ namespace MasterMind
 
         private void PegBoard_GameOver(object sender, PegBoard.GameOverEventArgs e)
         {
-            //pegBoard1.ShowSolution = true;
+            gameflowPegboardGameOver(e);
+            return;
             LastHuman = NextHuman++;
             PlayerControl pc =  Globals.NamePlates.First(np => np.PlayerName==HumansPlaying[LastHuman]);
             Globals.Records.AddGameResult(HumansPlaying[LastHuman], Globals.CurrentGame.Pattern.ToArray(), e.Won, e.Turns);
@@ -185,7 +187,6 @@ namespace MasterMind
             else
             {
                 // prompt for next player
-                // BUG: WRONG GAME, Globals has been overwritten, the PlayerControl has the game.
                 pegBoard1.CurrentGame = null;
                 CurrentGame lastGame = Globals.NamePlates.First(np => np.PlayerName == HumansPlaying[LastHuman]).LastGame;
                 if (lastGame.Solved)
@@ -236,7 +237,6 @@ namespace MasterMind
                     UpdateGameStatus();
                     break;
                 case LinkActions.Next:
-                    //NextHuman++;
                     pegBoard1.InitializeGame();
                     pegBoard1.Enabled = true;
                     cradle1.Enabled = true;
@@ -469,6 +469,7 @@ namespace MasterMind
         }
         #endregion
 
+        #region "Computer players"
         private const bool UseHardCodedPuzzle = false;
         private void renaldoToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -525,7 +526,6 @@ namespace MasterMind
                                     Debug.WriteLine($"{hal.PlayerName} FAILED to solve in {Globals.CurrentGame.Turns.Count()} turns.");
                                 }
                                 Debug.WriteLine(new string('-', 20));
-                                //MessageBox.Show("next");
                             }
                         }
                     }
@@ -573,18 +573,20 @@ namespace MasterMind
                 }
             }
         }
+        #endregion
 
         private void tableLayoutPanelScorecards_Resize(object sender, EventArgs e)
         {
             panelScorecardOuter.Size = new Size(panelScorecardOuter.Width, tableLayoutPanelScorecards.Margin.Vertical + panelScorecardInner.Margin.Vertical + 2 + tableLayoutPanelScorecards.Height + SystemInformation.HorizontalScrollBarHeight);
         }
 
-        private void playerControl1_NewPlayer(object sender, PlayerControl.NewPlayerEventArgs e)
+        #region "Changes to roster"
+        private void playerControl_NewPlayer(object sender, PlayerControl.NewPlayerEventArgs e)
         {
             PlayerControl pc = new PlayerControl() { PlayerName = e.PlayerName, Dock = DockStyle.Fill, Margin = Globals.NamePlates[0].Margin };
-            pc.NewPlayer += playerControl1_NewPlayer;
-            pc.ReplacePlayer += playerControl1_ReplacePlayer;
-            pc.RemovePlayer += playerControl1_RemovePlayer;
+            pc.NewPlayer += playerControl_NewPlayer;
+            pc.ReplacePlayer += playerControl_ReplacePlayer;
+            pc.RemovePlayer += playerControl_RemovePlayer;
             Globals.NamePlates.Add(pc);
             tableLayoutPanelScorecards.ColumnCount++;
             tableLayoutPanelScorecards.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
@@ -595,7 +597,7 @@ namespace MasterMind
             }
         }
 
-        private void playerControl1_RemovePlayer(object sender, EventArgs e)
+        private void playerControl_RemovePlayer(object sender, EventArgs e)
         {
             PlayerControl pc = (PlayerControl)sender;
             int col = tableLayoutPanelScorecards.GetColumn(pc);
@@ -615,22 +617,159 @@ namespace MasterMind
             }
         }
 
-        private void playerControl1_ReplacePlayer(object sender, PlayerControl.ReplacePlayerEventArgs e)
+        private void playerControl_ReplacePlayer(object sender, PlayerControl.ReplacePlayerEventArgs e)
         {
             if (Initialized)
             {
                 Globals.LastPlayers = Globals.NamePlates.Select(np => np.PlayerName).ToArray();
             }
         }
+        #endregion
+
+        #region "game flow"
+        private void gameflowControl1_StartGame(object sender, EventArgs e)
+        {
+            pegBoard1.ShowSolution = false;
+            Globals.CurrentGame.InitializeGame();
+
+            HumansPlaying = new List<string>(Globals.NamePlates.Where(np => Records.Player(np.PlayerName).IsHuman).Select(np => np.PlayerName));
+            NextHuman = 0;
+            LastHuman = -1;
+
+            foreach (PlayerControl pc in Globals.NamePlates)
+            {
+                pc.Enabled = false;
+                if (HumansPlaying.Count > 1 || Records.Player(pc.PlayerName).IsAI)
+                {
+                    pc.ShowPegboard = true;
+                }
+            }
+
+            ComputerPlayer hal;
+            foreach (PlayerControl playerControl in Globals.NamePlates.Where(np => Records.Player(np.PlayerName).ID < 0))
+            {
+                playerControl.StartGame(true);
+                hal = new ComputerPlayer(playerControl.PlayerName);
+                hal.Solve();
+                playerControl.LastGame = hal.CurrentGame;
+                Globals.Records.AddGameResult(playerControl.PlayerName, hal.CurrentGame.Pattern.ToArray(), hal.CurrentGame.Solved, hal.CurrentGame.Turns.Count());
+                playerControl.GameOver();
+            }
+
+            pegBoard1.CurrentGame = null;
+            if (HumansPlaying.Count > 0)
+            {
+                pegBoard1.Enabled = true;
+                cradle1.Enabled = true;
+                acceptClearButtons1.Enabled = true;
+
+                PlayerControl playerControl = Globals.NamePlates.First(np => np.PlayerName.Equals(HumansPlaying[NextHuman], StringComparison.InvariantCultureIgnoreCase));
+                pegBoard1.InitializeGame();
+                playerControl.StartGame(HumansPlaying.Count > 1);
+                startGameToolStripMenuItem.Enabled = false;
+
+                gameflowControl1.YourTurn(HumansPlaying[0]);
+            }
+            else
+            {
+                PostCompetitionResult();
+            }
+        }
+        private void PostCompetitionResult()
+        {
+            // game over, determine the winner
+            int WinningScore = Globals.NamePlates.Min(np => np.Turns);
+            List<PlayerControl> pis = new List<PlayerControl>(Globals.NamePlates.Where(np => np.Turns == WinningScore && np.Solved));
+            switch (pis.Count)
+            {
+                case 0:
+                    gameflowControl1.MultiPlayerLosers();
+                    break;
+                case 1:
+                    gameflowControl1.MultiPlayerWinner(pis[0].PlayerName, WinningScore);
+                    break;
+                default:
+                    gameflowControl1.MultiPlayerTie(pis.Select(pi => pi.PlayerName), WinningScore);
+                    break;
+            }
+            foreach (PlayerControl pc in Globals.NamePlates)
+            {
+                pc.ShowPegboard = true;
+                pc.ShowPegboardResults();
+            }
+        }
+
+        // When the pegboard fires the GameOver event, it's for that player's turn.
+        // If there are more players, proceed for them to play.
+        // If solo player done, GameflowControl1.SoloGameOver()
+        // else If all players done, PostCompetitionResult()
+
+        private void gameflowControl1_NextPlayer(object sender, GameflowControl.NextPlayerEventArgs e)
+        {
+            if (e.SkipNextPlayer)
+            {
+
+            }
+            pegBoard1.InitializeGame();
+            pegBoard1.Enabled = true;
+            cradle1.Enabled = true;
+            CurrentGame newGame = new CurrentGame();
+            newGame.InitializeGame(Globals.CurrentGame.Pattern);
+            Globals.CurrentGame = newGame;
+            LastHuman = NextHuman;
+            gameflowControl1.YourTurn(HumansPlaying[NextHuman]);
+        }
+
+        private void gameflowPegboardGameOver(PegBoard.GameOverEventArgs e)
+        {
+            LastHuman = NextHuman++;
+            PlayerControl pc = Globals.NamePlates.First(np => np.PlayerName == HumansPlaying[LastHuman]);
+            Globals.Records.AddGameResult(HumansPlaying[LastHuman], Globals.CurrentGame.Pattern.ToArray(), e.Won, e.Turns);
+            pc.GameOver();
+            pegBoard1.Enabled = false;
+            cradle1.Enabled = false;
+            if (HumansPlaying.Count == 1)
+            {
+                if (Globals.NamePlates.Count == 1)
+                {
+                    gameflowControl1.SoloGameOver(HumansPlaying[0], pc.LastGame.Solved, pc.LastGame.Turns.Count());
+                }
+                else
+                {
+                    PostCompetitionResult();
+                }
+            }
+            else if (NextHuman == HumansPlaying.Count)
+            {
+                PostCompetitionResult();
+            }
+            else
+            {
+                gameflowControl1.NextHuman(HumansPlaying[LastHuman],e.Won,e.Turns,HumansPlaying[NextHuman]);
+            }
+        }
+
+        private void gameflowControl1_NextGame(object sender, GameflowControl.NextGameEventArgs e)
+        {
+            foreach (PlayerControl pc in Globals.NamePlates)
+            {
+                pc.Clear();
+                pc.Enabled = true;
+            }
+            HumansPlaying = null;
+            gameflowControl1.Start();
+            //switch (e.MessageType)
+            //{
+            //    case GameflowControl.MessageTypes.SoloGameOver:
+            //        break;
+            //    case GameflowControl.MessageTypes.MultiPlayerWinner:
+            //        break;
+            //    case GameflowControl.MessageTypes.MultiPlayerTie:
+            //        break;
+            //    case GameflowControl.MessageTypes.MultiPlayerLosers:
+            //        break;
+            //}
+        }
+#endregion
     }
 }
-
-#if false
-Start Game
-----------
-For each solution save a copy of the turns List.
-Solve for the computer players.
-Humans solve.
-- After each turn over, show a summary - "won in 9 turns" - then a hotlink to clear the board and start {nextplayer}'s turn.
-Replace the records ListView with a copy of the board for each player.
-#endif
