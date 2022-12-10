@@ -161,6 +161,8 @@ namespace MasterMind
             ShowPegboard = false;
             pegBoard1.InitializeGame();
             // BUG: Me/Tati/Op after playing the game then starting next, Op's scoring pegs are still drawn
+
+            pegBoard1.CurrentGame = null;
             pegBoard1.Invalidate();     // is this needed? trying to fix a bug where the last human's scoring pegs are still there next game
             Invalidate();
         }

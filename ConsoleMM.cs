@@ -713,9 +713,7 @@ namespace MasterMind
             pegBoard1.InitializeGame();
             pegBoard1.Enabled = true;
             cradle1.Enabled = true;
-            CurrentGame newGame = new CurrentGame();
-            newGame.InitializeGame(Globals.CurrentGame.Pattern);
-            Globals.CurrentGame = newGame;
+            Globals.CurrentGame = new CurrentGame(Globals.CurrentGame.Pattern);
             LastHuman = NextHuman;
             gameflowControl1.YourTurn(HumansPlaying[NextHuman]);
         }
@@ -745,6 +743,7 @@ namespace MasterMind
             }
             else
             {
+                pegBoard1.ShowSolution = true;
                 gameflowControl1.NextHuman(HumansPlaying[LastHuman],e.Won,e.Turns,HumansPlaying[NextHuman]);
             }
         }
