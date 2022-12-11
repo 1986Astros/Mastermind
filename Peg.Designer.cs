@@ -45,7 +45,6 @@
             this.Enter += new System.EventHandler(this.Peg_Enter);
             this.Leave += new System.EventHandler(this.Peg_Leave);
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Peg_MouseDown);
-            this.MouseLeave += new System.EventHandler(this.Peg_MouseLeave);
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Peg_MouseMove);
             this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Peg_MouseUp);
             this.ResumeLayout(false);

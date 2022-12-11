@@ -20,6 +20,7 @@ namespace MasterMind
         {
             if (Testing)
             {
+                // don't shuffle colors, use them in the order they appear
                 for (int i = 0; i < 6; i++)
                 {
                     ColorIndices[i] = i;
@@ -57,20 +58,16 @@ namespace MasterMind
                     break;
             }
             CurrentGame = Globals.CurrentGame;
-            //Globals.CurrentGame = new CurrentGame(CurrentGame.Pattern);
         }
-
         public void PlayRenaldo()
         {
             Renaldo renaldo = new Renaldo(new List<int>(ColorIndices));
             renaldo.Solve();
         }
-
         public  void PlayÚrsula()
         {
 
         }
-
         public void PlayAndrés()
         {
             Andrés andrés = new Andrés(new List<int>(ColorIndices));
@@ -1430,14 +1427,11 @@ namespace MasterMind
             }
         }
 #endif
-
-
         private void PlayTati()
         {
             Tati tati = new Tati(new List<int>(ColorIndices));
             tati.Solve();
         }
-
         abstract private class EspookyPlayer
         {
             public EspookyPlayer(List<int> ColorIndices) : base()

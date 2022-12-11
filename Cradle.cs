@@ -17,46 +17,7 @@ namespace MasterMind
         {
             InitializeComponent();
             InitializeControls();
-            //TableLayoutPanel tlp = new TableLayoutPanel()
-            //{
-            //    AutoSize = true,
-            //    AutoSizeMode = AutoSizeMode.GrowAndShrink,
-            //    Dock = DockStyle.Fill,
-            //    Margin = new Padding(3),
-            //};
-            //Peg peg;
-            //List<Peg> Pegs = new List<Peg>();
-            //for (int i = 0; i < Globals.ColorsInUse.Count(); i++)
-            //{
-            //    peg = new Peg() { Name = $"Cradle[{Name}][{Globals.ColorsInUse[i]}]", PegColor = Globals.ColorsInUse[i], Margin = new Padding(Globals.GamePegDiameter / 2), Size = new Size(Globals.GamePegDiameter, Globals.GamePegDiameter),AllowCopy = false, AllowDrop = true,  AllowMove = false, AllowSwap = true};
-            //    peg.PegSelected += Peg_Selected;
-            //    peg.PegDroppedOnPeg += Peg_DroppedOnPeg;
-            //    Pegs.Add(peg);
-            //}
-            //if (Orientation == Orientations.Vertical)
-            //{
-            //    tlp.RowCount = Globals.ColorsInUse.Count();
-            //    tlp.ColumnCount = 1;
-            //    tlp.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-            //    for (int i = 0; i < Globals.ColorsInUse.Count(); i++)
-            //    {
-            //        tlp.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            //    }
-            //}
-            //else
-            //{
-            //    tlp.RowCount = 1;
-            //    tlp.ColumnCount = Globals.ColorsInUse.Count();
-            //    tlp.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            //    for (int i = 0; i < Globals.ColorsInUse.Count(); i++)
-            //    {
-            //        tlp.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-            //    }
-            //}
-            //tlp.Controls.AddRange(Pegs.ToArray());
-            //Controls.Add(tlp);
         }
-
         private void InitializeControls()
         {
             Controls.Clear();
@@ -106,7 +67,6 @@ namespace MasterMind
             tlp.Controls.AddRange(Pegs.ToArray());
             Controls.Add(tlp);
         }
-
         public enum Orientations
         {
             Horizontal,
@@ -153,7 +113,6 @@ namespace MasterMind
             }
         }
         private Orientations shhOrientation = Orientations.Vertical;
-
         public int PegCount
         {
             get
@@ -170,9 +129,7 @@ namespace MasterMind
             }
         }
         private int shhPegCount = Globals.ColorsInUse.Count;
-
         public bool IsSource { get; set; } = true;
-
         public void SetColors(IEnumerable<int> colors)
         {
             TableLayoutPanel tlp = this.Controls.OfType<TableLayoutPanel>().First();
@@ -206,12 +163,10 @@ namespace MasterMind
             public int colorIndex;
             public Peg peg;
         }
-
         private void Peg_Selected(object sender, Peg.PegSelectedEventArgs e)
         {
             PegSelected?.Invoke(this, new PegSelectedEventArgs(e.colorIndex, (Peg)sender));
         }
-
         private void Peg_DroppedOnPeg(object sender, Peg.PegDroppedOnPegEventArgs e)
         {
             Color color1 = e.peg1.PegColor;

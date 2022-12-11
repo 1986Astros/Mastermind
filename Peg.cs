@@ -107,7 +107,6 @@ namespace MasterMind
         {
             SetHitArea();
         }
-
         private Region SetHitArea()
         {
             // circle:
@@ -120,7 +119,6 @@ namespace MasterMind
             }
             return HitArea;
         }
-
         private void Peg_Paint(object sender, PaintEventArgs e)
         {
             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
@@ -157,12 +155,10 @@ namespace MasterMind
         {
             mdPoint = e.Location;
         }
-
         private void Peg_MouseUp(object sender, MouseEventArgs e)
         {
             mdPoint = new Point(int.MinValue,int.MaxValue);
         }
-
         private void Peg_MouseMove(object sender, MouseEventArgs e)
         {
             if ((e.Button & MouseButtons.Left) == MouseButtons.Left)
@@ -235,11 +231,6 @@ namespace MasterMind
             }
         }
 
-        private void Peg_MouseLeave(object sender, EventArgs e)
-        {
-
-        }
-
         public delegate void PegSelectedEventHandler(object sender, PegSelectedEventArgs e);
         public event PegSelectedEventHandler PegSelected;
         public class PegSelectedEventArgs: EventArgs
@@ -250,12 +241,10 @@ namespace MasterMind
             }
             public int colorIndex;
         }
-
         private void Peg_DoubleClick(object sender, EventArgs e)
         {
             PegSelected?.Invoke(this, new PegSelectedEventArgs(Globals.ColorsInUse.IndexOf(PegColor)));
         }
-
         private void Peg_Enter(object sender, EventArgs e)
         {
             using (Graphics g = CreateGraphics())
@@ -263,17 +252,10 @@ namespace MasterMind
                 ControlPaint.DrawFocusRectangle(g, new Rectangle(Point.Empty,Size));
             }
         }
-
         private void Peg_Leave(object sender, EventArgs e)
         {
             Invalidate();
         }
-
-        public override string ToString()
-        {
-            return $"Peg[{Name}] Style={DisplayStyle.ToString()}, PegColor={PegColor.ToString()}";
-        }
-
         private void Peg_DragDrop(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(typeof(Peg)))
@@ -281,14 +263,6 @@ namespace MasterMind
                 if  (e.Effect == DragDropEffects.Move)
                 {
                     PegDroppedOnPeg?.Invoke(this, new PegDroppedOnPegEventArgs(this, (Peg)e.Data.GetData(typeof(Peg))));
-                }
-            }
-            return;
-            if (sender.GetType() == typeof(Peg))
-            {
-                if (e.Effect == DragDropEffects.Move)
-                {
-                    PegDroppedOnPeg?.Invoke(this, new PegDroppedOnPegEventArgs(this, (Peg)sender));
                 }
             }
         }
@@ -305,8 +279,6 @@ namespace MasterMind
             public Peg peg1;
             public Peg peg2;
         }
-
-
         private void Peg_DragOver(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(typeof(Peg)))
@@ -321,6 +293,10 @@ namespace MasterMind
                     e.Effect = DragDropEffects.Move;
                 }
             }
+        }
+        public override string ToString()
+        {
+            return $"Peg[{Name}] Style={DisplayStyle.ToString()}, PegColor={PegColor.ToString()}";
         }
     }
 }

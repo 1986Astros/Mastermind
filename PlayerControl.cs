@@ -160,13 +160,10 @@ namespace MasterMind
             LastGame = null;
             ShowPegboard = false;
             pegBoard1.InitializeGame();
-            // BUG: Me/Tati/Op after playing the game then starting next, Op's scoring pegs are still drawn
-
             pegBoard1.CurrentGame = null;
-            pegBoard1.Invalidate();     // is this needed? trying to fix a bug where the last human's scoring pegs are still there next game
+            pegBoard1.Invalidate();     
             Invalidate();
         }
-
         private void LoadPlayerStats()
         {
             lvPerformance.SuspendLayout();
@@ -201,7 +198,7 @@ namespace MasterMind
                 }
                 foreach (ColumnHeader ch in lvPerformance.Columns)
                 {
-                    if (ch != puzzleColumnHeader)
+                    if (ch != puzzleColumnHeader && ch != statsBlankColumnHeader)
                     {
                         ch.Width = -2;
                     }
@@ -285,7 +282,6 @@ namespace MasterMind
         {
             AddNewPlayer();
         }
-
         private void newPlayerToolStripTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Return && newPlayerLabelToolStripMenuItem.Enabled)
@@ -294,7 +290,6 @@ namespace MasterMind
                 AddNewPlayer();
             }
         }
-
         private void newPlayerToolStripTextBox_TextChanged(object sender, EventArgs e)
         {
             if (newPlayerToolStripTextBox.Text.Contains(','))
@@ -404,18 +399,7 @@ namespace MasterMind
                         Enabled = !Globals.NamePlates.Any(np => np.PlayerName == item.PlayerName)
                     });
                 }
-
             }
-            //foreach (Records.PlayerInfo pi in Globals.Records.AllPlayers.Where(pi => !Globals.NamePlates.Any(np => np.PlayerName.Equals(pi.PlayerName, StringComparison.CurrentCultureIgnoreCase))).OrderBy(pi => pi.ID))
-            //{
-            //    if (!separatorAdded && pi.ID >=0)
-            //    {
-            //        addOpponentToolStripMenuItem.DropDownItems.Add(new ToolStripSeparator());
-            //        separatorAdded = true;
-            //    }
-            //    addOpponentToolStripMenuItem.DropDownItems.Add(new ToolStripMenuItem(pi.PlayerName, null, addOpponent_Click));
-            //}
-            //addOpponentToolStripMenuItem.Enabled = !GameUnderway;
         }
 
         private void addOpponent_Click(object sender, EventArgs e)
@@ -423,23 +407,16 @@ namespace MasterMind
             ToolStripMenuItem tsmi = (ToolStripMenuItem)sender;
             NewPlayer?.Invoke(this, new NewPlayerEventArgs(tsmi.Text));
         }
-
         private void removeFromGameToolStripMenuItem_Click(object sender, EventArgs e)
         {
             RemovePlayer?.Invoke(this, EventArgs.Empty);
         }
         #endregion
 
-        public override string ToString()
-        {
-            return $"PlayerControl PlayerName = {PlayerName}";
-        }
-
         private void lvPerformance_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
         {
             e.DrawDefault = true;
         }
-
         private void lvPerformance_DrawItem(object sender, DrawListViewItemEventArgs e)
         {
             e.DrawDefault = false;
@@ -472,6 +449,10 @@ namespace MasterMind
             {
                 e.DrawDefault = true;
             }
+        }
+        public override string ToString()
+        {
+            return $"PlayerControl PlayerName = {PlayerName}";
         }
     }
 }

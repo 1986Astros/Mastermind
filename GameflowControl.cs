@@ -49,35 +49,29 @@ namespace MasterMind
         {
             StartGame.Invoke(this, EventArgs.Empty);
         }
-
         private void lblNextPlayer_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             NextPlayer.Invoke(this, new NextPlayerEventArgs(false));
         }
-
         private void linkLabelSkipNextPlayer_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            if (MessageBox.Show($"Are you sure you want to skip {labelPlayerName.Text}","Skip a player",MessageBoxButtons.YesNo,MessageBoxIcon.Asterisk,MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+            if (MessageBox.Show($"Are you sure you want to skip {(string)(linkLabelNextPlayer.Tag)}?","Skip a player",MessageBoxButtons.YesNo,MessageBoxIcon.Asterisk,MessageBoxDefaultButton.Button2) == DialogResult.Yes)
             {
                 NextPlayer.Invoke(this, new NextPlayerEventArgs(true));
             }
         }
-
         private void linkLabelNextGameSolo_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             NextGame.Invoke(this, new NextGameEventArgs(MessageTypes.SoloGameOver));
         }
-
         private void linkLabelNextGameWinner_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             NextGame.Invoke(this, new NextGameEventArgs(MessageTypes.MultiPlayerWinner));
         }
-
         private void linkLabelNextGameTie_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             NextGame.Invoke(this, new NextGameEventArgs(MessageTypes.MultiPlayerTie));
         }
-
         private void lblNextGameLosers_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             NextGame.Invoke(this, new NextGameEventArgs(MessageTypes.MultiPlayerLosers));
@@ -154,11 +148,11 @@ namespace MasterMind
             else
             {
                 msgTemplate = ((string)(lblLastTurnNextTurn.Tag)).Split('|')[1];
-
             }
             lblLastTurnNextTurn.Text = String.Format(msgTemplate,lastPlayer,Solved ? ((Turns == 1) ? "1 turn" : $"{Turns} turns") : "");
 
             linkLabelNextPlayer.Text = String.Format(((string)(linkLabelNextPlayer.Tag)), nextPlayer);
+            linkLabelNextPlayer.Tag = nextPlayer;
             linkLabelNextPlayer.Links[0].Length = nextPlayer.Length;
 
             MessageType = MessageTypes.NextHuman;
@@ -212,6 +206,5 @@ namespace MasterMind
             tlpMain.PerformLayout();
         }
         #endregion
-
     }
 }

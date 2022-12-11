@@ -3,9 +3,8 @@
 Hints on how to build a computer player: https://www.wikihow.com/Play-Mastermind
 
 CURRENT BUGS:
-- Not tested: More than one human.
-- Fix the Start and game flow button appearance.
-- Line up the PlayerControls with the bottom of the pegBoard1.
+- View menu item combinations not working. If you simply move the player from bottom to top, it traps, but it is set up correctly next time it's launched.
+- The tlp inside the OuterPane needs to resize itself to account for scrollbars.
 
 BUGS:
 * Pegs on the PegBoard can be dropped on the Cradle, changing the color. The Cradle and its pegs should not AllowDrop in this case.

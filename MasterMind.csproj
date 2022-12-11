@@ -18,11 +18,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="CreatePuzzle.cs" />
+    <Compile Remove="CreatePuzzle.Designer.cs" />
     <Compile Remove="PegCursor.cs" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Remove="CreatePuzzle.resx" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="PewSwap.cur" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="CreatePuzzle.cs" />
+    <None Include="CreatePuzzle.Designer.cs" />
+    <None Include="CreatePuzzle.resx" />
   </ItemGroup>
 
   <ItemGroup>

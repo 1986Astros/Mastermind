@@ -39,7 +39,6 @@ namespace MasterMind
         {
             InitializeGame(Enumerable.Range(0, Globals.PegsPerRow).Select(c => Globals.rnd.Next(0, Globals.ColorsInUse.Count())));
         }
-
         public void InitializeGame(IEnumerable<int> Puzzle)
         {
             Pattern = new List<int>(Puzzle);
@@ -48,7 +47,6 @@ namespace MasterMind
             Solved = false;
             Lost = false;
         }
-
         public  int CurrentTurnIndex()
         {
             if (Turns.Count == 0)
@@ -78,7 +76,6 @@ namespace MasterMind
             {
                 return Turns[Turns.Count - 1];  
             }
-            return Turns[CurrentTurnIndex()];
         }
         public void PlacePeg(int Color, int Position)
         {
@@ -90,12 +87,6 @@ namespace MasterMind
         }
         public void RemovePeg(int Position)
         {
-#if DEBUG
-            if (Turns.Count == 0 || Turns.Last().Completed)
-            {
-                throw new Exception("Can't remove a turn not made yet.");
-            }
-#endif
             Turns.Last().Guesses[Position] = -1;
         }
         public void ClearPegs()

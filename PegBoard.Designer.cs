@@ -46,8 +46,6 @@
             this.DragOver += new System.Windows.Forms.DragEventHandler(this.PegBoard_DragOver);
             this.DragLeave += new System.EventHandler(this.PegBoard_DragLeave);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.PegBoard_Paint);
-            this.MouseLeave += new System.EventHandler(this.PegBoard_MouseLeave);
-            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.PegBoard_MouseMove);
             this.ResumeLayout(false);
 
         }

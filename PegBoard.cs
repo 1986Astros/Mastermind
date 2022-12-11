@@ -213,7 +213,6 @@ namespace MasterMind
             }
             else
             {
-                // bug: with player at top the results pegs are being placed upside-down, i.e. same as player at bottom
                 if (Globals.RightHanded)
                 {
                     Point pegLocation = new Point(Globals.GamePegDiameter / 2, Globals.GamePegDiameter / 2 + 2);
@@ -392,7 +391,6 @@ namespace MasterMind
             Bitmap boardBitmap;
             if (Enabled)
             {
-                //if (Globals.ShowSolution)
                 if (ShowSolution)
                 {
                     boardBitmap = CreateBasicBitmap(true, true);
@@ -404,7 +402,6 @@ namespace MasterMind
             }
             else
             {
-                //if (Globals.ShowSolution)
                 if (ShowSolution)
                 {
                     boardBitmap = CreateBasicBitmap(false, true);
@@ -515,14 +512,8 @@ namespace MasterMind
                 ResultsPieceRect.Offset(0, Globals.BottomToTop ? -RowSize.Height - 2 : RowSize.Height + 2);
             }
 
-
-            ////////////////// this is the part to keep and update elsewhere
+            // todo: this shouldn't be done in the paint event handler, but it's working
             SetPositionOfAcceptClearButtons();
-            //if (acceptClearButtons != null)
-            //{
-            //    acceptClearButtons.Margin = new Padding(3, Globals.BottomToTop ? Height - (CurrentGame.Turns.Count(t => t.Completed) + 1) * (RowSize.Height + 2) + 5 : (CurrentGame.Turns.Count(t => t.Completed) + 1) * RowSize.Height - 2, 3, 0);
-            //}
-            ////////////////// that part ends here
         }
         private Bitmap CreateBasicBitmap(bool enabled, bool showWinner)
         {
@@ -551,8 +542,6 @@ namespace MasterMind
 
                 Rectangle PlayingPieceRect = new Rectangle(ResultsRowSize.Width + Globals.GamePegDiameter / 2, y + Globals.GamePegDiameter / 2, Globals.GamePegDiameter, Globals.GamePegDiameter);
                 Rectangle ResultsPieceRect = new Rectangle(Globals.ResultsPegDiameter / 2, y + Globals.ResultsPegDiameter / 2 + 3, Globals.ResultsPegDiameter, Globals.ResultsPegDiameter);
-                // TODO: Need an adjustment for FrameStyle
-                // offset to accomodate the sizes of both pegs
                 if (PlayingPieceRect.Height > RowsOfResultsPegs * ResultsPieceRect.Height)
                 {
                     ResultsPieceRect.Offset(0, (PlayingPieceRect.Height - RowsOfResultsPegs * ResultsPieceRect.Height) / 2);
@@ -637,16 +626,6 @@ namespace MasterMind
             }
         }
 
-        private void PegBoard_MouseLeave(object sender, EventArgs e)
-        {
-
-        }
-
-        private void PegBoard_MouseMove(object sender, MouseEventArgs e)
-        {
-
-        }
-
         public void AttachCradle(Cradle cradle)
         {
             cradle.PegSelected += Cradle_PegSelected;
@@ -714,7 +693,6 @@ namespace MasterMind
                 }
             }
         }
-
         private void AcceptAndClearButtons_Accepted(object sender, EventArgs e)
         {
             CurrentGame game = CurrentGame;
@@ -725,14 +703,12 @@ namespace MasterMind
                 Invalidate();
                 Application.DoEvents();
                 GameOver?.Invoke(this, new GameOverEventArgs(true, CurrentGame.Turns.Count()));
-                //MessageBox.Show($"You won in {game.Turns.Count()} turns.");
             }
             else if (game.Turns.Count() == Globals.MaxTurns)
             {
                 Invalidate();
                 Application.DoEvents();
                 GameOver?.Invoke(this, new GameOverEventArgs(false, CurrentGame.Turns.Count()));
-                //MessageBox.Show("You ran out of turns.");
             }
             else
             {
@@ -748,13 +724,6 @@ namespace MasterMind
             acceptClearButtons.ClearEnabled = false;
         }
 
-        public void NotifyGameOver()
-        {
-            Debug.WriteLine("-->NotifyGameOver");
-            GameOver?.Invoke(this, new GameOverEventArgs(CurrentGame.Solved, CurrentGame.Turns.Count()));
-            Debug.WriteLine("<--NotifyGameOver");
-        }
-
         private void AcceptAndClearButtons_Cleared(object sender, EventArgs e)
         {
             acceptClearButtons.AcceptEnabled = false;
@@ -766,7 +735,6 @@ namespace MasterMind
             }
             Invalidate();
         }
-
         private void PegBoard_DragDrop(object sender, DragEventArgs e)
         {
             Peg? peg = (e.Data?.GetData(typeof(Peg))) as Peg;
@@ -812,7 +780,6 @@ namespace MasterMind
             acceptClearButtons.ClearEnabled = true;
             Invalidate();   // won't be needed after switching from drawing to placing Peg controls in this.Controls
         }
-
         private void Peg_Discarded(object sender, EventArgs e)
         {
             Peg peg = (Peg)sender;
@@ -833,21 +800,6 @@ namespace MasterMind
             peg.PegColor = Globals.ColorsInUse[color];
             peg.Visible = true;
         }
-
-        public void ShowCurrentGame()
-        {
-            for (int turn = 0; turn < CurrentGame.CurrentTurnIndex(); turn++)
-            {
-                for (int i = 0; i < 4; i++)
-                {
-                    Peg peg = Controls.OfType<Peg>().First(p => p.Turn == turn && p.Column == i);
-                    peg.PegColor = Globals.ColorsInUse[CurrentGame.Turns[turn].Guesses[i]];
-                    peg.Visible = true;
-                }
-            }
-            Invalidate();
-        }
-
         private void SwapPegs(int Column1, int Column2)
         {
             Color c1 = Globals.ColorsInUse[CurrentGame.Turns.Last().Guesses[Column1]];
@@ -974,7 +926,6 @@ namespace MasterMind
 
             return column;
         }
-
         private void PegBoard_DragLeave(object sender, EventArgs e)
         {
             if (!LastDragDropTarget.Equals(Rectangle.Empty))

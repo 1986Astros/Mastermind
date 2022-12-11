@@ -71,7 +71,7 @@
             this.tlpMain.RowCount = 2;
             this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlpMain.Size = new System.Drawing.Size(348, 497);
+            this.tlpMain.Size = new System.Drawing.Size(350, 497);
             this.tlpMain.TabIndex = 0;
             // 
             // playerToolStrip
@@ -82,7 +82,7 @@
             this.settingsToolStripDropDownButton});
             this.playerToolStrip.Location = new System.Drawing.Point(0, 0);
             this.playerToolStrip.Name = "playerToolStrip";
-            this.playerToolStrip.Size = new System.Drawing.Size(350, 25);
+            this.playerToolStrip.Size = new System.Drawing.Size(356, 25);
             this.playerToolStrip.TabIndex = 0;
             this.playerToolStrip.Text = "toolStrip1";
             // 
@@ -174,7 +174,7 @@
             this.tlpPerformance.Name = "tlpPerformance";
             this.tlpPerformance.RowCount = 1;
             this.tlpPerformance.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tlpPerformance.Size = new System.Drawing.Size(344, 466);
+            this.tlpPerformance.Size = new System.Drawing.Size(350, 466);
             this.tlpPerformance.TabIndex = 1;
             // 
             // lvPerformance
@@ -190,11 +190,11 @@
             this.lvPerformance.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lvPerformance.FullRowSelect = true;
             this.lvPerformance.GridLines = true;
-            this.lvPerformance.Location = new System.Drawing.Point(198, 0);
+            this.lvPerformance.Location = new System.Drawing.Point(192, 0);
             this.lvPerformance.Margin = new System.Windows.Forms.Padding(0);
             this.lvPerformance.Name = "lvPerformance";
             this.lvPerformance.OwnerDraw = true;
-            this.lvPerformance.Size = new System.Drawing.Size(96, 468);
+            this.lvPerformance.Size = new System.Drawing.Size(108, 468);
             this.lvPerformance.TabIndex = 0;
             this.lvPerformance.UseCompatibleStateImageBehavior = false;
             this.lvPerformance.View = System.Windows.Forms.View.Details;
@@ -240,12 +240,12 @@
             // statsBlankColumnHeader
             // 
             this.statsBlankColumnHeader.Text = "";
-            this.statsBlankColumnHeader.Width = 5;
+            this.statsBlankColumnHeader.Width = 0;
             // 
             // panelScoring
             // 
             this.panelScoring.Dock = System.Windows.Forms.DockStyle.Left;
-            this.panelScoring.Location = new System.Drawing.Point(294, 0);
+            this.panelScoring.Location = new System.Drawing.Point(300, 0);
             this.panelScoring.Margin = new System.Windows.Forms.Padding(0);
             this.panelScoring.Name = "panelScoring";
             this.panelScoring.Size = new System.Drawing.Size(50, 468);
@@ -261,7 +261,8 @@
             this.pegBoard1.BackColor = System.Drawing.Color.BurlyWood;
             this.pegBoard1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pegBoard1.CurrentGame = currentGame1;
-            this.pegBoard1.Location = new System.Drawing.Point(3, 3);
+            this.pegBoard1.Location = new System.Drawing.Point(0, 3);
+            this.pegBoard1.Margin = new System.Windows.Forms.Padding(0);
             this.pegBoard1.Name = "pegBoard1";
             this.pegBoard1.ShowSolution = false;
             this.pegBoard1.Size = new System.Drawing.Size(192, 462);
@@ -275,7 +276,7 @@
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Controls.Add(this.tlpMain);
             this.Name = "PlayerControl";
-            this.Size = new System.Drawing.Size(348, 497);
+            this.Size = new System.Drawing.Size(350, 497);
             this.Load += new System.EventHandler(this.PlayerControl_Load);
             this.tlpMain.ResumeLayout(false);
             this.tlpMain.PerformLayout();
