@@ -218,6 +218,7 @@
             // 
             // tlpCradleBoardCradle
             // 
+            this.tlpCradleBoardCradle.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.tlpCradleBoardCradle.AutoSize = true;
             this.tlpCradleBoardCradle.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.tlpCradleBoardCradle.ColumnCount = 1;
@@ -235,6 +236,7 @@
             // 
             // tlpBoard
             // 
+            this.tlpBoard.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.tlpBoard.AutoSize = true;
             this.tlpBoard.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.tlpBoard.ColumnCount = 3;
