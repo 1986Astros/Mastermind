@@ -15,24 +15,8 @@ namespace MasterMind
 
             verticalTrayToolStripMenuItem.Checked = Globals.CradleOrientation == Cradle.Orientations.Vertical;
             horizontalTrayToolStripMenuItem.Checked = Globals.CradleOrientation == Cradle.Orientations.Horizontal;
-            //if  (Globals.CradleOrientation == Cradle.Orientations.Horizontal)
-            //{
-            //    MakeCradleHorizontal();
-            //}
-            //if (Globals.BottomToTop)
-            //{
-            //    SetPlayerCradleForPlayerAtBottom();
-            //}
-            //else
-            //{
-            //    SetPlayerCradleForPlayerAtTop();
-            //}
             righthandedToolStripMenuItem.Checked = Globals.RightHanded;
             lefthandedToolStripMenuItem.Checked = Globals.LeftHanded;
-            //if (Globals.LeftHanded)
-            //{
-            //    MakeLayoutLefthanded();
-            //}
             playerAtBottomToolStripMenuItem.Checked = Globals.BottomToTop;
             playerAtTopToolStripMenuItem.Checked = Globals.TopToBottom;
             ArrangeGameSurface();
@@ -70,196 +54,28 @@ namespace MasterMind
             lefthandedToolStripMenuItem.Checked = false;
             Globals.RightHanded = true;
             ArrangeGameSurface();
-            //if (lefthandedToolStripMenuItem.Checked)
-            //{
-            //    MakeLayoutRighthanded();
-            //}
         }
-        //private void MakeLayoutRighthanded()
-        //{
-        //    righthandedToolStripMenuItem.Checked = true;
-        //    lefthandedToolStripMenuItem.Checked = false;
-        //    Globals.RightHanded = true;
-
-        //    tlpBoard.SuspendLayout();
-        //    tlpBoard.Controls.Remove(acceptClearButtons1);
-        //    if (tlpBoard.Controls.Contains(cradle1))
-        //    {
-        //        tlpBoard.Controls.Remove(cradle1);
-        //        if (Globals.BottomToTop)
-        //        {
-        //            cradle1.Dock = DockStyle.Bottom;
-        //            tlpBoard.Controls.Add(cradle1, 2, 0);
-        //        }
-        //        else
-        //        {
-        //            cradle1.Dock = DockStyle.Top;
-        //            tlpBoard.Controls.Add(cradle1, 0, 0);
-        //        }
-        //    }
-        //    if (Globals.BottomToTop)
-        //    {
-        //        tlpBoard.Controls.Add(acceptClearButtons1, 0, 0);
-        //    }
-        //    else
-        //    {
-        //        tlpBoard.Controls.Add(acceptClearButtons1, 2, 0);
-        //    }
-        //    tlpBoard.ResumeLayout(false);
-        //    tlpBoard.PerformLayout();
-
-        //    pegBoard1.ChangedOrientation();
-        //}
         private void lefthandedToolStripMenuItem_Click(object sender, EventArgs e)
         {
             righthandedToolStripMenuItem.Checked = false;
             lefthandedToolStripMenuItem.Checked = true;
             Globals.LeftHanded = true;
             ArrangeGameSurface();
-            //if (righthandedToolStripMenuItem.Checked)
-            //{
-            //    MakeLayoutLefthanded();
-            //}
         }
-        //private void MakeLayoutLefthanded()
-        //{
-        //    righthandedToolStripMenuItem.Checked = false;
-        //    lefthandedToolStripMenuItem.Checked = true;
-        //    Globals.LeftHanded = true;
-
-        //    tlpBoard.SuspendLayout();
-        //    tlpBoard.Controls.Remove(acceptClearButtons1);
-        //    if (tlpBoard.Controls.Contains(cradle1))
-        //    {
-        //        tlpBoard.Controls.Remove(cradle1);
-        //        if (Globals.TopToBottom)
-        //        {
-        //            cradle1.Dock = DockStyle.Bottom;
-        //            tlpBoard.Controls.Add(cradle1, 2, 0);
-        //        }
-        //        else
-        //        {
-        //            cradle1.Dock = DockStyle.Top;
-        //            tlpBoard.Controls.Add(cradle1, 0, 0);
-        //        }
-        //    }
-        //    if (Globals.TopToBottom)
-        //    {
-        //        tlpBoard.Controls.Add(acceptClearButtons1, 0, 0);
-        //    }
-        //    else
-        //    {
-        //        tlpBoard.Controls.Add(acceptClearButtons1, 2, 0);
-        //    }
-        //    tlpBoard.ResumeLayout(false);
-        //    tlpBoard.PerformLayout();
-
-        //    pegBoard1.ChangedOrientation();
-        //}
         private void playerAtBottomToolStripMenuItem_Click(object sender, EventArgs e)
         {
             playerAtBottomToolStripMenuItem.Checked = true;
             playerAtTopToolStripMenuItem.Checked = false;
             Globals.BottomToTop = true;
             ArrangeGameSurface();
-            //if (!Globals.BottomToTop)
-            //{
-            //    playerAtBottomToolStripMenuItem.Checked = true;
-            //    playerAtTopToolStripMenuItem.Checked = false;
-            //    Globals.BottomToTop = true;
-
-            //    tlpBoard.SuspendLayout();
-            //    tlpBoard.Controls.Remove(acceptClearButtons1);
-            //    if (Globals.CradleOrientation == Cradle.Orientations.Vertical)
-            //    {
-            //        tlpBoard.Controls.Remove(cradle1);
-            //    }
-            //    tlpBoard.Controls.Add(acceptClearButtons1, Globals.RightHanded ? 0 : 2, 0);
-            //    if (Globals.CradleOrientation == Cradle.Orientations.Vertical)
-            //    {
-            //        tlpBoard.Controls.Add(cradle1, Globals.RightHanded ? 2 : 0, 0);
-            //    }
-            //    tlpBoard.ResumeLayout(false);
-            //    tlpBoard.PerformLayout();
-
-            //    pegBoard1.ChangedOrientation();
-            //    SetPlayerCradleForPlayerAtBottom();
-            //}
         }
-        //private void SetPlayerCradleForPlayerAtBottom()
-        //{
-        //    if (tlpCradleBoardCradle.Controls.Contains(cradle1))
-        //    {
-        //        tlpCradleBoardCradle.SuspendLayout();
-        //        tlpCradleBoardCradle.Controls.Remove(cradle1);
-        //        tlpCradleBoardCradle.Controls.Add(cradle1, 0, 2);
-        //        tlpCradleBoardCradle.ResumeLayout(false);
-        //        tlpCradleBoardCradle.PerformLayout();
-        //    }
-        //    else
-        //    {
-        //        tlpBoard.SuspendLayout();
-        //        tlpBoard.Controls.Remove(acceptClearButtons1);
-        //        tlpBoard.Controls.Remove(cradle1);
-        //        tlpBoard.Controls.Add(cradle1, Globals.RightHanded ? 2 : 0, 0);
-        //        tlpBoard.Controls.Add(acceptClearButtons1, Globals.RightHanded ? 0 : 2, 0);
-        //        tlpBoard.ResumeLayout(false);
-        //        tlpBoard.PerformLayout();
-        //    }
-        //    cradle1.Dock = DockStyle.Bottom;
-        //}
         private void playerAtTopToolStripMenuItem_Click(object sender, EventArgs e)
         {
             playerAtBottomToolStripMenuItem.Checked = false;
             playerAtTopToolStripMenuItem.Checked = true;
             Globals.TopToBottom = true;
             ArrangeGameSurface();
-            //if (Globals.BottomToTop)
-            //{
-            //    playerAtBottomToolStripMenuItem.Checked = false;
-            //    playerAtTopToolStripMenuItem.Checked = true;
-            //    Globals.TopToBottom = true;
-
-            //    tlpBoard.SuspendLayout();
-            //    tlpBoard.Controls.Remove(acceptClearButtons1);
-            //    if (Globals.CradleOrientation == Cradle.Orientations.Vertical)
-            //    {
-            //        tlpBoard.Controls.Remove(cradle1);
-            //    }
-            //    tlpBoard.Controls.Add(acceptClearButtons1, Globals.RightHanded ? 2 : 0, 0);
-            //    if (Globals.CradleOrientation == Cradle.Orientations.Vertical)
-            //    {
-            //        tlpBoard.Controls.Add(cradle1, Globals.RightHanded ? 0 : 2, 0);
-            //    }
-            //    tlpBoard.ResumeLayout(false);
-            //    tlpBoard.PerformLayout();
-
-            //    pegBoard1.ChangedOrientation();
-            //    SetPlayerCradleForPlayerAtTop();
-            //}
         }
-        //private void SetPlayerCradleForPlayerAtTop()
-        //{
-        //    if (tlpCradleBoardCradle.Controls.Contains(cradle1))
-        //    {
-        //        tlpCradleBoardCradle.SuspendLayout();
-        //        tlpCradleBoardCradle.Controls.Remove(cradle1);
-        //        tlpCradleBoardCradle.Controls.Add(cradle1, 0, 0);
-        //        tlpCradleBoardCradle.ResumeLayout(false);
-        //        tlpCradleBoardCradle.PerformLayout();
-        //    }
-        //    else
-        //    {
-        //        tlpBoard.SuspendLayout();
-        //        tlpBoard.Controls.Remove(acceptClearButtons1);
-        //        tlpBoard.Controls.Remove(cradle1);
-        //        tlpBoard.Controls.Add(cradle1, Globals.LeftHanded ? 2 : 0, 0);
-        //        tlpBoard.Controls.Add(acceptClearButtons1, Globals.LeftHanded ? 0 : 2, 0);
-        //        tlpBoard.ResumeLayout(false);
-        //        tlpBoard.PerformLayout();
-        //    }
-        //    cradle1.Dock = DockStyle.Top;
-        //}
         private void verticalTrayToolStripMenuItem_Click(object sender, EventArgs e)
         {
             verticalTrayToolStripMenuItem.Checked = true;
@@ -267,34 +83,7 @@ namespace MasterMind
             cradle1.Orientation = Cradle.Orientations.Vertical;
             Globals.CradleOrientation = Cradle.Orientations.Vertical;
             ArrangeGameSurface();
-            //if (cradle1.Orientation == Cradle.Orientations.Horizontal)
-            //{
-            //    MakeCradleVertical();
-            //}
         }
-        //private void MakeCradleVertical()
-        //{
-        //    verticalTrayToolStripMenuItem.Checked = true;
-        //    horizontalTrayToolStripMenuItem.Checked = false;
-        //    cradle1.Orientation = Cradle.Orientations.Vertical;
-        //    Globals.CradleOrientation = Cradle.Orientations.Vertical;
-
-        //    tlpCradleBoardCradle.SuspendLayout();
-        //    tlpCradleBoardCradle.Controls.Remove(cradle1);
-        //    tlpCradleBoardCradle.ResumeLayout(false);
-        //    tlpCradleBoardCradle.PerformLayout();
-        //    tlpBoard.SuspendLayout();
-        //    if (Globals.BottomToTop)
-        //    {
-        //        tlpBoard.Controls.Add(cradle1, Globals.RightHanded ? 2 : 0, 0);
-        //    }
-        //    else
-        //    {
-        //        tlpBoard.Controls.Add(cradle1, Globals.RightHanded ? 0 : 2, 0);
-        //    }
-        //    tlpBoard.ResumeLayout(false);
-        //    tlpBoard.PerformLayout();
-        //}
         private void horizontalTrayToolStripMenuItem_Click(object sender, EventArgs e)
         {
             verticalTrayToolStripMenuItem.Checked = false;
@@ -302,36 +91,16 @@ namespace MasterMind
             cradle1.Orientation = Cradle.Orientations.Horizontal;
             Globals.CradleOrientation = Cradle.Orientations.Horizontal;
             ArrangeGameSurface();
-            //if (cradle1.Orientation == Cradle.Orientations.Vertical)
-            //{
-            //    MakeCradleHorizontal();
-            //}
         }
-        //private void MakeCradleHorizontal()
-        //{
-        //    verticalTrayToolStripMenuItem.Checked = false;
-        //    horizontalTrayToolStripMenuItem.Checked = true;
-        //    cradle1.Orientation = Cradle.Orientations.Horizontal;
-        //    Globals.CradleOrientation = Cradle.Orientations.Horizontal;
-
-        //    tlpBoard.SuspendLayout();
-        //    tlpBoard.Controls.Remove(cradle1);
-        //    tlpBoard.ResumeLayout(false);
-        //    tlpBoard.PerformLayout();
-        //    tlpCradleBoardCradle.SuspendLayout();
-        //    tlpCradleBoardCradle.Controls.Add(cradle1, 0, Globals.BottomToTop ? 2 : 0);
-        //    tlpCradleBoardCradle.ResumeLayout(false);
-        //    tlpCradleBoardCradle.PerformLayout();
-        //}
 
         private void ArrangeGameSurface()
         {
             tlpCradleBoardCradle.SuspendLayout();
             tlpBoard.SuspendLayout();
-            tlpBoard.ResumeLayout(false);
 
             if (Globals.CradleOrientation == Cradle.Orientations.Vertical)
             {
+                cradle1.Orientation = Cradle.Orientations.Vertical;
                 if (tlpCradleBoardCradle.Controls.Contains(cradle1))
                 {
                     tlpCradleBoardCradle.Controls.Remove(cradle1);
@@ -343,7 +112,7 @@ namespace MasterMind
                             {
                                 tlpBoard.Controls.Remove(acceptClearButtons1);
                                 tlpBoard.Controls.Add(acceptClearButtons1, 0, 0);
-                                tlpBoard.PerformLayout();
+                                //tlpBoard.PerformLayout();
                             }
                             tlpBoard.Controls.Add(cradle1, 2, 0);
                         }
@@ -353,11 +122,12 @@ namespace MasterMind
                             {
                                 tlpBoard.Controls.Remove(acceptClearButtons1);
                                 tlpBoard.Controls.Add(acceptClearButtons1, 2, 0);
-                                tlpBoard.PerformLayout();
+                                //tlpBoard.PerformLayout();
                             }
                             tlpBoard.Controls.Add(cradle1, 0, 0);
                         }
                         cradle1.Dock = DockStyle.Bottom;
+                        cradle1.PegDirection = Cradle.PegDirections.LeftToRight;
                     }
                     else
                     {
@@ -367,7 +137,7 @@ namespace MasterMind
                             {
                                 tlpBoard.Controls.Remove(acceptClearButtons1);
                                 tlpBoard.Controls.Add(acceptClearButtons1, 0, 0);
-                                tlpBoard.PerformLayout();
+                                //tlpBoard.PerformLayout();
                             }
                             tlpBoard.Controls.Add(cradle1, 2, 0);
                         }
@@ -377,11 +147,12 @@ namespace MasterMind
                             {
                                 tlpBoard.Controls.Remove(acceptClearButtons1);
                                 tlpBoard.Controls.Add(acceptClearButtons1, 2, 0);
-                                tlpBoard.PerformLayout();
+                                //tlpBoard.PerformLayout();
                             }
                             tlpBoard.Controls.Add(cradle1, 0, 0);
                         }
                         cradle1.Dock = DockStyle.Top;
+                        cradle1.PegDirection = Cradle.PegDirections.RightToLeft;
                     }
                 }
                 else
@@ -395,7 +166,7 @@ namespace MasterMind
                                 tlpBoard.Controls.Remove(cradle1);
                                 tlpBoard.Controls.Remove(acceptClearButtons1);
                                 tlpBoard.Controls.Add(acceptClearButtons1, 0, 0);
-                                tlpBoard.PerformLayout();
+                                //tlpBoard.PerformLayout();
                                 tlpBoard.Controls.Add(cradle1, 2, 0);
                             }
                         }
@@ -406,11 +177,12 @@ namespace MasterMind
                                 tlpBoard.Controls.Remove(acceptClearButtons1);
                                 tlpBoard.Controls.Remove(cradle1);
                                 tlpBoard.Controls.Add(cradle1, 0, 0);
-                                tlpBoard.PerformLayout();
+                                //tlpBoard.PerformLayout();
                                 tlpBoard.Controls.Add(acceptClearButtons1, 2, 0);
                              }
                         }
                         cradle1.Dock = DockStyle.Bottom;
+                        cradle1.PegDirection = Cradle.PegDirections.LeftToRight;
                     }
                     else
                     {
@@ -421,7 +193,7 @@ namespace MasterMind
                                 tlpBoard.Controls.Remove(cradle1);
                                 tlpBoard.Controls.Remove(acceptClearButtons1);
                                 tlpBoard.Controls.Add(acceptClearButtons1, 0, 0);
-                                tlpBoard.PerformLayout();
+                                //tlpBoard.PerformLayout();
                                 tlpBoard.Controls.Add(cradle1, 2, 0);
                             }
                         }
@@ -432,17 +204,18 @@ namespace MasterMind
                                 tlpBoard.Controls.Remove(acceptClearButtons1);
                                 tlpBoard.Controls.Remove(cradle1);
                                 tlpBoard.Controls.Add(cradle1, 0, 0);
-                                tlpBoard.PerformLayout();
+                                //tlpBoard.PerformLayout();
                                 tlpBoard.Controls.Add(acceptClearButtons1, 2, 0);
                             }
                         }
                         cradle1.Dock = DockStyle.Top;
+                        cradle1.PegDirection = Cradle.PegDirections.RightToLeft;
                     }
                 }
-                cradle1.Orientation = Cradle.Orientations.Vertical;
             }
             else 
             {
+                cradle1.Orientation = Cradle.Orientations.Horizontal;
                 if (tlpBoard.Controls.Contains(cradle1))
                 {
                     tlpBoard.Controls.Remove(cradle1);
@@ -454,7 +227,7 @@ namespace MasterMind
                             {
                                 tlpBoard.Controls.Remove(acceptClearButtons1);
                                 tlpBoard.Controls.Add(acceptClearButtons1, 0, 0);
-                                tlpBoard.PerformLayout();
+                                //tlpBoard.PerformLayout();
                             }
                         }
                         else
@@ -463,10 +236,11 @@ namespace MasterMind
                             {
                                 tlpBoard.Controls.Remove(acceptClearButtons1);
                                 tlpBoard.Controls.Add(acceptClearButtons1, 2, 0);
-                                tlpBoard.PerformLayout();
+                                //tlpBoard.PerformLayout();
                             }
                         }
                         tlpCradleBoardCradle.Controls.Add(cradle1, 0, 2);
+                        cradle1.PegDirection = Cradle.PegDirections.LeftToRight;
                     }
                     else
                     {
@@ -476,7 +250,7 @@ namespace MasterMind
                             {
                                 tlpBoard.Controls.Remove(acceptClearButtons1);
                                 tlpBoard.Controls.Add(acceptClearButtons1, 0, 0);
-                                tlpBoard.PerformLayout();
+                                //tlpBoard.PerformLayout();
                             }
                         }
                         else
@@ -485,10 +259,11 @@ namespace MasterMind
                             {
                                 tlpBoard.Controls.Remove(acceptClearButtons1);
                                 tlpBoard.Controls.Add(acceptClearButtons1, 2, 0);
-                                tlpBoard.PerformLayout();
+                                //tlpBoard.PerformLayout();
                             }
                         }
                         tlpCradleBoardCradle.Controls.Add(cradle1, 0, 0);
+                        cradle1.PegDirection = Cradle.PegDirections.RightToLeft;
                     }
                 }
                 else
@@ -517,6 +292,7 @@ namespace MasterMind
                             }
                         }
                         cradle1.Dock = DockStyle.Bottom;
+                        cradle1.PegDirection = Cradle.PegDirections.LeftToRight;
                     }
                     else
                     {
@@ -542,12 +318,13 @@ namespace MasterMind
                             }
                         }
                         cradle1.Dock = DockStyle.Top;
+                        cradle1.PegDirection = Cradle.PegDirections.RightToLeft;
                     }
                 }
-                cradle1.Orientation = Cradle.Orientations.Horizontal;
             }
             pegBoard1.ChangedOrientation();     // this need be done only when the board is flipped
 
+            tlpBoard.ResumeLayout(false);
             tlpCradleBoardCradle.ResumeLayout(false);
             tlpBoard.PerformLayout();
             tlpCradleBoardCradle.PerformLayout();
