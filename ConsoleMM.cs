@@ -50,6 +50,7 @@ namespace MasterMind
         #region "Tabletop configuration"
         private void righthandedToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            Trace.WriteLine("RightHanded");
             righthandedToolStripMenuItem.Checked = true;
             lefthandedToolStripMenuItem.Checked = false;
             Globals.RightHanded = true;
@@ -57,6 +58,7 @@ namespace MasterMind
         }
         private void lefthandedToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            Trace.WriteLine("LeftHanded");
             righthandedToolStripMenuItem.Checked = false;
             lefthandedToolStripMenuItem.Checked = true;
             Globals.LeftHanded = true;
@@ -64,6 +66,7 @@ namespace MasterMind
         }
         private void playerAtBottomToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            Trace.WriteLine("BottomToTop");
             playerAtBottomToolStripMenuItem.Checked = true;
             playerAtTopToolStripMenuItem.Checked = false;
             Globals.BottomToTop = true;
@@ -71,6 +74,7 @@ namespace MasterMind
         }
         private void playerAtTopToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            Trace.WriteLine("TopToBottom");
             playerAtBottomToolStripMenuItem.Checked = false;
             playerAtTopToolStripMenuItem.Checked = true;
             Globals.TopToBottom = true;
@@ -78,17 +82,17 @@ namespace MasterMind
         }
         private void verticalTrayToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            Trace.WriteLine("Vertical");
             verticalTrayToolStripMenuItem.Checked = true;
             horizontalTrayToolStripMenuItem.Checked = false;
-            cradle1.Orientation = Cradle.Orientations.Vertical;
             Globals.CradleOrientation = Cradle.Orientations.Vertical;
             ArrangeGameSurface();
         }
         private void horizontalTrayToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            Trace.WriteLine("Horizontal");
             verticalTrayToolStripMenuItem.Checked = false;
             horizontalTrayToolStripMenuItem.Checked = true;
-            cradle1.Orientation = Cradle.Orientations.Horizontal;
             Globals.CradleOrientation = Cradle.Orientations.Horizontal;
             ArrangeGameSurface();
         }
@@ -112,7 +116,6 @@ namespace MasterMind
                             {
                                 tlpBoard.Controls.Remove(acceptClearButtons1);
                                 tlpBoard.Controls.Add(acceptClearButtons1, 0, 0);
-                                //tlpBoard.PerformLayout();
                             }
                             tlpBoard.Controls.Add(cradle1, 2, 0);
                         }
@@ -122,7 +125,6 @@ namespace MasterMind
                             {
                                 tlpBoard.Controls.Remove(acceptClearButtons1);
                                 tlpBoard.Controls.Add(acceptClearButtons1, 2, 0);
-                                //tlpBoard.PerformLayout();
                             }
                             tlpBoard.Controls.Add(cradle1, 0, 0);
                         }
@@ -137,7 +139,6 @@ namespace MasterMind
                             {
                                 tlpBoard.Controls.Remove(acceptClearButtons1);
                                 tlpBoard.Controls.Add(acceptClearButtons1, 0, 0);
-                                //tlpBoard.PerformLayout();
                             }
                             tlpBoard.Controls.Add(cradle1, 2, 0);
                         }
@@ -147,7 +148,6 @@ namespace MasterMind
                             {
                                 tlpBoard.Controls.Remove(acceptClearButtons1);
                                 tlpBoard.Controls.Add(acceptClearButtons1, 2, 0);
-                                //tlpBoard.PerformLayout();
                             }
                             tlpBoard.Controls.Add(cradle1, 0, 0);
                         }
@@ -166,7 +166,6 @@ namespace MasterMind
                                 tlpBoard.Controls.Remove(cradle1);
                                 tlpBoard.Controls.Remove(acceptClearButtons1);
                                 tlpBoard.Controls.Add(acceptClearButtons1, 0, 0);
-                                //tlpBoard.PerformLayout();
                                 tlpBoard.Controls.Add(cradle1, 2, 0);
                             }
                         }
@@ -177,7 +176,6 @@ namespace MasterMind
                                 tlpBoard.Controls.Remove(acceptClearButtons1);
                                 tlpBoard.Controls.Remove(cradle1);
                                 tlpBoard.Controls.Add(cradle1, 0, 0);
-                                //tlpBoard.PerformLayout();
                                 tlpBoard.Controls.Add(acceptClearButtons1, 2, 0);
                              }
                         }
@@ -193,7 +191,6 @@ namespace MasterMind
                                 tlpBoard.Controls.Remove(cradle1);
                                 tlpBoard.Controls.Remove(acceptClearButtons1);
                                 tlpBoard.Controls.Add(acceptClearButtons1, 0, 0);
-                                //tlpBoard.PerformLayout();
                                 tlpBoard.Controls.Add(cradle1, 2, 0);
                             }
                         }
@@ -204,7 +201,6 @@ namespace MasterMind
                                 tlpBoard.Controls.Remove(acceptClearButtons1);
                                 tlpBoard.Controls.Remove(cradle1);
                                 tlpBoard.Controls.Add(cradle1, 0, 0);
-                                //tlpBoard.PerformLayout();
                                 tlpBoard.Controls.Add(acceptClearButtons1, 2, 0);
                             }
                         }
@@ -216,6 +212,8 @@ namespace MasterMind
             else 
             {
                 cradle1.Orientation = Cradle.Orientations.Horizontal;
+                cradle1.Dock = DockStyle.None;
+                cradle1.Anchor = AnchorStyles.None;
                 if (tlpBoard.Controls.Contains(cradle1))
                 {
                     tlpBoard.Controls.Remove(cradle1);
@@ -227,7 +225,6 @@ namespace MasterMind
                             {
                                 tlpBoard.Controls.Remove(acceptClearButtons1);
                                 tlpBoard.Controls.Add(acceptClearButtons1, 0, 0);
-                                //tlpBoard.PerformLayout();
                             }
                         }
                         else
@@ -236,7 +233,6 @@ namespace MasterMind
                             {
                                 tlpBoard.Controls.Remove(acceptClearButtons1);
                                 tlpBoard.Controls.Add(acceptClearButtons1, 2, 0);
-                                //tlpBoard.PerformLayout();
                             }
                         }
                         tlpCradleBoardCradle.Controls.Add(cradle1, 0, 2);
@@ -250,7 +246,6 @@ namespace MasterMind
                             {
                                 tlpBoard.Controls.Remove(acceptClearButtons1);
                                 tlpBoard.Controls.Add(acceptClearButtons1, 0, 0);
-                                //tlpBoard.PerformLayout();
                             }
                         }
                         else
@@ -259,7 +254,6 @@ namespace MasterMind
                             {
                                 tlpBoard.Controls.Remove(acceptClearButtons1);
                                 tlpBoard.Controls.Add(acceptClearButtons1, 2, 0);
-                                //tlpBoard.PerformLayout();
                             }
                         }
                         tlpCradleBoardCradle.Controls.Add(cradle1, 0, 0);
@@ -322,7 +316,7 @@ namespace MasterMind
                     }
                 }
             }
-            pegBoard1.ChangedOrientation();     // this need be done only when the board is flipped
+            pegBoard1.ChangedOrientation();     // updates peg positions
 
             tlpBoard.ResumeLayout(false);
             tlpCradleBoardCradle.ResumeLayout(false);

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Security.Cryptography;
@@ -18,34 +19,44 @@ namespace MasterMind
             InitializeComponent();
             InitializeControls();
         }
-        private void InitializeControls()
+        private void InitializeControls(IEnumerable<Peg> sourcePegs = null)
         {
             Controls.Clear();
+            PerformLayout();
             TableLayoutPanel tlp = new TableLayoutPanel()
             {
                 AutoSize = true,
                 AutoSizeMode = AutoSizeMode.GrowAndShrink,
                 Dock = DockStyle.Fill,
+                GrowStyle = TableLayoutPanelGrowStyle.FixedSize,
                 Margin = new Padding(3),
             };
             Peg peg;
             List<Peg> Pegs = new List<Peg>();
-            for (int i = 0; i < shhPegCount; i++)
+            if (sourcePegs == null)
             {
-                if (IsSource)
+                for (int i = 0; i < shhPegCount; i++)
                 {
-                    peg = new Peg() { Name = $"Cradle[{Name}][{Globals.ColorsInUse[i]}],IsSource=true", PegColor = Globals.ColorsInUse[i], Margin = new Padding(Globals.GamePegDiameter / 2), Size = new Size(Globals.GamePegDiameter, Globals.GamePegDiameter), AllowCopy = false, AllowDrop = true, AllowMove = false, AllowSwap = true };
+                    if (IsSource)
+                    {
+                        peg = new Peg() { Name = $"Cradle[{Name}][{Globals.ColorsInUse[i]}],IsSource=true", PegColor = Globals.ColorsInUse[i], Margin = new Padding(Globals.GamePegDiameter / 2), Size = new Size(Globals.GamePegDiameter, Globals.GamePegDiameter), AllowCopy = false, AllowDrop = true, AllowMove = false, AllowSwap = true };
+                    }
+                    else
+                    {
+                        peg = new Peg() { Name = $"Cradle[{Name}][{Globals.ColorsInUse[i]}],IsSource=false", Margin = new Padding(Globals.GamePegDiameter / 2), Size = new Size(Globals.GamePegDiameter, Globals.GamePegDiameter), AllowCopy = true, AllowDrop = true, AllowMove = true, AllowSwap = true };
+                    }
+                    peg.PegSelected += Peg_Selected;
+                    peg.PegDroppedOnPeg += Peg_DroppedOnPeg;
+                    Pegs.Add(peg);
                 }
-                else
-                {
-                    peg = new Peg() { Name = $"Cradle[{Name}][{Globals.ColorsInUse[i]}],IsSource=false", Margin = new Padding(Globals.GamePegDiameter / 2), Size = new Size(Globals.GamePegDiameter, Globals.GamePegDiameter), AllowCopy = true, AllowDrop = true, AllowMove = true, AllowSwap = true };
-                }
-                peg.PegSelected += Peg_Selected;
-                peg.PegDroppedOnPeg += Peg_DroppedOnPeg;
-                Pegs.Add(peg);
+            }
+            else
+            {
+                Pegs.AddRange(sourcePegs);
             }
             if (Orientation == Orientations.Vertical)
             {
+                tlp.GrowStyle = TableLayoutPanelGrowStyle.AddRows;
                 tlp.RowCount = shhPegCount;
                 tlp.ColumnCount = 1;
                 tlp.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
@@ -56,6 +67,7 @@ namespace MasterMind
             }
             else
             {
+                tlp.GrowStyle = TableLayoutPanelGrowStyle.AddColumns;
                 tlp.RowCount = 1;
                 tlp.ColumnCount = shhPegCount;
                 tlp.RowStyles.Add(new RowStyle(SizeType.AutoSize));
@@ -66,6 +78,8 @@ namespace MasterMind
             }
             tlp.Controls.AddRange(Pegs.ToArray());
             Controls.Add(tlp);
+            tlp.PerformLayout();
+            PerformLayout();
         }
         public enum Orientations
         {
@@ -84,32 +98,11 @@ namespace MasterMind
                 if (value != shhOrientation)
                 {
                     shhOrientation = value;
-                    TableLayoutPanel tlp =  this.Controls.OfType<TableLayoutPanel>().First();
-                    tlp.SuspendLayout();
-                    tlp.ColumnStyles.Clear();
-                    tlp.RowStyles.Clear();
-                    if (shhOrientation == Orientations.Vertical)
-                    {
-                        tlp.ColumnCount = 1;
-                        tlp.RowCount = Globals.ColorsInUse.Count();
-                        tlp.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-                        for (int i = 0; i < tlp.RowCount; i++)
-                        {
-                            tlp.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-                        }
-                    }
-                    else
-                    {
-                        tlp.ColumnCount = Globals.ColorsInUse.Count();
-                        tlp.RowCount = 1;
-                        tlp.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-                        for (int i = 0; i < tlp.ColumnCount; i++)
-                        {
-                            tlp.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-                        }
-                    }
-                    tlp.ResumeLayout(false);
-                    tlp.PerformLayout();
+
+                    Peg[] pegs = new Peg[Globals.ColorsInUse.Count];
+                    (this.Controls.OfType<TableLayoutPanel>().First()).Controls.CopyTo(pegs, 0);
+
+                    InitializeControls(pegs);
                 }
             }
         }
@@ -130,22 +123,24 @@ namespace MasterMind
                 if (value != shhPegDirection)
                 {
                     TableLayoutPanel tlp = this.Controls.OfType<TableLayoutPanel>().First();
-                    Peg[] pegs = new Peg[6];
-                    tlp.SuspendLayout();
+                    Peg[] pegs = new Peg[Globals.ColorsInUse.Count];
                     if (Orientation == Orientations.Vertical)
                     {
-                        if (tlp.RowCount < 6)
+                        if (tlp.RowCount < Globals.ColorsInUse.Count)
                         {
-                            tlp.Invalidate();
-                        }
-                        for (int row = Globals.ColorsInUse.Count - 1; row >= 0; row--)
-                        {
-                            pegs[row] = (Peg)(tlp.GetControlFromPosition(0, row));
-                            if (pegs[row] == null)
+                            for (int col = Globals.ColorsInUse.Count - 1; col >= 0; col--)
                             {
-                                throw new Exception();
+                                pegs[col] = (Peg)(tlp.Controls[col]);
+                                tlp.Controls.Remove(pegs[col]);
                             }
-                            tlp.Controls.Remove(pegs[row]);
+                        }
+                        else
+                        {
+                            for (int row = Globals.ColorsInUse.Count - 1; row >= 0; row--)
+                            {
+                                pegs[row] = (Peg)(tlp.Controls[row]);
+                                tlp.Controls.Remove(pegs[row]);
+                            }
                         }
                         for (int newRow = 0, oldRow = Globals.ColorsInUse.Count - 1; oldRow >= 0; newRow++, oldRow--)
                         {
@@ -154,18 +149,21 @@ namespace MasterMind
                     }
                     else
                     {
-                        if (tlp.ColumnCount < 6)
+                        if (tlp.ColumnCount < Globals.ColorsInUse.Count)
                         {
-                            tlp.Invalidate();
-                        }
-                        for (int col = Globals.ColorsInUse.Count - 1; col >= 0; col--)
-                        {
-                            pegs[col] = (Peg)(tlp.GetControlFromPosition(col, 0));
-                            if (pegs[col] == null)
+                            for (int row = Globals.ColorsInUse.Count - 1; row >= 0; row--)
                             {
-                                throw new Exception();
+                                pegs[row] = (Peg)(tlp.Controls[row]);
+                                tlp.Controls.Remove(pegs[row]);
                             }
-                            tlp.Controls.Remove(pegs[col]);
+                        }
+                        else
+                        {
+                            for (int col = Globals.ColorsInUse.Count - 1; col >= 0; col--)
+                            {
+                                pegs[col] = (Peg)(tlp.Controls[col]);
+                                tlp.Controls.Remove(pegs[col]);
+                            }
                         }
                         for (int newCol = 0, oldCol = Globals.ColorsInUse.Count - 1; oldCol >= 0; newCol++, oldCol--)
                         {
@@ -173,7 +171,6 @@ namespace MasterMind
                         }
                     }
                     shhPegDirection = value;
-                    tlp.ResumeLayout(false);
                     tlp.PerformLayout();
                 }
             }

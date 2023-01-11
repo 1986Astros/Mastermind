@@ -154,7 +154,7 @@
             this.pegBoard1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pegBoard1.CurrentGame = currentGame1;
             this.pegBoard1.Enabled = false;
-            this.pegBoard1.Location = new System.Drawing.Point(29, 3);
+            this.pegBoard1.Location = new System.Drawing.Point(31, 4);
             this.pegBoard1.Name = "pegBoard1";
             this.pegBoard1.ShowSolution = false;
             this.pegBoard1.Size = new System.Drawing.Size(192, 462);
@@ -170,9 +170,10 @@
             this.cradle1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.cradle1.Enabled = false;
             this.cradle1.IsSource = true;
-            this.cradle1.Location = new System.Drawing.Point(227, 225);
+            this.cradle1.Location = new System.Drawing.Point(230, 226);
             this.cradle1.Name = "cradle1";
             this.cradle1.PegCount = 6;
+            this.cradle1.PegDirection = MasterMind.Cradle.PegDirections.LeftToRight;
             this.cradle1.Size = new System.Drawing.Size(40, 240);
             this.cradle1.TabIndex = 3;
             // 
@@ -180,7 +181,7 @@
             // 
             this.acceptClearButtons1.AcceptEnabled = false;
             this.acceptClearButtons1.ClearEnabled = false;
-            this.acceptClearButtons1.Location = new System.Drawing.Point(3, 3);
+            this.acceptClearButtons1.Location = new System.Drawing.Point(4, 4);
             this.acceptClearButtons1.Name = "acceptClearButtons1";
             this.acceptClearButtons1.Size = new System.Drawing.Size(20, 39);
             this.acceptClearButtons1.TabIndex = 4;
@@ -199,7 +200,7 @@
             this.tlpVerso.RowCount = 2;
             this.tlpVerso.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tlpVerso.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tlpVerso.Size = new System.Drawing.Size(282, 598);
+            this.tlpVerso.Size = new System.Drawing.Size(288, 604);
             this.tlpVerso.TabIndex = 6;
             // 
             // gameflowControl1
@@ -210,7 +211,7 @@
             this.gameflowControl1.Location = new System.Drawing.Point(3, 3);
             this.gameflowControl1.MessageType = MasterMind.GameflowControl.MessageTypes.Start;
             this.gameflowControl1.Name = "gameflowControl1";
-            this.gameflowControl1.Size = new System.Drawing.Size(276, 112);
+            this.gameflowControl1.Size = new System.Drawing.Size(282, 112);
             this.gameflowControl1.TabIndex = 10;
             this.gameflowControl1.StartGame += new MasterMind.GameflowControl.StartEventHandler(this.gameflowControl1_StartGame);
             this.gameflowControl1.NextPlayer += new MasterMind.GameflowControl.NextPlayerHandler(this.gameflowControl1_NextPlayer);
@@ -221,6 +222,7 @@
             this.tlpCradleBoardCradle.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.tlpCradleBoardCradle.AutoSize = true;
             this.tlpCradleBoardCradle.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.tlpCradleBoardCradle.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.Single;
             this.tlpCradleBoardCradle.ColumnCount = 1;
             this.tlpCradleBoardCradle.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tlpCradleBoardCradle.Controls.Add(this.tlpBoard, 0, 1);
@@ -231,7 +233,7 @@
             this.tlpCradleBoardCradle.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tlpCradleBoardCradle.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tlpCradleBoardCradle.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tlpCradleBoardCradle.Size = new System.Drawing.Size(276, 474);
+            this.tlpCradleBoardCradle.Size = new System.Drawing.Size(282, 480);
             this.tlpCradleBoardCradle.TabIndex = 0;
             // 
             // tlpBoard
@@ -239,6 +241,7 @@
             this.tlpBoard.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.tlpBoard.AutoSize = true;
             this.tlpBoard.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.tlpBoard.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.Single;
             this.tlpBoard.ColumnCount = 3;
             this.tlpBoard.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tlpBoard.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
@@ -247,11 +250,11 @@
             this.tlpBoard.Controls.Add(this.pegBoard1, 1, 0);
             this.tlpBoard.Controls.Add(this.acceptClearButtons1, 0, 0);
             this.tlpBoard.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.FixedSize;
-            this.tlpBoard.Location = new System.Drawing.Point(3, 3);
+            this.tlpBoard.Location = new System.Drawing.Point(4, 5);
             this.tlpBoard.Name = "tlpBoard";
             this.tlpBoard.RowCount = 1;
             this.tlpBoard.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tlpBoard.Size = new System.Drawing.Size(270, 468);
+            this.tlpBoard.Size = new System.Drawing.Size(274, 470);
             this.tlpBoard.TabIndex = 0;
             // 
             // tableLayoutPanelScorecards
@@ -291,9 +294,9 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panelScorecardOuter.AutoScroll = true;
             this.panelScorecardOuter.Controls.Add(this.panelScorecardInner);
-            this.panelScorecardOuter.Location = new System.Drawing.Point(291, 3);
+            this.panelScorecardOuter.Location = new System.Drawing.Point(297, 3);
             this.panelScorecardOuter.Name = "panelScorecardOuter";
-            this.panelScorecardOuter.Size = new System.Drawing.Size(902, 600);
+            this.panelScorecardOuter.Size = new System.Drawing.Size(896, 604);
             this.panelScorecardOuter.TabIndex = 7;
             // 
             // panelScorecardInner
