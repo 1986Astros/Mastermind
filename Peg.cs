@@ -200,7 +200,7 @@ namespace MasterMind
                     Cursor.Current = Globals.PegMoveCursor;
                     e.UseDefaultCursors = false;
                 }
-                else if (AllowSwap)
+                else if (AllowSwap )
                 {
                     Cursor.Current = Globals.PegSwapCursor;
                     e.UseDefaultCursors = false;
@@ -262,7 +262,10 @@ namespace MasterMind
             {
                 if  (e.Effect == DragDropEffects.Move)
                 {
-                    PegDroppedOnPeg?.Invoke(this, new PegDroppedOnPegEventArgs(this, (Peg)e.Data.GetData(typeof(Peg))));
+                    if (((Peg)sender).Parent == ((Peg)e.Data.GetData(typeof(Peg))).Parent)
+                    {
+                        PegDroppedOnPeg?.Invoke(this, new PegDroppedOnPegEventArgs(this, (Peg)e.Data.GetData(typeof(Peg))));
+                    }
                 }
             }
         }

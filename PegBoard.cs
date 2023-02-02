@@ -120,7 +120,7 @@ namespace MasterMind
             ResumeLayout();
         }
 
-        #region "Control sizing"
+#region "Control sizing"
         private Size RowSize;
         private Size PegRowSize;
         private Size ResultsRowSize;
