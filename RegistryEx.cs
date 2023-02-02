@@ -270,7 +270,6 @@ namespace RegistryExtensions
             bool IsVisible = false;
             foreach (Screen s in Screen.AllScreens)
             {
-                System.Diagnostics.Debug.WriteLine(s.ToString());
                 if  (FormLeft >=  s.Bounds.Left && FormTop >=s. Bounds.Top && FormLeft < (s.Bounds.Right  - 20) && FormTop < (s.Bounds.Bottom - 20))
                 {
                     IsVisible = true;
