@@ -233,7 +233,7 @@ namespace MasterMind
                     tsmi = new ToolStripMenuItem(pi.PlayerName, null, new EventHandler(humanPlayerToolStripMenuItem_Click))
                     {
                         Checked = pi.PlayerName == PlayerName,
-                        Enabled = !Globals.NamePlates.Any(np => np.PlayerName.Equals(pi.PlayerName, StringComparison.CurrentCultureIgnoreCase))
+                        Enabled = !Globals.NamePlates.Any(np => np.PlayerName.Equals(pi.PlayerName, StringComparison.CurrentCultureIgnoreCase)) && pi.PlayerName != "Úrsula"
                     };
                     items.Add(tsmi);
                 }

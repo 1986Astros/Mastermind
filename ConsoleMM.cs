@@ -50,7 +50,6 @@ namespace MasterMind
         #region "Tabletop configuration"
         private void righthandedToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Trace.WriteLine("RightHanded");
             righthandedToolStripMenuItem.Checked = true;
             lefthandedToolStripMenuItem.Checked = false;
             Globals.RightHanded = true;
@@ -58,7 +57,6 @@ namespace MasterMind
         }
         private void lefthandedToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Trace.WriteLine("LeftHanded");
             righthandedToolStripMenuItem.Checked = false;
             lefthandedToolStripMenuItem.Checked = true;
             Globals.LeftHanded = true;
@@ -66,7 +64,6 @@ namespace MasterMind
         }
         private void playerAtBottomToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Trace.WriteLine("BottomToTop");
             playerAtBottomToolStripMenuItem.Checked = true;
             playerAtTopToolStripMenuItem.Checked = false;
             Globals.BottomToTop = true;
@@ -74,7 +71,6 @@ namespace MasterMind
         }
         private void playerAtTopToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Trace.WriteLine("TopToBottom");
             playerAtBottomToolStripMenuItem.Checked = false;
             playerAtTopToolStripMenuItem.Checked = true;
             Globals.TopToBottom = true;
@@ -82,7 +78,6 @@ namespace MasterMind
         }
         private void verticalTrayToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Trace.WriteLine("Vertical");
             verticalTrayToolStripMenuItem.Checked = true;
             horizontalTrayToolStripMenuItem.Checked = false;
             Globals.CradleOrientation = Cradle.Orientations.Vertical;
@@ -90,7 +85,6 @@ namespace MasterMind
         }
         private void horizontalTrayToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Trace.WriteLine("Horizontal");
             verticalTrayToolStripMenuItem.Checked = false;
             horizontalTrayToolStripMenuItem.Checked = true;
             Globals.CradleOrientation = Cradle.Orientations.Horizontal;
